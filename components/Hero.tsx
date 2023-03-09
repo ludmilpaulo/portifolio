@@ -6,7 +6,7 @@ import Link from "next/link";
 
 type Props = {};
 
-function Hero({}: Props) {
+function Hero({data}: Props) {
   const [text, count] = useTypewriter({
     words: ["Hi, My Name is Ludmil Paulo", "Senior", "Full Stack developer"],
     loop: true,

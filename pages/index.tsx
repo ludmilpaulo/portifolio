@@ -10,24 +10,62 @@ import WorkExperience from "@/components/WorkExperience";
 import Skills from "@/components/Skills";
 import Projects from "@/components/Projects";
 import ContactMe from "@/components/ContactMe";
+import { useState } from "react";
+
+type Props = {
+ // myInfo: any,
+ // headerData: any,
+  id: number,
+  name_complete: string,
+  avatar: string,
+  mini_about: string,
+  born_date: string,
+  address: string,
+  phone: string,
+  email: string,
+  cv: string,
+  github: string,
+  linkedin: string,
+  facebook: string,
+  twitter: string,
+  instagram: string,
+
+
+};
+
+export async function getServerSideProps() {
+  const res = await fetch(
+   " https://www.ludmilpaulo.com/my_info/"
+  );
+  const data = await res.json();
+
+  return {
+    props: {
+      myInfo: data?.info,
+    },
+  };
+}
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home() {
+export default function Home({myInfo}: Props) {
+
+  const [myInformation] = useState<Props>(myInfo);
+  console.log("my information", myInfo)
   return (
     <div className="bg-[rgb(36,36,36)] text-white h-screen snap-y snap-mandatory overflow-scroll z-0">
-      <Header />
+      <Header headerData={myInformation}/>
 
       <section id="hero" className="snap-start">
-        <Hero />
+        <Hero heroData={myInformation} />
       </section>
 
       <section id="about" className="snap-center">
-        <About />
+        <About aboutData={myInformation} />
       </section>
 
       <section id="experience" className="snap-center">
-        <WorkExperience />
+        <WorkExperience workData={myInformation} />
       </section>
 
       <section id="skills" className="snap-start">
@@ -38,7 +76,7 @@ export default function Home() {
         <Projects />
       </section>
 
-      <section id="contacts" className="snap-start">
+      <section id="contact" className="snap-start">
         <ContactMe />
       </section>
     </div>

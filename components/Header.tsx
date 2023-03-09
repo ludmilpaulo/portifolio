@@ -1,10 +1,32 @@
 import { motion } from "framer-motion";
-import React from "react";
+import React, { useState } from "react";
 import { SocialIcon } from "react-social-icons";
 
-type Props = {};
+type Props = {
 
-const Header = (props: Props) => {
+    id: 1,
+    name_complete: string,
+    avatar: string,
+    mini_about: string,
+    born_date: string,
+    address: string,
+    phone: string,
+    email: string,
+    cv: string,
+    github: string,
+    linkedin: string,
+    facebook: string,
+    twitter: string,
+    instagram: string,
+
+
+};
+
+const Header = ({headerData}: Props) => {
+
+  const [header, setHeader ] = useState(headerData);
+
+  console.log("data cabecario", header)
   return (
     <header className="sticky top-0 p-5 flex items-start justify-between max-w-7xl mx-auto z-20 xl:items-center">
       <motion.div
@@ -23,9 +45,22 @@ const Header = (props: Props) => {
         }}
         className="flex flex-row items-center"
       >
-        <SocialIcon url="" fgColor="gray" bgColor="transparent" />
-        <SocialIcon url="" fgColor="gray" bgColor="transparent" />
-        <SocialIcon url="" fgColor="gray" bgColor="transparent" />
+        {header.map((head: {
+          linkedin: string | undefined;
+          twitter: string | undefined;
+          github: string | undefined;
+          instagram: string | undefined; facebook: string | undefined; 
+})=>(
+
+
+        <><SocialIcon url={head.facebook} />
+        <SocialIcon url={head.linkedin} />
+        <SocialIcon url={head.twitter} />
+        <SocialIcon url={head.github} />
+        <SocialIcon url={head.instagram} />
+        </>
+        )
+        )}
       </motion.div>
 
       <motion.div
