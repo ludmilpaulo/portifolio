@@ -2,9 +2,22 @@ import React from "react";
 import ExperienceCard from "./ExperienceCard";
 import { motion } from "framer-motion";
 
-type Props = {};
+interface ExperienceData{
+  [x: string]: any;
+  //map: any;
+ // map(arg0: (work: any) => JSX.Element): React.ReactNode;
+  title: string;  
+  description : string;
+  the_year: string;
+};
 
-const WorkExperience = (props: Props) => {
+type Props = {
+  directionLeft?: Boolean;
+};
+
+const WorkExperience = ({workData}: any) => {
+
+ 
   return (
     <motion.div
       initial={{
@@ -23,7 +36,11 @@ const WorkExperience = (props: Props) => {
       </h3>
 
       <div className="w-full flex space-x-5 overflow-x-scroll p-10 snap-x snap-mandatory">
-        <ExperienceCard />
+       
+           <ExperienceCard 
+            expData={workData}
+           />
+       
       </div>
     </motion.div>
   );

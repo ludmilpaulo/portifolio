@@ -3,23 +3,32 @@ import Image from "next/image";
 import { Cursor, useTypewriter } from "react-simple-typewriter";
 import BackgroundCircles from "./BackgroundCircles";
 import Link from "next/link";
+import { useState } from 'react';
 
 type Props = {};
 
-function Hero({data}: Props) {
+function Hero({heroData}: any) {
+  
+  const [heroSlide] = useState(heroData)
+
   const [text, count] = useTypewriter({
     words: ["Hi, My Name is Ludmil Paulo", "Senior", "Full Stack developer"],
+   // words: ["Hi, My Name is Ludmil Paulo", "Senior", "Full Stack developer"],
     loop: true,
     delaySpeed: 2000,
   });
   return (
     <div className="h-screen flex flex-col space-y-8 items-center justify-center text-center overflow-hidden">
       <BackgroundCircles />
-      <img
+      {heroSlide.map((_hero: any)=>(
+        <img
         className="relative rounded-full h-32 w-32 mx-auto object-cover"
-        src="https://avatars.githubusercontent.com/u/53780546?s=400&u=a7f5a200c778b78d7214e8fbacd5ce29c08213d3&v=4"
+        src={_hero.avatar}
         alt=""
       />
+
+      ))}
+      
       <div className="z-20">
         <h2 className="text-sm uppercase text-gray-500 pb-2 tracking-[15px]">
           Software Engineer

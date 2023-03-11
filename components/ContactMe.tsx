@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { EnvelopeIcon, MapPinIcon, PhoneIcon } from "@heroicons/react/24/solid";
 import { useForm, SubmitHandler } from "react-hook-form";
 
@@ -11,7 +11,8 @@ type Inputs = {
 
 type Props = {};
 
-function ContactMe({}: Props) {
+function ContactMe({myContacts}: any) {
+  const [myContact] = useState(myContacts);
   const {
     register,
     handleSubmit,
@@ -32,20 +33,22 @@ function ContactMe({}: Props) {
         </h4>
 
         <div className="space-y-10">
-          <div className="flex items-center space-x-5 justify-center">
-            <PhoneIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
-            <p className="text-2xl">+27842368752</p>
-          </div>
+          {myContact.map((cotant: { phone: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; email: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; address: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; })=>(
 
-          <div className="flex items-center space-x-5 justify-center">
-            <EnvelopeIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
-            <p className="text-2xl">ludmilpaulo@gmail.com</p>
-          </div>
+            <><div className="flex items-center space-x-5 justify-center">
+              <PhoneIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
+              <p className="text-2xl">{cotant.phone}</p>
+            </div><div className="flex items-center space-x-5 justify-center">
+                <EnvelopeIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
+                <p className="text-2xl">{cotant.email}</p>
+              </div><div className="flex items-center space-x-5 justify-center">
+                <MapPinIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
+                <p className="text-2xl">{cotant.address} </p>
+              </div></>
 
-          <div className="flex items-center space-x-5 justify-center">
-            <MapPinIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
-            <p className="text-2xl">149 mountain view villas </p>
-          </div>
+
+          ))}
+         
         </div>
 
         <form

@@ -22,11 +22,11 @@ type Props = {
 
 };
 
-const Header = ({headerData}: Props) => {
+const Header = ({headerData}: any) => {
 
-  const [header, setHeader ] = useState(headerData);
+  const [header] = useState(headerData);
 
-  console.log("data cabecario", header)
+
   return (
     <header className="sticky top-0 p-5 flex items-start justify-between max-w-7xl mx-auto z-20 xl:items-center">
       <motion.div

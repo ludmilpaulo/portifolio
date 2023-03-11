@@ -35,23 +35,33 @@ type Props = {
 
 export async function getServerSideProps() {
   const res = await fetch(
-   " https://www.ludmilpaulo.com/my_info/"
+   "https://www.ludmilpaulo.com/my_info/"
   );
   const data = await res.json();
 
   return {
     props: {
-      myInfo: data?.info,
+      myData: data, 
+    
     },
   };
 }
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home({myInfo}: Props) {
+export default function Home({myData}: any) {
 
-  const [myInformation] = useState<Props>(myInfo);
-  console.log("my information", myInfo)
+  const [myInformation] = useState(myData?.info);
+
+  const [myExperience] = useState(myData?.experiences);
+
+  const [myCompetences, setCompetences] = useState(myData?.competences);
+
+  const [myEducation] = useState(myData?.education);
+
+  const [myProjects] = useState<[]>(myData?.projects);
+
+  console.log("my information", myCompetences)
   return (
     <div className="bg-[rgb(36,36,36)] text-white h-screen snap-y snap-mandatory overflow-scroll z-0">
       <Header headerData={myInformation}/>
@@ -65,19 +75,19 @@ export default function Home({myInfo}: Props) {
       </section>
 
       <section id="experience" className="snap-center">
-        <WorkExperience workData={myInformation} />
+       <WorkExperience workData={myExperience} />
       </section>
 
       <section id="skills" className="snap-start">
-        <Skills />
+        <Skills mySkills={myCompetences}/>
       </section>
 
       <section id="projects" className="snap-start">
-        <Projects />
+        <Projects myProjects={myProjects} />
       </section>
 
       <section id="contact" className="snap-start">
-        <ContactMe />
+        <ContactMe myContacts={myInformation} />
       </section>
     </div>
   );
