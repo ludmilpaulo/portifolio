@@ -13,44 +13,38 @@ import ContactMe from "@/components/ContactMe";
 import { useState } from "react";
 
 type Props = {
- // myInfo: any,
- // headerData: any,
-  id: number,
-  name_complete: string,
-  avatar: string,
-  mini_about: string,
-  born_date: string,
-  address: string,
-  phone: string,
-  email: string,
-  cv: string,
-  github: string,
-  linkedin: string,
-  facebook: string,
-  twitter: string,
-  instagram: string,
-
-
+  // myInfo: any,
+  // headerData: any,
+  id: number;
+  name_complete: string;
+  avatar: string;
+  mini_about: string;
+  born_date: string;
+  address: string;
+  phone: string;
+  email: string;
+  cv: string;
+  github: string;
+  linkedin: string;
+  facebook: string;
+  twitter: string;
+  instagram: string;
 };
 
 export async function getServerSideProps() {
-  const res = await fetch(
-   "https://www.ludmilpaulo.com/my_info/"
-  );
+  const res = await fetch("https://www.ludmilpaulo.com/my_info/");
   const data = await res.json();
 
   return {
     props: {
-      myData: data, 
-    
+      myData: data,
     },
   };
 }
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home({myData}: any) {
-
+export default function Home({ myData }: any) {
   const [myInformation] = useState(myData?.info);
 
   const [myExperience] = useState(myData?.experiences);
@@ -61,10 +55,10 @@ export default function Home({myData}: any) {
 
   const [myProjects] = useState<[]>(myData?.projects);
 
-  console.log("my information", myCompetences)
+  console.log("my information", myCompetences);
   return (
     <div className="bg-[rgb(36,36,36)] text-white h-screen snap-y snap-mandatory overflow-scroll z-0">
-      <Header headerData={myInformation}/>
+      <Header headerData={myInformation} />
 
       <section id="hero" className="snap-start">
         <Hero heroData={myInformation} />
@@ -75,11 +69,11 @@ export default function Home({myData}: any) {
       </section>
 
       <section id="experience" className="snap-center">
-       <WorkExperience workData={myExperience} />
+        <WorkExperience workData={myExperience} />
       </section>
 
       <section id="skills" className="snap-start">
-        <Skills mySkills={myCompetences}/>
+        <Skills mySkills={myCompetences} />
       </section>
 
       <section id="projects" className="snap-start">
@@ -92,3 +86,5 @@ export default function Home({myData}: any) {
     </div>
   );
 }
+
+//2ANTdDmBHtg

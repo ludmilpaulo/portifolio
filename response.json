@@ -1,0 +1,177 @@
+{
+  "competences": [
+    {
+      "id": 1,
+      "title": "Java",
+      "description": "Java has long been the de-facto programming language for creating Web apps, Android apps, and software development tools such as Eclipse, IntelliJ IDEA, and NetBeans IDE. Development tools. The Integrated Development Environment (IDE) is one of Java's most intriguing features",
+      "image": "https://www.ludmilpaulo.com/media/competence/download.png"
+    },
+    {
+      "id": 2,
+      "title": "TypeScript",
+      "description": "TypeScript is a free and open-source programming language developed and maintained by Microsoft. It is a strict syntactical superset of JavaScript and adds optional static typing to the language. It is designed for the development of large applications and transpiles to JavaScript",
+      "image": "https://www.ludmilpaulo.com/media/competence/download.jfif"
+    },
+    {
+      "id": 3,
+      "title": "React Native",
+      "description": "React Native is an open-source UI software framework created by Meta Platforms, Inc. It is used to develop applications for Android, Android TV, iOS, macOS, tvOS, Web, Windows, and UWP by enabling developers to use the React framework along with native platform capabilities",
+      "image": "https://www.ludmilpaulo.com/media/competence/React-Native-Featured-Image.png"
+    },
+    {
+      "id": 4,
+      "title": "HTML",
+      "description": "The HyperText Markup Language or HTML is the standard markup language for documents designed to be displayed in a web browser. It can be assisted by technologies such as Cascading Style Sheets and scripting languages such as JavaScript",
+      "image": "https://www.ludmilpaulo.com/media/competence/download_1.jfif"
+    },
+    {
+      "id": 5,
+      "title": "Python Django",
+      "description": "Django is a free and open-source, Python-based web framework that follows the model\u2013template\u2013views architectural pattern. It is maintained by the Django Software Foundation, an independent organization established in the US as a 501 non-profit",
+      "image": "https://www.ludmilpaulo.com/media/competence/615e1104ffbf5ae592265cc7_python-django.png"
+    },
+    {
+      "id": 6,
+      "title": "React",
+      "description": "React is a free and open-source front-end JavaScript library for building user interfaces based on UI components. It is maintained by Meta and a community of individual developers and companies.",
+      "image": "https://www.ludmilpaulo.com/media/competence/React-icon.svg.png"
+    },
+    {
+      "id": 7,
+      "title": "GitHub",
+      "description": "GitHub, Inc., is an Internet hosting service for software development and version control using Git. It provides the distributed version control of Git plus access control, bug tracking, software feature requests, task management, continuous integration, and wikis for every project",
+      "image": "https://www.ludmilpaulo.com/media/competence/download_1.png"
+    },
+    {
+      "id": 8,
+      "title": "MySQL",
+      "description": "MySQL is an open-source relational database management system. Its name is a combination of \"My\", the name of co-founder Michael Widenius's daughter My, and \"SQL\", the abbreviation for Structured Query Language",
+      "image": "https://www.ludmilpaulo.com/media/competence/1024px-MySQL.ff87215b43fd7292af172e2a5d9b844217262571.png"
+    }
+  ],
+  "experiences": [
+    {
+      "id": 6,
+      "title": "Freelancer Full Stack Developer",
+      "stack": null,
+      "company": "2023-03-10 21:26:30.603117+00:00",
+      "logo": null,
+      "description": "l have been designing and developing mobile and website platforms, to ensure that user interactions on web pages and mobile applications are intuitive and engaging.\r\n\r\nl also provide back-end functionality that can run smoothly from any device or browser type commonly used today.",
+      "the_year": "2018-present"
+    },
+    {
+      "id": 5,
+      "title": "Data Specialist",
+      "stack": null,
+      "company": "aerobotics",
+      "logo": "https://www.ludmilpaulo.com/media/logo/aero_logo.jpeg",
+      "description": "My Roles and responsibilities were to review data for deficiencies or errors to correct incompatibilities and check the model output to correct them\r\n\r\nSuggesting improvements in the processing pipeline\r\nDetermine and develop algorithms to improve and optimize operational processes\r\nAnalyzing and processing aerial imagery raw data",
+      "the_year": "2019-2020"
+    },
+    {
+      "id": 4,
+      "title": "Database Administrator at Yanis-CS",
+      "stack": null,
+      "company": "2023-03-10 21:26:30.603117+00:00",
+      "logo": null,
+      "description": "My role in the company was to handle the controls of data mainly working with traditional data, architecting Database diagrams graphically showing the structure of the database and relations between database objects. I also generated a diagram for a data source, a schema, or a table. To create relations between database objects, consider using primary and foreign keys.",
+      "the_year": "2009-2011"
+    }
+  ],
+  "projects": [
+    {
+      "id": 6,
+      "title": "Video slider",
+      "slug": "video_slider",
+      "description": "<p>video slider with hover effect&nbsp;</p>",
+      "image": "https://www.ludmilpaulo.com/media/projects/Screenshot_2022-12-14_at_08.55.09.png",
+      "tools": "TypeScript, React",
+      "demo": "https://aglet-e00a5.web.app/",
+      "github": "https://github.com/ludmilpaulo/video-slider",
+      "show_in_slider": true
+    },
+    {
+      "id": 5,
+      "title": "Movie List",
+      "slug": "movie_list",
+      "description": "<p>You can add your favorite movies from the major movies API database&nbsp;</p>",
+      "image": "https://www.ludmilpaulo.com/media/projects/Screenshot_2022-12-14_at_08.46.30.png",
+      "tools": "Python Django, TypeScript, React",
+      "demo": "https://movie-ca9d2.web.app/",
+      "github": "https://github.com/ludmilpaulo/The-Movie-Database-API",
+      "show_in_slider": true
+    },
+    {
+      "id": 4,
+      "title": "Sunshine-delivery",
+      "slug": "sunshine-delivery",
+      "description": "<p><em><strong>Sunshine delivery is an application with a web admin panel for restaurants and the API for the mobile application which is used by the drivers and customers.</strong></em></p>\r\n\r\n<p><em><strong>All information about the order is available on the ordering apps to make the process as seamless as possible. The app tells the customer about the quality of the food, the time it will take to be prepared, and when the food will be ready for pickup or the time it will take to be delivered.</strong></em></p>\r\n\r\n<p><em><strong>This application allows customers to order food online, and track their order, and the driver.</strong></em></p>\r\n\r\n<p>Technology stack :</p>\r\n\r\n<ul>\r\n\t<li>Python Django</li>\r\n\t<li>TypeScript</li>\r\n\t<li>SQLite 3</li>\r\n\t<li>Bootstrap 3</li>\r\n\t<li>React Native</li>\r\n</ul>\r\n\r\n<p>Restaurant dashboard ==&gt;&nbsp;<a href=\"https://www.sunshinedeliver.com/restaurant/sign-in/?next=/restaurant/\" target=\"_blank\">https://www.sunshinedeliver.com/restaurant/sign-in/?next=/restaurant/</a></p>\r\n\r\n<p>Client App ==&gt;<br />\r\n<a href=\"https://play.google.com/store/apps/details?id=com.ludmil.SD\" target=\"_blank\">https://play.google.com/store/apps/details?id=com.ludmil.SD</a></p>",
+      "image": "https://www.ludmilpaulo.com/media/projects/logo_v3kqsgW.png",
+      "tools": "Python Django, TypeScript, React Native",
+      "demo": "https://www.sunshinedeliver.com/",
+      "github": "https://github.com/ludmilpaulo",
+      "show_in_slider": true
+    },
+    {
+      "id": 3,
+      "title": "Kiss Media Production",
+      "slug": "kiss_media_production",
+      "description": "<p>Kiss Media Production aims to become a reputable one-stop</p>\r\n\r\n<p>media production company dedicated to creating compelling</p>\r\n\r\n<p>visual stories in both photography and film for corporate</p>\r\n\r\n<p>commercial and the entertainment industry across the globe</p>\r\n\r\n<p>Our mission is to provide solutions to help<br />\r\nour clients showcase their mission, core values, value proportions, and company culture</p>\r\n\r\n<p>We craft strategic marketing content to help our clients overcome operational challenges and streamline internal processes</p>",
+      "image": "https://www.ludmilpaulo.com/media/projects/3.jpg",
+      "tools": "Python Django, HTML/CSS, Bootstrap 5",
+      "demo": "https://kissmediaproduction.com",
+      "github": "https://github.com/ludmilpaulo",
+      "show_in_slider": true
+    },
+    {
+      "id": 2,
+      "title": "Maindo Digital Agency",
+      "slug": "maindo_digital_agency",
+      "description": "<p>They provide creative inspiration, direction, and guidance, as well as performance management to creative team members. They play an active role in business development as well</p>\r\n\r\n<p>Technology stack :<br />\r\nPython Django<br />\r\nHTML/CSS<br />\r\nSQLite 3<br />\r\nBootstrap 5</p>",
+      "image": "https://www.ludmilpaulo.com/media/projects/digital.png",
+      "tools": "Python Django, HTML/CSS, Bootstrap 5",
+      "demo": "https://www.maindodigital.com/",
+      "github": "https://github.com/ludmilpaulo/Maindo-Digital-Agency",
+      "show_in_slider": true
+    }
+  ],
+  "info": [
+    {
+      "id": 1,
+      "name_complete": "Ludmil Paulo Samuel Avelino",
+      "avatar": "https://www.ludmilpaulo.com/media/avatar/WhatsApp_Image_2022-04-21_at_4.00.32_PM.jpeg",
+      "mini_about": "My philosophy is all about delivering value!\r\n\r\nThe core of my approach is gaining a deep understanding of your needs and, in collaboration with you, developing solutions to deliver value to your needs. My initial objective is to identify how to deliver tangible value with a bit-size chunk of work and use that as a starting point. l recognize that many of my software solutions are evolutionary and, if required, design my solutions with cost-of-ownership, scalability, and flexibility in mind.",
+      "about": "Technology and software are in my DNA\r\n\r\nMy Approach is collaborative.\r\n\r\n The best solutions are delivered with a successful collaboration between myself and you. Embracing an Agile approach, l build applications iteratively and incrementally to incorporate feedback and welcome changing requirements. While following a strategy, l constantly inspect and adapt to develop the best possible solution and meet the overall objectives.",
+      "born_date": "1990-05-26",
+      "address": "149 Mountain View Villas, Maitland",
+      "phone": "0842368752",
+      "email": "ludmilpaulo@gmail.com",
+      "cv": null,
+      "github": "https://github.com/ludmilpaulo",
+      "linkedin": "https://www.linkedin.com/in/ludmil-paulo-4143b131/",
+      "facebook": "https://www.facebook.com/ludmilpaulo",
+      "twitter": "https://twitter.com/ludmilpaulo",
+      "instagram": "https://www.instagram.com/pakente/?hl=en"
+    }
+  ],
+  "education": [
+    {
+      "id": 3,
+      "title": "Linux System Administrator",
+      "description": "Linux administrator is a back-end IT specialist who installs, configures and maintains Linux operating systems in the following ways: Installs and configures Linux systems including back-end databases and scripts. Performs system maintenance by reviewing error logs.",
+      "the_year": "2012-2013"
+    },
+    {
+      "id": 2,
+      "title": "IT Essentials/Cisco Networking",
+      "description": "acquired competencies that include the following:\r\n\u2022 Select the appropriate computer components to build, repair, or upgrade personal\r\ncomputers.\r\n\u2022 Install components to build, repair, or upgrade personal computers.\r\n\u2022 Configure devices to connect to the Internet and Cloud services.\r\n\u2022 Explain how to configure, secure, and troubleshoot mobile, OS X, and Linux operating\r\nsystems.",
+      "the_year": "2018"
+    },
+    {
+      "id": 1,
+      "title": "Cape Peninsula University of Technology,",
+      "description": "Computer engineering is a branch of electrical engineering that integrates several fields of computer science and electronic engineering required to develop computer hardware and software",
+      "the_year": "2014-2018"
+    }
+  ]
+}

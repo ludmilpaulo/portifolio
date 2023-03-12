@@ -6,11 +6,13 @@ type Props = {
   directionLeft?: Boolean;
 };
 
-function Skill({ directionLeft }:{ directionLeft : Props},{competence}:{competence:any}) {
+function Skill(
+  { directionLeft }: { directionLeft: Props },
+  { competence }: { competence: any }
+) {
+  const [allSkills] = useState(competence);
 
-  const [ allSkills] = useState(competence)
-
-  console.log("all skills card =>", allSkills)
+  console.log("all skills card =>", allSkills);
   return (
     <div className="group relative flex cursor-pointer">
       <motion.img

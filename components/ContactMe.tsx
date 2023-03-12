@@ -11,7 +11,7 @@ type Inputs = {
 
 type Props = {};
 
-function ContactMe({myContacts}: any) {
+function ContactMe({ myContacts }: any) {
   const [myContact] = useState(myContacts);
   const {
     register,
@@ -25,7 +25,7 @@ function ContactMe({myContacts}: any) {
       <h3 className="absolute top-24 uppercase tracking-[20px] text-gray-500 text-2xl">
         Contact
       </h3>
-      
+
       <div className="flex flex-col space-y-10">
         <h4 className="text-4xl font-semibold text-center">
           I have got just what you need.{" "}
@@ -33,22 +33,61 @@ function ContactMe({myContacts}: any) {
         </h4>
 
         <div className="space-y-10">
-          {myContact.map((cotant: { phone: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; email: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; address: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; })=>(
-
-            <><div className="flex items-center space-x-5 justify-center">
-              <PhoneIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
-              <p className="text-2xl">{cotant.phone}</p>
-            </div><div className="flex items-center space-x-5 justify-center">
-                <EnvelopeIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
-                <p className="text-2xl">{cotant.email}</p>
-              </div><div className="flex items-center space-x-5 justify-center">
-                <MapPinIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
-                <p className="text-2xl">{cotant.address} </p>
-              </div></>
-
-
-          ))}
-         
+          {myContact.map(
+            (cotant: {
+              phone:
+                | string
+                | number
+                | boolean
+                | React.ReactElement<
+                    any,
+                    string | React.JSXElementConstructor<any>
+                  >
+                | React.ReactFragment
+                | React.ReactPortal
+                | null
+                | undefined;
+              email:
+                | string
+                | number
+                | boolean
+                | React.ReactElement<
+                    any,
+                    string | React.JSXElementConstructor<any>
+                  >
+                | React.ReactFragment
+                | React.ReactPortal
+                | null
+                | undefined;
+              address:
+                | string
+                | number
+                | boolean
+                | React.ReactElement<
+                    any,
+                    string | React.JSXElementConstructor<any>
+                  >
+                | React.ReactFragment
+                | React.ReactPortal
+                | null
+                | undefined;
+            }) => (
+              <>
+                <div className="flex items-center space-x-5 justify-center">
+                  <PhoneIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
+                  <p className="text-2xl">{cotant.phone}</p>
+                </div>
+                <div className="flex items-center space-x-5 justify-center">
+                  <EnvelopeIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
+                  <p className="text-2xl">{cotant.email}</p>
+                </div>
+                <div className="flex items-center space-x-5 justify-center">
+                  <MapPinIcon className="text-[#f7ab0a] h-7 w-7 animate-pulse" />
+                  <p className="text-2xl">{cotant.address} </p>
+                </div>
+              </>
+            )
+          )}
         </div>
 
         <form
