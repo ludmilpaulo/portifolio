@@ -34,7 +34,7 @@ const ProjectDetais = () => {
 
     const b = a ? JSON.parse(a) : null 
 
-    const [projectTools]  = useState(a);
+    const [projectTools]  = useState(b);
     //const [projectTools] : any = tools ?? "";
 
     console.log("tools array",JSON.stringify(projectTools))
