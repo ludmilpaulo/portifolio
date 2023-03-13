@@ -15,6 +15,10 @@ interface Tools {
 }
 const ProjectDetais = () => {
   const router = useRouter();
+
+  if (router.isFallback) {
+    return <h1>Loading...</h1>;
+  }
     const { demo, image_url, name, description, github, tools, id} = router.query;
 
    
@@ -30,7 +34,7 @@ const ProjectDetais = () => {
 
     const b = a ? JSON.parse(a) : null 
 
-    const [projectTools]  = useState(b);
+    const [projectTools]  = useState(a);
     //const [projectTools] : any = tools ?? "";
 
     console.log("tools array",JSON.stringify(projectTools))
@@ -89,7 +93,7 @@ const ProjectDetais = () => {
             
        
          
-            {projectTools.map((pro:any) =>
+            {projectTools && projectTools.map((pro:any) =>
             (
                 <p className="mb-0"> {pro.title}</p>
             )
