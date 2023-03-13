@@ -63,6 +63,7 @@ const Projects = ({ myProjects }: any) => {
               href={{
                 pathname: "/ProjectDetais",
                 query: {
+                  id : project.id,
                   name: project.title, 
                   description: project.description,
                   image_url: project.image,

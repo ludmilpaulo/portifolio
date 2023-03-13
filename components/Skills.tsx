@@ -39,7 +39,9 @@ const Skills = ({ directionLeft, mySkills }: Props) => {
       <div className="grid grid-cols-4 gap-5">
         {/* skills card */}
         {mySkills.map((_s: any) => (
-          <div className="group relative flex cursor-pointer">
+          <div 
+          key={_s.id}
+          className="group relative flex cursor-pointer">
             <motion.img
               initial={{
                 x: directionLeft ? -200 : 200,
