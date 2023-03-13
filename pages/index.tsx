@@ -32,14 +32,27 @@ type Props = {
 };
 
 export async function getServerSideProps() {
-  const res = await fetch("https://www.ludmilpaulo.com/my_info/");
-  const data = await res.json();
+ // try{
+    const res = await fetch("https://www.ludmilpaulo.com/my_info/");
+    const data = await res.json();
+    return {
+      props: {
+        myData: data,
+      },
+    };
+//  }catch (e) {
+ ////   console.log(e)
+   // alert(e);
+//  }
 
   return {
     props: {
       myData: data,
     },
   };
+ 
+
+  
 }
 
 const inter = Inter({ subsets: ["latin"] });
@@ -53,7 +66,7 @@ export default function Home({ myData }: any) {
 
   const [myEducation] = useState(myData?.education);
 
-  const [myProjects] = useState<[]>(myData?.projects);
+  const [myProjects] = useState(myData?.projects);
 
   console.log("my information", myCompetences);
   return (

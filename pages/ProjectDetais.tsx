@@ -5,8 +5,13 @@ import { title } from 'process';
 import React, { useState } from 'react'
 import { SocialIcon } from 'react-social-icons';
 
-type Props = {}
-
+interface Tools {
+  id: number;
+  title:string | null;
+  percentage?: string | null;
+  description?: string | null;
+  image?: string | null;
+}
 const ProjectDetais = () => {
     const { demo, image_url, name, description, github, tools} = router.query;
 
@@ -17,9 +22,15 @@ const ProjectDetais = () => {
     let projectDemo : any = demo ?? "";
     let projectDescription :any = description ?? "";
     let projectGitHub : any = github ?? "";
-    const projectTools = useState<any>(JSON.parse(tools));
 
-    console.log("tools array",JSON.stringify(projectTools.title))
+    let a: any  = tools;
+
+    const b = a ? JSON.parse(a) : null 
+
+    const [projectTools]  = useState(b);
+    //const [projectTools] : any = tools ?? "";
+
+    console.log("tools array",JSON.stringify(projectTools))
 
 
   return (
@@ -76,7 +87,7 @@ const ProjectDetais = () => {
          
             {projectTools.map((pro:any) =>
             (
-                <p className="mb-0"> {JSON.stringify(pro.title)}</p>
+                <p className="mb-0"> {pro.title}</p>
             )
             )}
         
