@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import React from "react";
 import { useState } from "react";
-import image from 'next/image';
+import Image from "next/image";
 
 const ExperienceCard = ({ expData }: { expData: any }) => {
   const [myExp] = useState(expData);

@@ -24,6 +24,8 @@ function Hero({ heroData }: any) {
           className="relative rounded-full h-32 w-32 mx-auto object-cover"
           src={_hero.avatar}
           alt=""
+          width={100}
+          height={100}
         />
       ))}
 

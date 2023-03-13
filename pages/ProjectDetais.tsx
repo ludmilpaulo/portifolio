@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import router from 'next/router';
-import { title } from 'process';
+
 import React, { useState } from 'react'
 import { SocialIcon } from 'react-social-icons';
 
@@ -22,6 +22,7 @@ const ProjectDetais = () => {
     let projectDemo : any = demo ?? "";
     let projectDescription :any = description ?? "";
     let projectGitHub : any = github ?? "";
+    let projectId : any = id;
 
     let a: any  = tools;
 
@@ -41,7 +42,7 @@ const ProjectDetais = () => {
     transition={{ duration: 1.5 }}
     viewport={{ once: true }}
     className="h-screen relative flex overflow-hidden flex-col text-left md:flex-row max-w-full justify-evenly mx-auto items-center z-50"
-    key={id}
+    key={projectId}
   >
     <h3 className="absolute top-24 uppercase tracking-[20px] text-gray-500 text-2xl">
       Projects
