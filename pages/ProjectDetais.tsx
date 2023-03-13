@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import router from 'next/router';
+//import router from 'next/router';
+import { useRouter } from 'next/router'
 
 import React, { useState } from 'react'
 import { SocialIcon } from 'react-social-icons';
@@ -13,6 +14,7 @@ interface Tools {
   image?: string | null;
 }
 const ProjectDetais = () => {
+  const router = useRouter();
     const { demo, image_url, name, description, github, tools, id} = router.query;
 
    
