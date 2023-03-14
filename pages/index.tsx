@@ -11,6 +11,9 @@ import Skills from "@/components/Skills";
 import Projects from "@/components/Projects";
 import ContactMe from "@/components/ContactMe";
 import { useState } from "react";
+//import Particles from 'react-particles-js';
+
+import Particles from "react-tsparticles";
 
 type Props = {
   // myInfo: any,
@@ -71,6 +74,7 @@ export default function Home({ myData }: any) {
   console.log("my information", myCompetences);
   return (
     <div className="bg-[rgb(36,36,36)] text-white h-screen snap-y snap-mandatory overflow-scroll z-0">
+      <Particles />hourly rate
       <Header headerData={myInformation} />
 
       <section id="hero" className="snap-start">
