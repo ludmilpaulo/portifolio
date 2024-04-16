@@ -10,10 +10,9 @@ const ExperienceCard = ({ expData }: { expData: any }) => {
 
   return (
     <>
-    
       {myExp.map((e: any) => (
-        <article className="flex flex-col rounded-lg items-center space-y-7 flex-shrink-0 w-[500px] md:w-[600px] xl:w-[600px] snap-center bg-[#292929] p-1 hover:opacity-100 opacity-40 cursor-pointer transition-opacity duration-200 overflow-hidden">
-          <div key={e.id}>
+        <article key={e.id} className="flex flex-col rounded-lg items-center space-y-7 flex-shrink-0 w-full max-w-xl snap-center bg-[#292929] p-1 hover:opacity-100 opacity-40 cursor-pointer transition-opacity duration-200 overflow-hidden">
+          <div>
             <motion.img
               initial={{
                 y: -100,
@@ -27,7 +26,7 @@ const ExperienceCard = ({ expData }: { expData: any }) => {
                 y: 0,
               }}
               viewport={{ once: true }}
-              className="w-32 h-32 rounded-full xl:w-[200px] xl:h-[200px] object-cover object-center"
+              className="w-32 h-32 rounded-full xl:w-48 xl:h-48 object-cover object-center"
               src={e.logo}
               alt=""
             />
@@ -35,20 +34,24 @@ const ExperienceCard = ({ expData }: { expData: any }) => {
               <h4 className="text-4xl font-light">{e.company}</h4>
               <p className="font-bold text-2xl mt-1">{e.title}</p>
 
-              
-                <div className="flex space-x-2 my-2">
-                {e.stack.map((_i: any)=>(
-                <img className="h-10 w-10 rounded-full" src={_i?.image} alt="" />
+              <div className="flex space-x-2 my-2">
+                {e.stack.map((_i: any) => (
+                  <Image
+                    key={_i.id}
+                    src={_i?.image}
+                    alt=""
+                    className="h-10 w-10 rounded-full"
+                    width={40}
+                    height={40}
+                  />
                 ))}
-                {/** Tech used */}
               </div>
 
-            
-              
+
               <p className="uppercase py-5 text-gray-300">{e.the_year}</p>
 
               <ul className="list-disc space-y-4 ml-5 text-lg">
-                <li>{e.description}</li>
+                <li dangerouslySetInnerHTML={{ __html: e.description }} />
               </ul>
             </div>
           </div>

@@ -16,10 +16,31 @@ function ContactMe({ myContacts }: any) {
   const {
     register,
     handleSubmit,
-    watch,
+    reset, // Add reset function
     formState: { errors },
   } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (formData) => console.log(formData);
+  const onSubmit: SubmitHandler<Inputs> = async (formData) => {
+    try {
+        const response = await fetch('https://ludmil.pythonanywhere.com/contact/submit/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        });
+        const data = await response.json();
+        console.log(data);
+        if (response.ok) {
+            alert("Form submitted successfully!");
+            reset(); // Reset the form fields
+        } else {
+            alert("Form submission failed. Please try again.");
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert("An error occurred. Please try again later.");
+    }
+  };
   return (
     <div className="h-screen flex relative flex-col text-center md:text-left md:flex-row max-w-7xl px-10 justify-evenly mx-aouto items-center">
       <h3 className="absolute top-24 uppercase tracking-[20px] text-gray-500 text-2xl">
