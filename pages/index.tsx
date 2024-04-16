@@ -7,7 +7,7 @@ import Skills from "@/components/Skills";
 import Projects from "@/components/Projects";
 import ContactMe from "@/components/ContactMe";
 import { useState } from "react";
-import Particles from "react-tsparticles"; // Import Particles from react-tsparticles
+
 
 type Props = {
   id: number;
@@ -48,7 +48,7 @@ export default function Home({ myData }: any) {
   console.log("my information", myCompetences);
   return (
     <div className="bg-[rgb(36,36,36)] text-white h-screen snap-y snap-mandatory overflow-scroll z-0">
-      <Particles /> {/* Render Particles component here */}
+     
       <Header headerData={myInformation} />
       
       <section id="hero" className="snap-start">
