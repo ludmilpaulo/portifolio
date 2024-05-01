@@ -27,7 +27,7 @@ type Props = {
 };
 
 export async function getServerSideProps() {
-  const res = await fetch("https://ludmil.pythonanywhere.com/my_info/");
+  const res = await fetch("https://www.ludmilpaulo.com/my_info/");
   const data = await res.json();
   return {
     props: {
