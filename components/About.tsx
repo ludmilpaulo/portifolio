@@ -33,15 +33,15 @@ const About = ({ aboutData }: any) => {
             }}
             viewport={{ once: true }}
             src={_about.avatar}
-            className="w-32 h-auto rounded-full object-cover md:w-64 md:h-64 lg:w-72 lg:h-72 xl:w-80 xl:h-80 mr-6"
+            className="w-32 h-auto rounded-full object-cover md:w-64 md:h-64 lg:w-72 lg:h-72 xl:w-80 xl:h-80 mr-6 shadow-lg"
             alt="Avatar"
           />
           <div className="space-y-6 md:space-y-8">
             <h4 className="text-4xl font-semibold">
-              here is a <span>little</span> background
+              Here is a <span className="underline decoration-yellow-500">little</span> background
             </h4>
-            <p className="text-base" dangerouslySetInnerHTML={{ __html: _about.mini_about }} />
-            <p className="text-base" dangerouslySetInnerHTML={{ __html: _about.about }} />
+            <p className="text-base text-gray-300" dangerouslySetInnerHTML={{ __html: _about.mini_about }} />
+            <p className="text-base text-gray-300" dangerouslySetInnerHTML={{ __html: _about.about }} />
           </div>
         </div>
       ))}

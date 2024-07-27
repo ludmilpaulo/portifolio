@@ -44,19 +44,32 @@ const Projects = ({ myProjects }: any) => {
               viewport={{ once: true }}
               src={project.image}
               alt=""
+              className="rounded-lg shadow-lg"
             />
 
             <div className="space-y-10 px-0 md:px-10 max-w-6xl">
               <h4 className="text-4xl font-semibold text-center">
                 <span className="underline decoration-[#F7AB0A]/50">
                   {project.title}
-                </span>{" "}
+                </span>
               </h4>
-              <div className="space-x-6">
-                <SocialIcon url={project?.demo} />
-                <SocialIcon url={project?.github} />
+              <div className="flex justify-center space-x-6">
+                {project?.demo && (
+                  <SocialIcon
+                    url={project.demo}
+                    fgColor="white"
+                    bgColor="transparent"
+                  />
+                )}
+                {project?.github && (
+                  <SocialIcon
+                    url={project.github}
+                    fgColor="white"
+                    bgColor="transparent"
+                  />
+                )}
               </div>
-              <p className="text-lg text-center md:text-left">
+              <p className="text-lg text-center md:text-left text-gray-200">
                 {project?.description
                   ?.slice(0, 200)
                   .replace("<p>", "")
@@ -66,7 +79,7 @@ const Projects = ({ myProjects }: any) => {
             </div>
             <Link
               href={{
-                pathname: "/ProjectDetais",
+                pathname: "/ProjectDetails",
                 query: {
                   id: project.id,
                   name: project.title,
@@ -78,7 +91,7 @@ const Projects = ({ myProjects }: any) => {
                 },
               }}
             >
-              <button className="heroButton">Read More </button>
+              <button className="heroButton">Read More</button>
             </Link>
           </div>
         ))}

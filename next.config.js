@@ -4,7 +4,7 @@ const nextConfig = {
   },
   reactStrictMode: true,
   images: {
-    domains: ["ludmil.pythonanywhere.com"],
+    domains: ["www.ludmilpaulo.com"],
   },
 };
 
