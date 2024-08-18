@@ -11,7 +11,7 @@ type Props = {
   directionLeft?: boolean;
 };
 
-const Skills = ({ directionLeft }: Props) => {
+const Skills: React.FC<Props> = ({ directionLeft }) => {
   const [mySkills, setMySkills] = useState<{ competences: Competence[] } | null>(null);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const Skills = ({ directionLeft }: Props) => {
               <div className="w-full mt-2">
                 <LinearProgress
                   variant="determinate"
-                  value={parseInt(skill.percentage)}
+                  value={parseInt(skill.percentage)} // Ensure percentage is a number
                   className="w-24 h-3 md:w-28 md:h-3 xl:w-32 xl:h-4 rounded-full"
                 />
                 <p className="text-center mt-1 text-sm text-gray-600">{skill.percentage}</p>
