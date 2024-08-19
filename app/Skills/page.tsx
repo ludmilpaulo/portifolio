@@ -1,4 +1,5 @@
 "use client";
+
 import { fetchMyInfo } from "@/hooks/fetchData";
 import { Competence } from "@/hooks/types";
 import { motion } from "framer-motion";
@@ -7,12 +8,9 @@ import Tooltip from "@mui/material/Tooltip";
 import LinearProgress from "@mui/material/LinearProgress";
 import Image from "next/image";
 
-type Props = {
-  directionLeft?: boolean;
-};
-
-const Skills: React.FC<Props> = ({ directionLeft }) => {
+const SkillsPage: React.FC = () => {
   const [mySkills, setMySkills] = useState<{ competences: Competence[] } | null>(null);
+  const directionLeft = true; // Manage directionLeft internally
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,15 +28,9 @@ const Skills: React.FC<Props> = ({ directionLeft }) => {
 
   return (
     <motion.div
-      initial={{
-        opacity: 0,
-      }}
-      transition={{
-        duration: 1.5,
-      }}
-      whileInView={{
-        opacity: 1,
-      }}
+      initial={{ opacity: 0 }}
+      transition={{ duration: 1.5 }}
+      whileInView={{ opacity: 1 }}
       className="flex relative flex-col text-center md:text-left xl:flex-row max-w-[2000px] xl:px-10 min-h-screen justify-center xl:space-y-0 mx-auto items-center"
     >
       <h3 className="absolute top-24 uppercase tracking-[20px] text-gray-500 text-2xl">
@@ -53,10 +45,7 @@ const Skills: React.FC<Props> = ({ directionLeft }) => {
         {mySkills?.competences.map((skill) => (
           <div key={skill.id} className="group relative flex flex-col items-center cursor-pointer">
             <motion.div
-              initial={{
-                x: directionLeft ? -200 : 200,
-                opacity: 0,
-              }}
+              initial={{ x: directionLeft ? -200 : 200, opacity: 0 }}
               transition={{ duration: 1 }}
               whileInView={{ opacity: 1, x: 0 }}
               className="flex flex-col items-center"
@@ -75,7 +64,7 @@ const Skills: React.FC<Props> = ({ directionLeft }) => {
               <div className="w-full mt-2">
                 <LinearProgress
                   variant="determinate"
-                  value={parseInt(skill.percentage)} // Ensure percentage is a number
+                  value={parseInt(skill.percentage, 10)} // Ensure percentage is a number
                   className="w-24 h-3 md:w-28 md:h-3 xl:w-32 xl:h-4 rounded-full"
                 />
                 <p className="text-center mt-1 text-sm text-gray-600">{skill.percentage}</p>
@@ -88,4 +77,4 @@ const Skills: React.FC<Props> = ({ directionLeft }) => {
   );
 };
 
-export default Skills;
+export default SkillsPage;
