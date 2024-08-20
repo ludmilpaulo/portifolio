@@ -11,7 +11,7 @@ interface MyInfoResponse {
   }
 
 
-const API_URL = 'https://www.ludmilpaulo.com/my_info/';
+const API_URL = 'https://ludmil.pythonanywhere.com/my_info/';
 
 export const fetchMyInfo = async (): Promise<MyInfoResponse> => {
   const response = await fetch(API_URL);
