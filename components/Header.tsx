@@ -5,11 +5,21 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { SocialIcon } from "react-social-icons";
-import { FaInfoCircle, FaBriefcase, FaTools, FaProjectDiagram, FaBlogger, FaEnvelope, FaGraduationCap } from "react-icons/fa";
+import {
+  FaInfoCircle,
+  FaBriefcase,
+  FaTools,
+  FaProjectDiagram,
+  FaEnvelope,
+  FaGraduationCap,
+  FaBars,
+  FaTimes,
+} from "react-icons/fa";
 
 const Header = () => {
   const [header, setHeader] = useState<Info | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,18 +39,22 @@ const Header = () => {
     setShowModal(!showModal);
   };
 
+  const handleDrawerToggle = () => {
+    setDrawerOpen(!drawerOpen);
+  };
+
   if (!header) {
     return <div>Loading...</div>; // or a loading spinner
   }
 
   return (
     <>
-      <header className="sticky top-0 p-3 flex items-start justify-between max-w-7xl mx-auto z-20 xl:items-center bg-gradient-to-r from-[#0093E9] to-[#80D0C7] shadow-lg">
+      <header className="sticky top-0 p-5 flex items-start justify-between max-w-7xl mx-auto z-20 xl:items-center bg-gradient-to-r from-[#0093E9] to-[#80D0C7] shadow-lg">
         <motion.div
           initial={{ x: -500, opacity: 0, scale: 0.5 }}
           animate={{ x: 0, opacity: 1, scale: 1 }}
           transition={{ duration: 1.5 }}
-          className="flex flex-row items-center space-x-2 sm:space-x-4"
+          className="flex flex-row items-center space-x-4"
         >
           {header.facebook && (
             <SocialIcon
@@ -88,7 +102,7 @@ const Header = () => {
           initial={{ x: 500, opacity: 0, scale: 0.5 }}
           animate={{ x: 0, opacity: 1, scale: 1 }}
           transition={{ duration: 1.5 }}
-          className="flex flex-row items-center text-white cursor-pointer space-x-2 sm:space-x-4"
+          className="hidden md:flex flex-row items-center text-white cursor-pointer space-x-2 sm:space-x-4"
         >
           <Link href="/About">
             <div className="heroButton flex flex-col items-center space-y-1 text-xs sm:text-sm">
@@ -121,23 +135,58 @@ const Header = () => {
             </div>
           </Link>
         </motion.div>
+
+        {/* Menu Button on Mobile */}
+        <div className="md:hidden flex items-center">
+          <button onClick={handleDrawerToggle} className="text-white text-2xl">
+            {drawerOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
       </header>
 
-      {/* Get in Touch Icon */}
-      <div className="fixed bottom-5 right-5">
-        <button
-          onClick={handleModalToggle}
-          className="flex flex-col items-center p-3 bg-gradient-to-r from-[#0093E9] to-[#80D0C7] rounded-full shadow-lg hover:scale-110 transition-transform duration-300"
-        >
-          <FaEnvelope className="text-2xl text-white" />
-          <span className="text-xs text-white">Get in touch</span>
-        </button>
+      {/* Drawer Menu */}
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center transition-transform duration-500 ease-in-out transform ${
+          drawerOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="bg-white text-black rounded-lg p-8 shadow-lg w-80 space-y-6">
+          <Link href="/About" onClick={handleDrawerToggle}>
+            <div className="flex items-center space-x-2">
+              <FaInfoCircle className="text-lg" />
+              <span>About</span>
+            </div>
+          </Link>
+          <Link href="/Experience" onClick={handleDrawerToggle}>
+            <div className="flex items-center space-x-2">
+              <FaBriefcase className="text-lg" />
+              <span>Experience</span>
+            </div>
+          </Link>
+          <Link href="/Skills" onClick={handleDrawerToggle}>
+            <div className="flex items-center space-x-2">
+              <FaTools className="text-lg" />
+              <span>Skills</span>
+            </div>
+          </Link>
+          <Link href="/Projects" onClick={handleDrawerToggle}>
+            <div className="flex items-center space-x-2">
+              <FaProjectDiagram className="text-lg" />
+              <span>Projects</span>
+            </div>
+          </Link>
+          <Link href="/Education" onClick={handleDrawerToggle}>
+            <div className="flex items-center space-x-2">
+              <FaGraduationCap className="text-lg" />
+              <span>Education</span>
+            </div>
+          </Link>
+        </div>
       </div>
-
       {/* Inquiry Form Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 shadow-lg w-full max-w-md mx-4">
+          <div className="bg-white rounded-lg p-8 shadow-lg w-96">
             <h2 className="text-2xl font-bold mb-4">Get in Touch</h2>
             <form>
               <div className="mb-4">
