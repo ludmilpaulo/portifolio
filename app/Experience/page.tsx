@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ExperienceCard from "./ExperienceCard";
@@ -36,9 +37,9 @@ const WorkExperience = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
-        className="relative h-full flex flex-col text-left md:flex-row max-w-full px-10 justify-evenly mx-auto items-center"
+        className="relative h-full flex flex-col text-center md:text-left md:flex-row max-w-full px-4 sm:px-10 md:px-20 justify-center md:justify-evenly mx-auto items-center"
       >
-        <div className="w-full flex space-x-5 overflow-x-scroll p-10 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thumb-gray-700 scrollbar-track-gray-400">
+        <div className="w-full flex space-x-4 overflow-x-auto p-4 md:p-10 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thumb-gray-700 scrollbar-track-gray-400">
           {workData.experiences.map((exp) => (
             <ExperienceCard key={exp.id} expData={exp} />
           ))}
