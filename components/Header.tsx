@@ -35,12 +35,12 @@ const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 p-5 flex items-start justify-between max-w-7xl mx-auto z-20 xl:items-center bg-gradient-to-r from-[#0093E9] to-[#80D0C7] shadow-lg">
+      <header className="sticky top-0 p-3 flex items-start justify-between max-w-7xl mx-auto z-20 xl:items-center bg-gradient-to-r from-[#0093E9] to-[#80D0C7] shadow-lg">
         <motion.div
           initial={{ x: -500, opacity: 0, scale: 0.5 }}
           animate={{ x: 0, opacity: 1, scale: 1 }}
           transition={{ duration: 1.5 }}
-          className="flex flex-row items-center space-x-4"
+          className="flex flex-row items-center space-x-2 sm:space-x-4"
         >
           {header.facebook && (
             <SocialIcon
@@ -88,35 +88,35 @@ const Header = () => {
           initial={{ x: 500, opacity: 0, scale: 0.5 }}
           animate={{ x: 0, opacity: 1, scale: 1 }}
           transition={{ duration: 1.5 }}
-          className="flex flex-row items-center text-white cursor-pointer space-x-4"
+          className="flex flex-row items-center text-white cursor-pointer space-x-2 sm:space-x-4"
         >
           <Link href="/About">
-            <div className="heroButton flex flex-col items-center space-y-1">
-              <FaInfoCircle className="text-xl" />
+            <div className="heroButton flex flex-col items-center space-y-1 text-xs sm:text-sm">
+              <FaInfoCircle className="text-lg sm:text-xl" />
               <span>About</span>
             </div>
           </Link>
           <Link href="/Experience">
-            <div className="heroButton flex flex-col items-center space-y-1">
-              <FaBriefcase className="text-xl" />
+            <div className="heroButton flex flex-col items-center space-y-1 text-xs sm:text-sm">
+              <FaBriefcase className="text-lg sm:text-xl" />
               <span>Experience</span>
             </div>
           </Link>
           <Link href="/Skills">
-            <div className="heroButton flex flex-col items-center space-y-1">
-              <FaTools className="text-xl" />
+            <div className="heroButton flex flex-col items-center space-y-1 text-xs sm:text-sm">
+              <FaTools className="text-lg sm:text-xl" />
               <span>Skills</span>
             </div>
           </Link>
           <Link href="/Projects">
-            <div className="heroButton flex flex-col items-center space-y-1">
-              <FaProjectDiagram className="text-xl" />
+            <div className="heroButton flex flex-col items-center space-y-1 text-xs sm:text-sm">
+              <FaProjectDiagram className="text-lg sm:text-xl" />
               <span>Projects</span>
             </div>
           </Link>
           <Link href="/Education">
-            <div className="heroButton flex flex-col items-center space-y-1">
-              <FaGraduationCap className="text-xl" />
+            <div className="heroButton flex flex-col items-center space-y-1 text-xs sm:text-sm">
+              <FaGraduationCap className="text-lg sm:text-xl" />
               <span>Education</span>
             </div>
           </Link>
@@ -137,7 +137,7 @@ const Header = () => {
       {/* Inquiry Form Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 shadow-lg w-96">
+          <div className="bg-white rounded-lg p-8 shadow-lg w-full max-w-md mx-4">
             <h2 className="text-2xl font-bold mb-4">Get in Touch</h2>
             <form>
               <div className="mb-4">
