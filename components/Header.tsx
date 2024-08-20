@@ -10,6 +10,7 @@ import {
   FaBriefcase,
   FaTools,
   FaProjectDiagram,
+  FaBlogger,
   FaEnvelope,
   FaGraduationCap,
   FaBars,
@@ -136,7 +137,6 @@ const Header = () => {
           </Link>
         </motion.div>
 
-        {/* Menu Button on Mobile */}
         <div className="md:hidden flex items-center">
           <button onClick={handleDrawerToggle} className="text-white text-2xl">
             {drawerOpen ? <FaTimes /> : <FaBars />}
@@ -145,44 +145,54 @@ const Header = () => {
       </header>
 
       {/* Drawer Menu */}
-      <div
-        className={`fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center transition-transform duration-500 ease-in-out transform ${
-          drawerOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="bg-white text-black rounded-lg p-8 shadow-lg w-80 space-y-6">
-          <Link href="/About" onClick={handleDrawerToggle}>
-            <div className="flex items-center space-x-2">
-              <FaInfoCircle className="text-lg" />
-              <span>About</span>
-            </div>
-          </Link>
-          <Link href="/Experience" onClick={handleDrawerToggle}>
-            <div className="flex items-center space-x-2">
-              <FaBriefcase className="text-lg" />
-              <span>Experience</span>
-            </div>
-          </Link>
-          <Link href="/Skills" onClick={handleDrawerToggle}>
-            <div className="flex items-center space-x-2">
-              <FaTools className="text-lg" />
-              <span>Skills</span>
-            </div>
-          </Link>
-          <Link href="/Projects" onClick={handleDrawerToggle}>
-            <div className="flex items-center space-x-2">
-              <FaProjectDiagram className="text-lg" />
-              <span>Projects</span>
-            </div>
-          </Link>
-          <Link href="/Education" onClick={handleDrawerToggle}>
-            <div className="flex items-center space-x-2">
-              <FaGraduationCap className="text-lg" />
-              <span>Education</span>
-            </div>
-          </Link>
+      {drawerOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white text-black rounded-lg p-8 shadow-lg w-80 space-y-6">
+            <Link href="/About" onClick={handleDrawerToggle}>
+              <div className="flex items-center space-x-2">
+                <FaInfoCircle className="text-lg" />
+                <span>About</span>
+              </div>
+            </Link>
+            <Link href="/Experience" onClick={handleDrawerToggle}>
+              <div className="flex items-center space-x-2">
+                <FaBriefcase className="text-lg" />
+                <span>Experience</span>
+              </div>
+            </Link>
+            <Link href="/Skills" onClick={handleDrawerToggle}>
+              <div className="flex items-center space-x-2">
+                <FaTools className="text-lg" />
+                <span>Skills</span>
+              </div>
+            </Link>
+            <Link href="/Projects" onClick={handleDrawerToggle}>
+              <div className="flex items-center space-x-2">
+                <FaProjectDiagram className="text-lg" />
+                <span>Projects</span>
+              </div>
+            </Link>
+            <Link href="/Education" onClick={handleDrawerToggle}>
+              <div className="flex items-center space-x-2">
+                <FaGraduationCap className="text-lg" />
+                <span>Education</span>
+              </div>
+            </Link>
+          </div>
         </div>
+      )}
+
+      {/* Get in Touch Icon */}
+      <div className="fixed bottom-5 right-5">
+        <button
+          onClick={handleModalToggle}
+          className="flex flex-col items-center p-3 bg-gradient-to-r from-[#0093E9] to-[#80D0C7] rounded-full shadow-lg hover:scale-110 transition-transform duration-300"
+        >
+          <FaEnvelope className="text-2xl text-white" />
+          <span className="text-xs text-white">Get in touch</span>
+        </button>
       </div>
+
       {/* Inquiry Form Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
