@@ -1,23 +1,20 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import { FaCheckCircle, FaClock, FaHourglassHalf, FaClone } from "react-icons/fa";
+import ProjectCard from "./ProjectCard";
 import { fetchMyInfo } from "@/hooks/fetchData";
 import { Project, Competence } from "@/hooks/types";
-import ProjectCard from "./ProjectCard";
 
 const Projects = () => {
   const [myProjects, setMyProjects] = useState<{ projects: Project[] } | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [filter, setFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<string>("live");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchMyInfo();
         setMyProjects({ projects: data.projects });
-        console.log("Project data", data);
       } catch (error) {
         console.error("Failed to fetch project data:", error);
       }
@@ -26,21 +23,40 @@ const Projects = () => {
     fetchData();
   }, []);
 
+  const renderTabButton = (label: string, icon: JSX.Element, value: string) => (
+    <button
+      className={`flex items-center py-2 px-4 ${
+        activeTab === value ? "border-b-2 border-blue-500 text-white" : "text-gray-600"
+      }`}
+      onClick={() => setActiveTab(value)}
+    >
+      {icon} <span className="ml-2">{label}</span>
+    </button>
+  );
+
   return (
-    <div className="mx-auto px-8 pt-56">
+    <div className="p-6 rounded-lg shadow-md">
+      <div className="flex text-white justify-around border-b mb-4">
+        {renderTabButton("Live", <FaCheckCircle />, "live")}
+        {renderTabButton("Upcoming", <FaHourglassHalf />, "upcoming")}
+        {renderTabButton("In Progress", <FaClock />, "in_progress")}
+        {renderTabButton("Clone", <FaClone />, "clone")}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {myProjects?.projects.map((project) => (
-          <ProjectCard
-            key={project.id}
-            title={project.title}
-            description={project.description}
-            image={project.image}
-            link={project.demo}
-            demo={project.demo}
-            github={project.github}
-            tools={project.tools}  // Passing tools to the ProjectCard component
-          />
-        ))}
+        {myProjects?.projects
+          .filter((project) => project.status === activeTab)
+          .map((project) => (
+            <ProjectCard
+              key={project.id}
+              title={project.title}
+              description={project.description}
+              image={project.image}
+              link={project.demo}
+              demo={project.demo}
+              github={project.github}
+              tools={project.tools}  // Passing tools to the ProjectCard component
+            />
+          ))}
       </div>
     </div>
   );

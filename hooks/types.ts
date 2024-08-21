@@ -6,7 +6,7 @@ export interface Competence {
     description: string;
     image: string;
   }
-  
+
 export interface Experience {
     id: number;
     stack: Competence[];
@@ -16,7 +16,7 @@ export interface Experience {
     description: string;
     the_year: string;
   }
-  
+
 export interface Project {
     id: number;
     tools: Competence[];
@@ -24,6 +24,7 @@ export interface Project {
     slug: string;
     description: string;
     image: string;
+    status: string;
     demo: string;
     github: string;
     show_in_slider: boolean;
