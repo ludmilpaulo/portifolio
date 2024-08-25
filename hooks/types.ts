@@ -24,7 +24,7 @@ export interface Project {
     slug: string;
     description: string;
     image: string;
-    status: string;
+    status: number;
     demo: string;
     github: string;
     show_in_slider: boolean;

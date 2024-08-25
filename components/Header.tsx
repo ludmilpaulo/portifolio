@@ -1,10 +1,11 @@
 "use client";
-import { fetchMyInfo } from "@/hooks/fetchData";
+import { baseUrl, fetchMyInfo } from "@/hooks/fetchData";
 import { Info } from "@/hooks/types";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { SocialIcon } from "react-social-icons";
+import { Transition } from "@headlessui/react";
 import {
   FaInfoCircle,
   FaBriefcase,
@@ -21,7 +22,8 @@ const Header = () => {
   const [header, setHeader] = useState<Info | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-
+  const [loading, setLoading] = useState(false);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -44,9 +46,39 @@ const Header = () => {
     setDrawerOpen(!drawerOpen);
   };
 
-  if (!header) {
-    return <div>Loading...</div>; // or a loading spinner
-  }
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Prevent the default form submission behavior
+    setLoading(true); // Set loading to true when submission starts
+
+    const formData = new FormData(event.currentTarget);
+
+    const data = {
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      message: formData.get('message') as string,
+    };
+
+    try {
+      const response = await fetch(`${baseUrl}submit-message/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        alert("Message sent successfully!");
+      } else {
+        alert("Failed to send message.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("An error occurred. Please try again later.");
+    } finally {
+      setLoading(false); // Step 3: Set loading to false when submission is done
+    }
+  };
 
   return (
     <>
@@ -57,7 +89,7 @@ const Header = () => {
           transition={{ duration: 1.5 }}
           className="flex flex-row items-center space-x-4"
         >
-          {header.facebook && (
+          {header?.facebook && (
             <SocialIcon
               url={header.facebook}
               fgColor="white"
@@ -65,7 +97,7 @@ const Header = () => {
               className="hover:scale-110 transition-transform duration-300"
             />
           )}
-          {header.linkedin && (
+          {header?.linkedin && (
             <SocialIcon
               url={header.linkedin}
               fgColor="white"
@@ -73,7 +105,7 @@ const Header = () => {
               className="hover:scale-110 transition-transform duration-300"
             />
           )}
-          {header.twitter && (
+          {header?.twitter && (
             <SocialIcon
               url={header.twitter}
               fgColor="white"
@@ -81,7 +113,7 @@ const Header = () => {
               className="hover:scale-110 transition-transform duration-300"
             />
           )}
-          {header.github && (
+          {header?.github && (
             <SocialIcon
               url={header.github}
               fgColor="white"
@@ -89,7 +121,7 @@ const Header = () => {
               className="hover:scale-110 transition-transform duration-300"
             />
           )}
-          {header.instagram && (
+          {header?.instagram && (
             <SocialIcon
               url={header.instagram}
               fgColor="white"
@@ -195,28 +227,45 @@ const Header = () => {
 
       {/* Inquiry Form Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 shadow-lg w-96">
-            <h2 className="text-2xl font-bold mb-4">Get in Touch</h2>
-            <form>
-              <div className="mb-4">
-                <label className="block text-gray-700">Name</label>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+          <div className="bg-white text-black p-6 rounded-md shadow-md w-full max-w-md">
+            <h2 className="text-xl  font-bold mb-4">Contact Me</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Form fields for name, email, and message */}
+              <div className="flex flex-col">
+                <label htmlFor="name" className="text-sm font-semibold">
+                  Name
+                </label>
                 <input
                   type="text"
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  id="name"
+                  name="name"
+                  className="p-2 border border-gray-300 rounded-md"
+                  required
                 />
               </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Email</label>
+              <div className="flex flex-col">
+                <label htmlFor="email" className="text-sm font-semibold">
+                  Email
+                </label>
                 <input
                   type="email"
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  id="email"
+                  name="email"
+                  className="p-2 border border-gray-300 rounded-md"
+                  required
                 />
               </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Message</label>
+              <div className="flex flex-col">
+                <label htmlFor="message" className="text-sm font-semibold">
+                  Message
+                </label>
                 <textarea
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  id="message"
+                  name="message"
+                  className="p-2 border border-gray-300 rounded-md"
+                  rows={4}
+                  required
                 ></textarea>
               </div>
               <div className="flex justify-end space-x-4">
@@ -229,15 +278,31 @@ const Header = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-[#0093E9] to-[#80D0C7] text-white rounded-md"
+                  className="px-4 py-2 text-white bg-gradient-to-r from-[#0093E9] to-[#80D0C7] rounded-md"
                 >
-                  Submit
+                  Send
                 </button>
               </div>
             </form>
+
           </div>
         </div>
       )}
+
+      {/* Loading Indicator */}
+      <Transition
+        show={loading}
+        enter="transition-opacity duration-300"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-opacity duration-300"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <div className="fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50">
+          <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div>
+        </div>
+      </Transition>
     </>
   );
 };

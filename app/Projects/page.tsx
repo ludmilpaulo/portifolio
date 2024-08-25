@@ -8,7 +8,7 @@ import { Project, Competence } from "@/hooks/types";
 
 const Projects = () => {
   const [myProjects, setMyProjects] = useState<{ projects: Project[] } | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("live");
+  const [activeTab, setActiveTab] = useState<number>(2); // Default to "Live" which is status 2
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,7 +23,7 @@ const Projects = () => {
     fetchData();
   }, []);
 
-  const renderTabButton = (label: string, icon: JSX.Element, value: string) => (
+  const renderTabButton = (label: string, icon: JSX.Element, value: number) => (
     <button
       className={`flex items-center py-2 px-4 ${
         activeTab === value ? "border-b-2 border-blue-500 text-white" : "text-gray-600"
@@ -37,10 +37,10 @@ const Projects = () => {
   return (
     <div className="p-6 rounded-lg shadow-md">
       <div className="flex text-white justify-around border-b mb-4">
-        {renderTabButton("Live", <FaCheckCircle />, "live")}
-        {renderTabButton("Upcoming", <FaHourglassHalf />, "upcoming")}
-        {renderTabButton("In Progress", <FaClock />, "in_progress")}
-        {renderTabButton("Clone", <FaClone />, "clone")}
+        {renderTabButton("Live", <FaCheckCircle />, 2)}  {/* Live = 2 */}
+        {renderTabButton("Upcoming", <FaHourglassHalf />, 3)}  {/* Upcoming = 3 */}
+        {renderTabButton("In Progress", <FaClock />, 4)}  {/* In Progress = 4 */}
+        {renderTabButton("Clone", <FaClone />, 1)}  {/* Clone = 1 */}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {myProjects?.projects

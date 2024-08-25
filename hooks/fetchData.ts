@@ -1,7 +1,7 @@
 import { Competence, Experience, Project, Info, Education } from "@/hooks/types";
 
 
-
+export const baseUrl ='http://127.0.0.1:8000/'
 interface MyInfoResponse {
     competences: Competence[];
     experiences: Experience[];
@@ -11,7 +11,7 @@ interface MyInfoResponse {
   }
 
 
-const API_URL = 'https://ludmil.pythonanywhere.com/my_info/';
+const API_URL = 'http://127.0.0.1:8000/my_info/';
 
 export const fetchMyInfo = async (): Promise<MyInfoResponse> => {
   const response = await fetch(API_URL);
