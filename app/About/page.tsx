@@ -91,7 +91,7 @@ const About = () => {
           </motion.div>
         </div>
 
-        {/* Contact Info Section */}
+
         <div className="bg-white mt-12 max-w-7xl mx-auto px-6 md:px-10">
           <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
             <div className="flex items-center space-x-4 text-lg text-gray-700">
