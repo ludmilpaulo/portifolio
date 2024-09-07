@@ -7,14 +7,14 @@ const ExperienceCard = ({ expData }: { expData: any }) => {
 
   return (
     <motion.article
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1.2 }}
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1 }}
       whileHover={{ scale: 1.05 }}
-      className="flex flex-col rounded-lg items-center space-y-5 flex-shrink-0 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg snap-center bg-white bg-opacity-90 p-6 sm:p-8 md:p-10 hover:opacity-100 opacity-90 cursor-pointer transition-opacity duration-200 overflow-hidden shadow-xl transform hover:shadow-2xl"
+      className="flex flex-col rounded-lg items-center space-y-5 flex-shrink-0 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg snap-center bg-white bg-opacity-90 p-6 sm:p-8 md:p-10 hover:opacity-100 opacity-90 cursor-pointer transition-opacity duration-200 overflow-hidden shadow-xl transform hover:shadow-2xl hover:-translate-y-2"
     >
       <motion.div
-        initial={{ y: -100, opacity: 0 }}
+        initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1.2 }}
         viewport={{ once: true }}
@@ -34,17 +34,17 @@ const ExperienceCard = ({ expData }: { expData: any }) => {
           </div>
         )}
       </motion.div>
-      <div className="text-center px-2 sm:px-4">
-        <h4 className="text-xl sm:text-2xl font-light text-gray-800">{company}</h4>
+      <div className="text-center px-4">
+        <h4 className="text-xl sm:text-2xl font-light text-gray-900">{company}</h4>
         <p className="font-bold text-lg sm:text-xl mt-1 text-blue-600">{title}</p>
-        <div className="flex justify-center flex-wrap space-x-2 my-2">
+        <div className="flex justify-center flex-wrap space-x-3 my-3">
           {stack.length > 0 ? (
             stack.map((item: any) => (
               <div key={item.id} className="relative h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12">
                 <Image
                   src={item.image}
                   alt={item.title}
-                  className="rounded-full"
+                  className="rounded-full shadow-md"
                   width={40}
                   height={40}
                 />
@@ -54,7 +54,7 @@ const ExperienceCard = ({ expData }: { expData: any }) => {
             <p className="text-gray-400">No technologies listed</p>
           )}
         </div>
-        <p className="uppercase py-2 text-gray-600 text-sm">{the_year}</p>
+        <p className="uppercase py-1 text-gray-500 text-sm">{the_year}</p>
         <div className="overflow-y-auto max-h-32">
           <ul className="list-disc space-y-2 ml-4 text-sm sm:text-base text-gray-700">
             <li dangerouslySetInnerHTML={{ __html: description }} />

@@ -39,7 +39,10 @@ const WorkExperience = () => {
         transition={{ duration: 1.5 }}
         className="relative h-full flex flex-col text-center md:text-left md:flex-row max-w-full px-4 sm:px-10 md:px-20 justify-center md:justify-evenly mx-auto items-center"
       >
-        <div className="w-full flex space-x-4 overflow-x-auto p-4 md:p-10 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thumb-gray-700 scrollbar-track-gray-400">
+        <h2 className="absolute top-20 text-3xl text-white font-semibold tracking-wide uppercase">
+          Work Experience
+        </h2>
+        <div className="w-full flex space-x-4 overflow-x-auto p-4 md:p-10 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thumb-gray-500 scrollbar-track-gray-300">
           {workData.experiences.map((exp) => (
             <ExperienceCard key={exp.id} expData={exp} />
           ))}
