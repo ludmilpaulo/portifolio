@@ -43,9 +43,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      transition={{ duration: 1.2 }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
       viewport={{ once: true }}
       className="max-w-sm rounded-lg overflow-hidden shadow-lg bg-white transform transition-transform duration-300 hover:scale-105 hover:shadow-xl"
     >
@@ -66,7 +66,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           alt={title}
           width={400}
           height={250}
-          className="w-full object-cover"
+          className="w-full object-cover rounded-t-lg"
         />
 
         {/* Project Details */}

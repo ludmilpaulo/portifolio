@@ -23,7 +23,7 @@ const Header = () => {
   const [showModal, setShowModal] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,16 +53,16 @@ const Header = () => {
     const formData = new FormData(event.currentTarget);
 
     const data = {
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      message: formData.get('message') as string,
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      message: formData.get("message") as string,
     };
 
     try {
       const response = await fetch(`${baseUrl}submit-message/`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
@@ -177,42 +177,54 @@ const Header = () => {
       </header>
 
       {/* Drawer Menu */}
-      {drawerOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white text-black rounded-lg p-8 shadow-lg w-80 space-y-6">
-            <Link href="/About" onClick={handleDrawerToggle}>
-              <div className="flex items-center space-x-2">
-                <FaInfoCircle className="text-lg" />
-                <span>About</span>
-              </div>
-            </Link>
-            <Link href="/Experience" onClick={handleDrawerToggle}>
-              <div className="flex items-center space-x-2">
-                <FaBriefcase className="text-lg" />
-                <span>Experience</span>
-              </div>
-            </Link>
-            <Link href="/Skills" onClick={handleDrawerToggle}>
-              <div className="flex items-center space-x-2">
-                <FaTools className="text-lg" />
-                <span>Skills</span>
-              </div>
-            </Link>
-            <Link href="/Projects" onClick={handleDrawerToggle}>
-              <div className="flex items-center space-x-2">
-                <FaProjectDiagram className="text-lg" />
-                <span>Projects</span>
-              </div>
-            </Link>
-            <Link href="/Education" onClick={handleDrawerToggle}>
-              <div className="flex items-center space-x-2">
-                <FaGraduationCap className="text-lg" />
-                <span>Education</span>
-              </div>
-            </Link>
-          </div>
+      <Transition
+        show={drawerOpen}
+        enter="transition-transform duration-300"
+        enterFrom="-translate-x-full"
+        enterTo="translate-x-0"
+        leave="transition-transform duration-300"
+        leaveFrom="translate-x-0"
+        leaveTo="-translate-x-full"
+      >
+        <div className="fixed inset-y-0 left-0 w-64 bg-white text-black shadow-lg z-50 flex flex-col space-y-6 py-8 px-6">
+          <button
+            className="self-end text-gray-500 text-2xl"
+            onClick={handleDrawerToggle}
+          >
+            <FaTimes />
+          </button>
+          <Link href="/About" onClick={handleDrawerToggle}>
+            <div className="flex items-center space-x-2 text-lg">
+              <FaInfoCircle />
+              <span>About</span>
+            </div>
+          </Link>
+          <Link href="/Experience" onClick={handleDrawerToggle}>
+            <div className="flex items-center space-x-2 text-lg">
+              <FaBriefcase />
+              <span>Experience</span>
+            </div>
+          </Link>
+          <Link href="/Skills" onClick={handleDrawerToggle}>
+            <div className="flex items-center space-x-2 text-lg">
+              <FaTools />
+              <span>Skills</span>
+            </div>
+          </Link>
+          <Link href="/Projects" onClick={handleDrawerToggle}>
+            <div className="flex items-center space-x-2 text-lg">
+              <FaProjectDiagram />
+              <span>Projects</span>
+            </div>
+          </Link>
+          <Link href="/Education" onClick={handleDrawerToggle}>
+            <div className="flex items-center space-x-2 text-lg">
+              <FaGraduationCap />
+              <span>Education</span>
+            </div>
+          </Link>
         </div>
-      )}
+      </Transition>
 
       {/* Get in Touch Icon */}
       <div className="fixed bottom-5 right-5">
@@ -229,7 +241,7 @@ const Header = () => {
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
           <div className="bg-white text-black p-6 rounded-md shadow-md w-full max-w-md">
-            <h2 className="text-xl  font-bold mb-4">Contact Me</h2>
+            <h2 className="text-xl font-bold mb-4">Contact Me</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Form fields for name, email, and message */}
               <div className="flex flex-col">
@@ -284,7 +296,6 @@ const Header = () => {
                 </button>
               </div>
             </form>
-
           </div>
         </div>
       )}
