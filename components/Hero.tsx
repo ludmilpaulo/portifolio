@@ -3,24 +3,17 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Cursor, useTypewriter } from "react-simple-typewriter";
 import BackgroundCircles from "./BackgroundCircles";
-import Link from "next/link";
 import { fetchMyInfo } from "@/hooks/fetchData";
 import { Info } from "@/hooks/types";
+import { motion } from "framer-motion";
 
-type Props = {};
-
-const Hero: React.FC<Props> = () => {
+const Hero = () => {
   const [heroSlide, setHeroSlide] = useState<Info | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const data = await fetchMyInfo();
-        setHeroSlide(data.info[0]); // Assuming you want the first info object
-        console.log("header data", data);
-      } catch (error) {
-        console.error("Failed to fetch header data:", error);
-      }
+      const data = await fetchMyInfo();
+      setHeroSlide(data.info[0]);
     };
 
     fetchData();
@@ -28,42 +21,46 @@ const Hero: React.FC<Props> = () => {
 
   const [text] = useTypewriter({
     words: [
-      "My Name is Ludmil Paulo",
-      "I'm a Senior Software Engineer",
+      "Hi, I'm Ludmil Paulo",
+      "Senior Software Engineer",
       "Full Stack Developer",
       "Coding Enthusiast",
       "Tech Innovator",
       "Problem Solver",
-      "Continuous Learner"
+      "Continuous Learner",
     ],
     loop: true,
     delaySpeed: 2000,
   });
 
   return (
-    <div className="h-screen flex flex-col space-y-8 items-center justify-center text-center overflow-hidden bg-gradient-to-r from-[#0093E9] to-[#80D0C7]">
+    <section className="relative h-screen flex flex-col items-center justify-center text-center bg-gradient-to-r from-cyan-400 to-blue-600 text-white overflow-hidden">
       <BackgroundCircles />
       {heroSlide && (
-        <Image
-          className="relative rounded-full h-32 w-32 mx-auto object-cover shadow-lg"
-          src={heroSlide.avatar}
-          alt="Profile Picture"
-          width={128}
-          height={128}
-        />
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1 }}
+          className="rounded-full shadow-xl overflow-hidden border-4 border-white"
+        >
+          <Image
+            src={heroSlide.avatar}
+            alt="Profile"
+            width={150}
+            height={150}
+            className="object-cover"
+          />
+        </motion.div>
       )}
-      <div className="z-20">
-        <h2 className="text-sm uppercase text-gray-200 pb-2 tracking-[15px]">
-          Software Engineer
-        </h2>
-        <h1 className="text-5xl lg:text-6xl font-semibold px-10">
-          <span className="mr-3">{text}</span>
-          <Cursor cursorColor="#F7AB0A" />
-        </h1>
-       
-      </div>
-    </div>
+      <h2 className="uppercase tracking-widest text-sm mt-4 opacity-80">
+        Software Engineer
+      </h2>
+      <h1 className="mt-2 text-4xl md:text-6xl font-bold">
+        <span>{text}</span>
+        <Cursor cursorColor="#FFD700" />
+      </h1>
+    </section>
   );
-}
+};
 
 export default Hero;
