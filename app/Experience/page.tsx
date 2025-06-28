@@ -6,15 +6,14 @@ import ExperienceCard from "./ExperienceCard";
 import { fetchMyInfo } from "@/hooks/fetchData";
 import { Experience } from "@/hooks/types";
 
-const WorkExperience = () => {
-  const [workData, setWorkData] = useState<{ experiences: Experience[] } | null>(null);
+const WorkExperience: React.FC = () => {
+  const [experiences, setExperiences] = useState<Experience[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchMyInfo();
-        setWorkData({ experiences: data.experiences });
-        console.log("work data", data);
+        setExperiences(data.experiences);
       } catch (error) {
         console.error("Failed to fetch work data:", error);
       }
@@ -23,7 +22,7 @@ const WorkExperience = () => {
     fetchData();
   }, []);
 
-  if (!workData) {
+  if (!experiences.length) {
     return (
       <div className="flex justify-center items-center h-screen bg-gradient-to-r from-[#0093E9] to-[#80D0C7]">
         <div className="text-white text-lg font-semibold">Loading...</div>
@@ -32,23 +31,28 @@ const WorkExperience = () => {
   }
 
   return (
-    <div className="relative h-screen bg-gradient-to-r from-[#0093E9] to-[#80D0C7] overflow-hidden">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.5 }}
-        className="relative h-full flex flex-col text-center md:text-left md:flex-row max-w-full px-4 sm:px-10 md:px-20 justify-center md:justify-evenly mx-auto items-center"
+    <section className="relative min-h-screen bg-gradient-to-br from-[#0093E9] via-cyan-100 to-[#80D0C7] py-20 overflow-x-hidden">
+      {/* Animated Header */}
+      <motion.h2
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="text-center text-4xl sm:text-5xl font-extrabold text-white uppercase tracking-widest mb-16 drop-shadow"
       >
-        <h2 className="absolute top-20 text-3xl text-white font-semibold tracking-wide uppercase">
-          Work Experience
-        </h2>
-        <div className="w-full flex space-x-4 overflow-x-auto p-4 md:p-10 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thumb-gray-500 scrollbar-track-gray-300">
-          {workData.experiences.map((exp) => (
-            <ExperienceCard key={exp.id} expData={exp} />
-          ))}
-        </div>
-      </motion.div>
-    </div>
+        Work Experience
+      </motion.h2>
+      {/* Scrollable Cards */}
+      <div className="w-full flex gap-6 overflow-x-auto px-6 sm:px-12
+                      scrollbar-thin scrollbar-thumb-blue-300/60 scrollbar-track-blue-100/60
+                      hover:scrollbar-thumb-blue-500/80 snap-x snap-mandatory"
+           tabIndex={0}
+           aria-label="Work experience scroll area"
+      >
+        {experiences.map((exp) => (
+          <ExperienceCard key={exp.id} expData={exp} />
+        ))}
+      </div>
+    </section>
   );
 };
 
