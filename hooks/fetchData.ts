@@ -13,11 +13,11 @@ interface MyInfoResponse {
   }
 
 export async function fetchTestimonials() {
-  const res = await fetch(`${baseUrl}/testimonials/`);
+  const res = await fetch(`${baseUrl}testimonials/`);
   return await res.json();
 }
 // Correct API URL concatenation:
-const API_URL = `${baseUrl}/my_info/`;
+const API_URL = `${baseUrl}my_info/`;
 
 export const fetchMyInfo = async (): Promise<MyInfoResponse> => {
   const response = await fetch(API_URL);
