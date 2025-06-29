@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import ProviderWrapper from "@/components/ProviderWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -43,19 +44,17 @@ export const metadata: Metadata = {
 };
 
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-      <div className="bg-gradient-to-r from-[#0093E9] to-[#80D0C7] text-white h-screen snap-y snap-mandatory overflow-scroll z-0">
-      <Header/>
-        {children}
+        <div className="bg-gradient-to-r from-[#0093E9] to-[#80D0C7] text-white h-screen snap-y snap-mandatory overflow-scroll z-0">
+          <ProviderWrapper>
+            <Header />
+            {children}
+          </ProviderWrapper>
         </div>
-        </body>
+      </body>
     </html>
   );
 }

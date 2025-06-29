@@ -1,72 +1,46 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
+import { motion } from "framer-motion";
 import Image from "next/image";
-import { fetchMyInfo } from "@/hooks/fetchData";
-import { Info, Competence } from "@/hooks/types";
-import { useTheme } from "next-themes";
-import { AiOutlineDownload, AiOutlineWhatsApp, AiFillLinkedin, AiFillGithub } from "react-icons/ai";
-import { MdEmail, MdPhone, MdLocationOn, MdLightMode, MdDarkMode } from "react-icons/md";
+import {
+  AiOutlineDownload, AiOutlineWhatsApp, AiFillLinkedin, AiFillGithub,
+} from "react-icons/ai";
+import { MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
 import { FaFacebookSquare, FaTwitter } from "react-icons/fa";
+import { useGetMyInfoQuery } from "@/store/myInfoApi";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import { Info, Competence } from "@/hooks/types"
 
-// ------ Sample testimonials (you can fetch from API) ------
-const testimonials = [
-  {
-    name: "Sarah Johnson",
-    avatar: "/testimonials/sarah.jpg",
-    text: "Ludmil's attention to detail and passion for tech are unmatched. He delivered our project ahead of schedule, exceeding all expectations!",
-    role: "Product Manager, FinTech Co",
-  },
-  {
-    name: "Michael Osei",
-    avatar: "/testimonials/michael.jpg",
-    text: "Absolutely world-class developer. Great communication and always finds creative solutions to tough problems.",
-    role: "CTO, African Markets",
-  },
-  {
-    name: "Zanele M.",
-    avatar: "/testimonials/zanele.jpg",
-    text: "We loved working with Ludmil! Fast, professional, and truly cares about your vision. Highly recommend.",
-    role: "CEO, Zani Digital",
-  },
-];
-
-function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  return (
-    <button
-      aria-label="Toggle theme"
-      className="fixed z-50 top-7 right-7 md:top-9 md:right-12 bg-white dark:bg-gray-800 border border-blue-200 dark:border-cyan-700 rounded-full p-3 shadow-lg transition hover:scale-110"
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-    >
-      {resolvedTheme === "dark" ? (
-        <MdLightMode className="text-yellow-400" size={23} />
-      ) : (
-        <MdDarkMode className="text-blue-900" size={23} />
-      )}
-    </button>
-  );
-}
-
-// ---- Animated Skills Cloud ----
-const SKILL_CLOUD_RADIUS = 110; // px radius
+// -------- Animated Skills Cloud with Rotation --------
+const SKILL_CLOUD_RADIUS = 110;
 function SkillsCloud({ skills }: { skills: Competence[] }) {
-  // Only show up to 10 skills in the cloud for clarity
+  const [rotation, setRotation] = React.useState(0);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setRotation((r) => r + 0.3);
+    }, 30);
+    return () => clearInterval(interval);
+  }, []);
+
   const visibleSkills = skills.slice(0, 10);
 
   return (
-    <div className="relative flex justify-center items-center w-[290px] h-[290px] mx-auto mt-5 mb-14 select-none">
+    <motion.div
+      className="relative flex justify-center items-center w-[290px] h-[290px] mx-auto mt-5 mb-14 select-none"
+      style={{ transform: `rotate(${rotation}deg)` }}
+      animate={{}}
+    >
       {/* Center avatar */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 shadow-xl border-4 border-blue-200 dark:border-cyan-400 rounded-full">
         <Image
-          src="/avatar-cloud.png" // Fallback avatar, swap for aboutMe.avatar if you want
+          src="/avatar-cloud.png"
           alt="Avatar"
           width={105}
           height={105}
           className="rounded-full object-cover"
         />
       </div>
-      {/* Orbiting skills */}
       {visibleSkills.map((skill, i) => {
         const angle = (2 * Math.PI * i) / visibleSkills.length;
         const x = Math.cos(angle) * SKILL_CLOUD_RADIUS;
@@ -76,96 +50,36 @@ function SkillsCloud({ skills }: { skills: Competence[] }) {
             key={skill.id}
             style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)` }}
             initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1.1, opacity: 1 }}
-            whileHover={{ scale: 1.25, zIndex: 30 }}
+            animate={{ scale: 1.12, opacity: 1 }}
+            whileHover={{
+              scale: 1.28,
+              boxShadow: "0 0 18px 2px #0093e9a0",
+              zIndex: 30,
+            }}
             transition={{ type: "spring", stiffness: 300, delay: 0.07 * i }}
-            className="absolute w-16 h-16 flex flex-col items-center justify-center bg-white/80 dark:bg-gray-900/90 border border-blue-100 dark:border-cyan-700 rounded-full shadow-lg text-xs group"
+            className="absolute w-16 h-16 flex flex-col items-center justify-center bg-white/90 dark:bg-gray-900/90 border border-blue-100 dark:border-cyan-700 rounded-full shadow-lg text-xs group hover:-translate-y-2 transition"
           >
             <Image src={skill.image} alt={skill.title} width={36} height={36} className="rounded-full mb-1" />
             <span className="text-gray-700 dark:text-cyan-100 font-semibold">{skill.title}</span>
           </motion.div>
         );
       })}
-      {/* Subtle orbiting glow */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-gradient-to-tr from-blue-400/10 to-cyan-200/10 blur-2xl z-0" />
-    </div>
+    </motion.div>
   );
 }
 
-// ---- Testimonials Carousel ----
-function TestimonialsSection() {
-  const [idx, setIdx] = useState(0);
-
-  return (
-    <section className="relative py-12 px-2 sm:px-8">
-      <h2 className="text-center text-3xl md:text-4xl font-bold mb-10 text-blue-800 dark:text-cyan-200">
-        Testimonials
-      </h2>
-      <div className="flex items-center justify-center">
-        <AnimatePresence initial={false} mode="wait">
-          <motion.div
-            key={testimonials[idx].name}
-            initial={{ opacity: 0, y: 60, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -40, scale: 0.98 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-xl w-full mx-auto bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-xl px-8 py-8 text-center flex flex-col items-center border border-blue-100 dark:border-cyan-800"
-          >
-            <Image
-              src={testimonials[idx].avatar}
-              alt={testimonials[idx].name}
-              width={72}
-              height={72}
-              className="rounded-full border-2 border-blue-300 mb-4 shadow"
-            />
-            <blockquote className="text-lg text-gray-800 dark:text-cyan-100 italic mb-3">
-              “{testimonials[idx].text}”
-            </blockquote>
-            <span className="text-blue-700 dark:text-cyan-200 font-bold">{testimonials[idx].name}</span>
-            <span className="text-gray-400 dark:text-cyan-400 text-sm">{testimonials[idx].role}</span>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-      <div className="flex justify-center gap-2 mt-8">
-        {testimonials.map((t, i) => (
-          <button
-            key={t.name}
-            onClick={() => setIdx(i)}
-            aria-label={`Go to testimonial ${i + 1}`}
-            className={`w-3 h-3 rounded-full ${i === idx ? "bg-blue-500 dark:bg-cyan-300" : "bg-blue-200 dark:bg-cyan-800"} transition`}
-          />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-// ---- Main About Page ----
+// -------- Main About Page --------
 const About = () => {
-  const [aboutMe, setAboutMe] = useState<Info | null>(null);
-  const [skills, setSkills] = useState<Competence[]>([]);
-  const [loading, setLoading] = useState(true);
+  // RTK Query hooks
+  const { data, isLoading, isError } = useGetMyInfoQuery();
 
-  // Example stats, you may want to fetch/compute these:
+  // Example stats
   const yearsExp = 7;
   const projects = 28;
   const countries = 3;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchMyInfo();
-        setAboutMe(data.info[0]);
-        setSkills(data.competences || []);
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full bg-gradient-to-tr from-blue-900/80 to-cyan-600/70">
         <div className="flex flex-col items-center space-y-3">
@@ -176,13 +90,15 @@ const About = () => {
     );
   }
 
-  if (!aboutMe) {
+  if (isError || !data?.info?.[0]) {
     return <div className="text-center text-red-500 mt-32">Error loading data. Please try again later.</div>;
   }
 
+  const aboutMe = data.info[0];
+  const skills = data.competences || [];
+
   return (
     <div className="relative bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-200 min-h-screen py-20 dark:from-gray-900 dark:via-gray-950 dark:to-blue-900 transition-colors duration-500 overflow-hidden">
-      <ThemeToggle />
       {/* Floating background orbs */}
       <div className="pointer-events-none fixed z-0 inset-0">
         <div className="absolute -top-20 -left-32 w-96 h-96 bg-gradient-to-br from-cyan-300/30 via-blue-200/20 to-transparent rounded-full blur-3xl" />
@@ -199,7 +115,7 @@ const About = () => {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.1, delay: 0.15 }}
-          className="relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-blue-100 dark:border-blue-900 flex flex-col md:flex-row gap-8 p-8 sm:p-12"
+          className="relative bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-3xl shadow-2xl border-2 border-blue-100 dark:border-blue-900 flex flex-col md:flex-row gap-8 p-8 sm:p-12"
         >
           <div className="flex-shrink-0 w-full md:w-1/3 flex flex-col items-center z-10">
             <div className="relative">
@@ -211,7 +127,6 @@ const About = () => {
                 height={220}
                 priority
               />
-              {/* Animated online indicator */}
               <span className="absolute bottom-4 right-4 w-5 h-5 rounded-full border-2 border-white dark:border-gray-900 bg-gradient-to-tr from-green-400 to-cyan-400 animate-pulse shadow"></span>
             </div>
             <div className="mt-5 text-xl font-bold text-blue-700 dark:text-cyan-300">{aboutMe.name_complete}</div>
@@ -254,9 +169,7 @@ const About = () => {
                 </a>
               )}
             </div>
-            {/* Animated divider */}
             <div className="w-16 h-1 mt-7 mb-4 bg-gradient-to-r from-blue-400 via-cyan-400 to-green-300 rounded-full blur-[2px] animate-pulse" />
-            {/* Stats row */}
             <div className="flex gap-6 justify-center text-center">
               <div>
                 <div className="text-2xl font-bold text-blue-700 dark:text-cyan-200">{yearsExp}+</div>
@@ -284,7 +197,7 @@ const About = () => {
 
         {/* Skills Cloud */}
         <section className="w-full flex flex-col items-center">
-          <h3 className="text-2xl md:text-3xl font-bold text-blue-700 dark:text-cyan-200 mb-3 mt-8">
+          <h3 className="text-2xl md:text-3xl font-bold text-blue-700 dark:text-cyan-200 mb-3 mt-8 tracking-widest">
             Tech Stack & Skills Cloud
           </h3>
           <SkillsCloud skills={skills} />
@@ -295,7 +208,7 @@ const About = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl shadow-xl border border-blue-100 dark:border-blue-900 p-8 flex flex-col items-center"
+          className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl shadow-xl border-2 border-blue-100 dark:border-blue-900 p-8 flex flex-col items-center"
         >
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-4 text-lg">
             <div className="flex items-center gap-3 text-blue-800 dark:text-cyan-300">

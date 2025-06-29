@@ -5,7 +5,6 @@ import { FaExternalLinkAlt, FaGithub } from "react-icons/fa";
 import { Project } from "@/hooks/types";
 import { useState } from "react";
 
-// Tooltip component for tools
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
   const [show, setShow] = useState(false);
   return (
@@ -93,7 +92,6 @@ const ProjectCard: React.FC<Project> = ({
         <div className="flex-1 px-6 py-4 flex flex-col">
           <h3 className="font-extrabold text-2xl mb-1 text-blue-700">{title}</h3>
           <p className="text-gray-600 text-sm mb-3">{truncatedDescription}</p>
-
           {/* Tools */}
           <div>
             <span className="text-xs text-gray-500 font-medium">Tech Stack:</span>

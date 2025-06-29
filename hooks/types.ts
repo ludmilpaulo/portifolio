@@ -5,6 +5,7 @@ export interface Competence {
     percentage: string;
     description: string;
     image: string;
+    category: string;
   }
 
 export interface Experience {

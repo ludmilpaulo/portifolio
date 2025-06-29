@@ -2,12 +2,13 @@ import { motion } from "framer-motion";
 import React from "react";
 import Image from "next/image";
 import { Experience, Competence } from "@/hooks/types";
+import { FaBuilding } from "react-icons/fa";
 
 const StackTooltip: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => {
   const [show, setShow] = React.useState(false);
   return (
     <span
-      className="relative flex items-center"
+      className="relative flex items-center outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
       onMouseEnter={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
       onFocus={() => setShow(true)}
@@ -17,7 +18,7 @@ const StackTooltip: React.FC<{ title: string; children: React.ReactNode }> = ({ 
       {children}
       {show && (
         <span className="absolute left-1/2 -top-8 z-30 bg-gray-900 text-white text-xs rounded px-2 py-1 shadow-xl whitespace-nowrap
-                        transform -translate-x-1/2 border border-blue-300"
+                        transform -translate-x-1/2 border border-blue-300 animate-fade-in"
         >
           {title}
         </span>
@@ -35,14 +36,9 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ expData }) => {
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 60 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.9, type: "spring" }}
-      viewport={{ once: true }}
-      whileHover={{ scale: 1.04, boxShadow: "0 10px 40px #0093e955" }}
-      className="flex flex-col rounded-3xl bg-white/70 backdrop-blur-xl shadow-2xl border border-blue-100
-                 items-center space-y-5 flex-shrink-0 w-[325px] sm:w-[375px] md:w-[440px] snap-center
-                 p-8 hover:shadow-blue-400/40 transition-all duration-300"
+      className="flex flex-col rounded-3xl bg-white/80 dark:bg-gray-900/90 backdrop-blur-xl shadow-2xl border border-blue-100
+                 items-center space-y-5 flex-shrink-0 w-[320px] sm:w-[375px] md:w-[390px] snap-center
+                 p-8 hover:shadow-blue-400/40 transition-all duration-300 group"
       tabIndex={0}
     >
       {/* Logo */}
@@ -61,14 +57,13 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ expData }) => {
             className="rounded-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-blue-400 text-xl">No Logo</div>
+          <FaBuilding className="text-blue-300 text-5xl" />
         )}
       </motion.div>
-
       {/* Info */}
       <div className="text-center px-2">
-        <h4 className="text-2xl font-bold text-blue-800 mb-1">{company}</h4>
-        <p className="font-semibold text-lg text-cyan-600">{title}</p>
+        <h4 className="text-2xl font-bold text-blue-800 dark:text-cyan-200 mb-1">{company}</h4>
+        <p className="font-semibold text-lg text-cyan-600 dark:text-cyan-300">{title}</p>
         <div className="flex justify-center flex-wrap gap-2 my-3">
           {stack.length > 0 ? (
             stack.map((item: Competence) => (
@@ -90,7 +85,7 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({ expData }) => {
         </div>
         <p className="uppercase py-1 text-gray-500 text-xs">{the_year}</p>
         <div className="overflow-y-auto max-h-32 mt-3 scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-blue-50 pr-1">
-          <div className="text-gray-800 text-sm leading-relaxed whitespace-pre-line"
+          <div className="text-gray-800 dark:text-cyan-100 text-sm leading-relaxed whitespace-pre-line"
             dangerouslySetInnerHTML={{ __html: description }}
           />
         </div>
