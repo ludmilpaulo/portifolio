@@ -2,6 +2,29 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Ludmil Paulo - Senior Software Engineer & Full Stack Developer",
+  description: "Learn more about Ludmil Paulo, a Senior Software Engineer with 7+ years of experience in full stack development, React, Node.js, Python, and mobile app development. Discover his journey, skills, and professional background.",
+  keywords: [
+    "Ludmil Paulo",
+    "software engineer",
+    "full stack developer",
+    "about me",
+    "professional background",
+    "skills",
+    "experience",
+    "React developer",
+    "Node.js developer",
+    "Python developer"
+  ],
+  openGraph: {
+    title: "About Ludmil Paulo - Senior Software Engineer & Full Stack Developer",
+    description: "Learn more about Ludmil Paulo, a Senior Software Engineer with 7+ years of experience in full stack development, React, Node.js, Python, and mobile app development.",
+    url: "https://ludmilpaulo.com/About",
+  },
+};
 import {
   AiOutlineDownload, AiOutlineWhatsApp, AiFillLinkedin, AiFillGithub,
 } from "react-icons/ai";
@@ -121,11 +144,15 @@ const About = () => {
             <div className="relative">
               <Image
                 src={aboutMe.avatar}
-                alt="Profile picture"
+                alt="Ludmil Paulo - Senior Software Engineer Profile Picture"
                 className="rounded-full object-cover shadow-2xl border-4 border-blue-200 dark:border-cyan-300"
                 width={220}
                 height={220}
                 priority
+                quality={90}
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                sizes="(max-width: 768px) 180px, 220px"
               />
               <span className="absolute bottom-4 right-4 w-5 h-5 rounded-full border-2 border-white dark:border-gray-900 bg-gradient-to-tr from-green-400 to-cyan-400 animate-pulse shadow"></span>
             </div>

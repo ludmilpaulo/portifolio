@@ -6,6 +6,137 @@
 @import "swiper/css/effect-coverflow";
 @import "swiper/css/pagination";
 
+/* Performance optimizations */
+* {
+  box-sizing: border-box;
+}
 
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar styling */
+.no-scrollbar::-webkit-scrollbar { 
+  display: none; 
+}
+.no-scrollbar { 
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
+}
+
+/* Smooth animations with reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Professional gradient backgrounds */
+.gradient-bg {
+  background: linear-gradient(135deg, #0093E9 0%, #80D0C7 100%);
+  background-attachment: fixed;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #0093E9 0%, #80D0C7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass morphism effects */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Loading skeleton animations */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Focus styles for accessibility */
+.focus-visible {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+/* Professional button styles */
+.btn-primary {
+  @apply bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105;
+}
+
+.btn-secondary {
+  @apply border-2 border-white/60 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-white/10 hover:scale-105 transition-all duration-300;
+}
+
+/* Card hover effects */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-2xl hover:scale-105;
+}
+
+/* Text truncation utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Responsive typography */
+.text-responsive-xl {
+  @apply text-2xl md:text-3xl lg:text-4xl xl:text-5xl;
+}
+
+.text-responsive-lg {
+  @apply text-lg md:text-xl lg:text-2xl;
+}
+
+/* Performance optimizations for images */
+img {
+  content-visibility: auto;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

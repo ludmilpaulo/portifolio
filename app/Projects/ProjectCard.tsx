@@ -80,11 +80,14 @@ const ProjectCard: React.FC<Project> = ({
         <div className="relative w-full h-52 rounded-t-2xl overflow-hidden">
           <Image
             src={image}
-            alt={title}
+            alt={`${title} - Software Development Project`}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-110"
             sizes="(max-width: 768px) 100vw, 400px"
-            priority
+            loading="lazy"
+            quality={85}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
           />
         </div>
 
@@ -101,10 +104,15 @@ const ProjectCard: React.FC<Project> = ({
                   <span className="inline-flex items-center bg-gradient-to-r from-cyan-50 to-blue-100 px-2 py-1 rounded-full text-xs shadow border border-blue-200">
                     <Image
                       src={tool.image}
-                      alt={tool.title}
+                      alt={`${tool.title} technology icon`}
                       width={22}
                       height={22}
                       className="rounded-full mr-1 border"
+                      loading="lazy"
+                      quality={80}
+                      placeholder="blur"
+                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                      sizes="22px"
                     />
                     {tool.title}
                   </span>

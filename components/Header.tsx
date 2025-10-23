@@ -41,7 +41,7 @@ const Header = () => {
   const logoUrl = info?.avatar || "/avatar/lud.jpeg";
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-blue-100 dark:border-cyan-900 shadow-lg transition-all">
+    <header className="sticky top-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-xl border-b border-blue-100/50 dark:border-cyan-900/50 shadow-lg transition-all duration-300">
       <div className="flex items-center justify-between max-w-7xl mx-auto px-5 py-2 md:py-3">
         {/* Logo and Name */}
         <Link href="/" className="flex items-center gap-3 group">
@@ -54,11 +54,14 @@ const Header = () => {
           >
             <Image
               src={logoUrl}
-              alt="Logo"
+              alt="Ludmil Paulo - Portfolio Logo"
               width={48}
               height={48}
               className="rounded-full object-cover"
               priority
+              quality={90}
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
             />
           </motion.div>
           <div>

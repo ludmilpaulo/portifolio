@@ -39,12 +39,16 @@ export default function Home() {
         >
           <Image
             src={info?.avatar || "/avatar/lud.jpeg"}
-            alt={info?.name_complete || "Ludmil Paulo"}
+            alt={`${info?.name_complete || "Ludmil Paulo"} - Senior Software Engineer & Full Stack Developer`}
             width={190}
             height={190}
             className="rounded-full object-cover"
             priority
+            quality={90}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
             style={{ boxShadow: "0 0 38px 0 #0093E955" }}
+            sizes="(max-width: 768px) 150px, 190px"
           />
         </motion.div>
         {/* Text */}
@@ -109,16 +113,18 @@ export default function Home() {
               )}
           </div>
           {/* CTA */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+          <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <Link
               href="/About"
-              className="inline-block px-8 py-3 bg-gradient-to-r from-[#0093e9] to-[#52e5e7] rounded-full font-bold text-lg shadow-xl hover:from-[#00f2fe] hover:to-[#4facfe] hover:scale-105 transition"
+              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#0093e9] to-[#52e5e7] rounded-full font-bold text-lg shadow-xl hover:from-[#00f2fe] hover:to-[#4facfe] hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent"
+              aria-label="Learn more about Ludmil Paulo"
             >
-              Let’s Connect
+              Let's Connect
             </Link>
             <Link
               href="/Projects"
-              className="inline-block px-8 py-3 border-2 border-cyan-100/60 rounded-full font-bold text-lg shadow-xl hover:bg-white/10 hover:scale-105 transition"
+              className="inline-flex items-center justify-center px-8 py-4 border-2 border-cyan-100/60 rounded-full font-bold text-lg shadow-xl hover:bg-white/10 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent"
+              aria-label="View Ludmil Paulo's projects"
             >
               See My Work
             </Link>
@@ -183,10 +189,15 @@ export default function Home() {
                   >
                     <Image
                       src={p.image}
-                      alt={p.title}
+                      alt={`${p.title} - Project showcase`}
                       width={200}
                       height={120}
                       className="rounded-lg mb-3 object-cover"
+                      loading="lazy"
+                      quality={85}
+                      placeholder="blur"
+                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                      sizes="(max-width: 768px) 180px, 200px"
                     />
                     <h4 className="text-lg font-bold mb-1 text-blue-900">{p.title}</h4>
                     <p className="text-xs text-gray-600 line-clamp-2">{p.description.replace(/<[^>]+>/g, "")}</p>
@@ -223,10 +234,15 @@ export default function Home() {
                 >
                   <Image
                     src={t.avatar || "/testimonials/default.jpg"}
-                    alt={t.name}
+                    alt={`${t.name} - Testimonial`}
                     width={72}
                     height={72}
                     className="rounded-full border-2 border-blue-400 mb-4 shadow"
+                    loading="lazy"
+                    quality={80}
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                    sizes="72px"
                   />
                   <blockquote className="text-lg text-gray-800 dark:text-cyan-100 italic mb-2">
                     “{t.text}”

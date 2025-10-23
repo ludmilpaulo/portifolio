@@ -1,6 +1,29 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Projects - Ludmil Paulo's Portfolio | Software Engineering & Development",
+  description: "Explore Ludmil Paulo's portfolio of software engineering projects. Discover innovative web applications, mobile apps, and full-stack solutions built with React, Node.js, Python, and modern technologies.",
+  keywords: [
+    "software projects",
+    "portfolio projects",
+    "web development projects",
+    "mobile app projects",
+    "React projects",
+    "Node.js projects",
+    "Python projects",
+    "full stack projects",
+    "software engineering portfolio",
+    "Ludmil Paulo projects"
+  ],
+  openGraph: {
+    title: "Projects - Ludmil Paulo's Portfolio | Software Engineering & Development",
+    description: "Explore Ludmil Paulo's portfolio of software engineering projects. Discover innovative web applications, mobile apps, and full-stack solutions.",
+    url: "https://ludmilpaulo.com/Projects",
+  },
+};
 import {
   FaCheckCircle,
   FaClock,
