@@ -37,8 +37,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { href: "/dashboard/analytics", icon: FaChartBar, label: "Analytics", color: "text-orange-500" },
     { href: "/dashboard/media", icon: FaUpload, label: "Media", color: "text-pink-500" },
     { href: "/dashboard/testimonials", icon: FaUsers, label: "Testimonials", color: "text-indigo-500" },
-    { href: "/dashboard/content", icon: FaFileAlt, label: "Content", color: "text-teal-500" },
+    { href: "/dashboard/client", icon: FaUsers, label: "Client Dashboard", color: "text-teal-500" },
     { href: "/dashboard/users", icon: FaUsers, label: "Users", color: "text-red-500" },
+    { href: "/dashboard/notifications", icon: FaBell, label: "Notifications", color: "text-yellow-500" },
     { href: "/dashboard/security", icon: FaShieldAlt, label: "Security", color: "text-yellow-500" },
     { href: "/dashboard/settings", icon: FaCog, label: "Settings", color: "text-gray-500" },
   ];

@@ -208,27 +208,50 @@ export default function Home() {
               </Link>
             </motion.div>
             
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full sm:w-auto"
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full sm:w-auto"
+          >
+            <Link
+              href="/Projects"
+              className="inline-flex items-center justify-center px-8 sm:px-10 py-4 sm:py-5 border-2 border-cyan-100/80 rounded-full font-bold text-base sm:text-lg shadow-xl hover:bg-white/15 hover:border-white hover:scale-105 transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-transparent backdrop-blur-sm w-full"
+              aria-label="View Ludmil Paulo's projects"
             >
-              <Link
-                href="/Projects"
-                className="inline-flex items-center justify-center px-8 sm:px-10 py-4 sm:py-5 border-2 border-cyan-100/80 rounded-full font-bold text-base sm:text-lg shadow-xl hover:bg-white/15 hover:border-white hover:scale-105 transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-transparent backdrop-blur-sm w-full"
-                aria-label="View Ludmil Paulo's projects"
-              >
-                <span className="flex items-center justify-center gap-3">
-                  <span>See My Work</span>
-                  <motion.div
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                  >
-                    💼
-                  </motion.div>
-                </span>
-              </Link>
-            </motion.div>
+              <span className="flex items-center justify-center gap-3">
+                <span>See My Work</span>
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                >
+                  💼
+                </motion.div>
+              </span>
+            </Link>
+          </motion.div>
+          
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full sm:w-auto"
+          >
+            <Link
+              href="/project-inquiry"
+              className="inline-flex items-center justify-center px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-green-500 via-emerald-500 to-green-500 rounded-full font-bold text-base sm:text-lg shadow-2xl hover:shadow-3xl transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-transparent relative overflow-hidden group w-full"
+              aria-label="Start a project with Ludmil Paulo"
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
+              <span className="relative z-10 flex items-center justify-center gap-3">
+                <span>Start Project</span>
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  🚀
+                </motion.div>
+              </span>
+            </Link>
+          </motion.div>
           </motion.div>
         </motion.div>
       </section>
