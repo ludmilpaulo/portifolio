@@ -2,29 +2,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "About Ludmil Paulo - Senior Software Engineer & Full Stack Developer",
-  description: "Learn more about Ludmil Paulo, a Senior Software Engineer with 7+ years of experience in full stack development, React, Node.js, Python, and mobile app development. Discover his journey, skills, and professional background.",
-  keywords: [
-    "Ludmil Paulo",
-    "software engineer",
-    "full stack developer",
-    "about me",
-    "professional background",
-    "skills",
-    "experience",
-    "React developer",
-    "Node.js developer",
-    "Python developer"
-  ],
-  openGraph: {
-    title: "About Ludmil Paulo - Senior Software Engineer & Full Stack Developer",
-    description: "Learn more about Ludmil Paulo, a Senior Software Engineer with 7+ years of experience in full stack development, React, Node.js, Python, and mobile app development.",
-    url: "https://ludmilpaulo.com/About",
-  },
-};
 import {
   AiOutlineDownload, AiOutlineWhatsApp, AiFillLinkedin, AiFillGithub,
 } from "react-icons/ai";
