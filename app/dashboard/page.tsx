@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { 
   FaEye, 
   FaUsers, 
@@ -12,7 +13,8 @@ import {
   FaCalendarAlt,
   FaGlobe,
   FaMobile,
-  FaDesktop
+  FaDesktop,
+  FaSignOutAlt
 } from "react-icons/fa";
 
 interface AnalyticsData {
@@ -27,6 +29,8 @@ interface AnalyticsData {
 }
 
 const DashboardPage = () => {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     totalViews: 0,
     uniqueVisitors: 0,
@@ -46,20 +50,52 @@ const DashboardPage = () => {
   });
 
   useEffect(() => {
-    // Simulate data loading
-    setTimeout(() => {
-      setAnalytics({
-        totalViews: 15420,
-        uniqueVisitors: 8930,
-        projects: 28,
-        testimonials: 15,
-        viewsChange: 12.5,
-        visitorsChange: 8.3,
-        projectsChange: 25.0,
-        testimonialsChange: 15.7,
-      });
-    }, 1000);
-  }, []);
+    // Check authentication
+    const adminAuth = localStorage.getItem('adminAuth');
+    if (!adminAuth) {
+      router.push('/admin-login');
+      return;
+    }
+    setIsAuthenticated(true);
+
+    // Load analytics data
+    const loadAnalytics = async () => {
+      try {
+        const response = await fetch('/api/graphql?type=analytics');
+        const result = await response.json();
+        if (result.success) {
+          setAnalytics(result.data);
+        }
+      } catch (error) {
+        console.error('Error loading analytics:', error);
+        // Fallback data
+        setAnalytics({
+          totalViews: 15420,
+          uniqueVisitors: 8930,
+          projects: 28,
+          testimonials: 15,
+          viewsChange: 12.5,
+          visitorsChange: 8.3,
+          projectsChange: 25.0,
+          testimonialsChange: 15.7,
+        });
+      }
+    };
+    loadAnalytics();
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminAuth');
+    router.push('/admin-login');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const StatCard = ({ 
     title, 
@@ -110,8 +146,19 @@ const DashboardPage = () => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white"
       >
-        <h1 className="text-3xl font-bold mb-2">Welcome back, Ludmil!</h1>
-        <p className="text-blue-100">Here&apos;s what&apos;s happening with your portfolio today.</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Welcome back, Ludmil!</h1>
+            <p className="text-blue-100">Here&apos;s what&apos;s happening with your portfolio today.</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors"
+          >
+            <FaSignOutAlt />
+            <span>Logout</span>
+          </button>
+        </div>
       </motion.div>
 
       {/* Stats Grid */}

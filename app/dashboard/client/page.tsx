@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { 
   FaPlus, 
   FaEdit, 
@@ -31,7 +32,8 @@ import {
   FaCog,
   FaFileContract,
   FaHandshake,
-  FaClipboardList
+  FaClipboardList,
+  FaSignOutAlt
 } from "react-icons/fa";
 
 interface ProjectInquiry {
@@ -101,6 +103,8 @@ interface Document {
 }
 
 const ClientDashboard = () => {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [inquiries, setInquiries] = useState<ProjectInquiry[]>([]);
   const [filteredInquiries, setFilteredInquiries] = useState<ProjectInquiry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -115,6 +119,14 @@ const ClientDashboard = () => {
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
 
   useEffect(() => {
+    // Check authentication
+    const clientAuth = localStorage.getItem('clientAuth');
+    if (!clientAuth) {
+      router.push('/client-login');
+      return;
+    }
+    setIsAuthenticated(true);
+
     // Load inquiries from API
     const loadInquiries = async () => {
       try {
@@ -129,7 +141,7 @@ const ClientDashboard = () => {
     };
 
     loadInquiries();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     let filtered = inquiries;
@@ -155,6 +167,19 @@ const ClientDashboard = () => {
 
     setFilteredInquiries(filtered);
   }, [inquiries, searchTerm, statusFilter, priorityFilter]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('clientAuth');
+    router.push('/client-login');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -251,6 +276,15 @@ const ClientDashboard = () => {
           >
             <FaUserEdit className="mr-2" />
             Profile
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleLogout}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors flex items-center"
+          >
+            <FaSignOutAlt className="mr-2" />
+            Logout
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}

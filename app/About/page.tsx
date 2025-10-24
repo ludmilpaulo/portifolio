@@ -32,10 +32,10 @@ function SkillsCloud({ skills }: { skills: Competence[] }) {
       animate={{}}
     >
       {/* Center avatar */}
-      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 shadow-xl border-4 border-blue-200 dark:border-cyan-400 rounded-full">
+      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 shadow-xl border-4 border-blue-200 dark:border-cyan-400 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
         <Image
-          src="/avatar-cloud.png"
-          alt="Avatar"
+          src="/avatar/lud.jpeg"
+          alt="Ludmil Paulo"
           width={105}
           height={105}
           className="rounded-full object-cover"
