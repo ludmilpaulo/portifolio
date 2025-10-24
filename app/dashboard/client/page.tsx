@@ -22,7 +22,16 @@ import {
   FaDownload,
   FaPaperPlane,
   FaComments,
-  FaStar
+  FaStar,
+  FaFileInvoice,
+  FaUserEdit,
+  FaSignature,
+  FaTasks,
+  FaChartLine,
+  FaCog,
+  FaFileContract,
+  FaHandshake,
+  FaClipboardList
 } from "react-icons/fa";
 
 interface ProjectInquiry {
@@ -47,6 +56,48 @@ interface ProjectInquiry {
   attachments?: string[];
   estimatedCost?: number;
   actualCost?: number;
+  progress?: number;
+  tasks?: Task[];
+  invoices?: Invoice[];
+  documents?: Document[];
+}
+
+interface Task {
+  id: number;
+  title: string;
+  description: string;
+  status: "pending" | "in-progress" | "completed";
+  assignedTo: "client" | "admin";
+  dueDate: string;
+  createdAt: string;
+  priority: "low" | "medium" | "high";
+}
+
+interface Invoice {
+  id: number;
+  invoiceNumber: string;
+  amount: number;
+  status: "draft" | "sent" | "paid" | "overdue";
+  dueDate: string;
+  createdAt: string;
+  description: string;
+  items: Array<{
+    description: string;
+    quantity: number;
+    price: number;
+  }>;
+}
+
+interface Document {
+  id: number;
+  title: string;
+  type: "contract" | "agreement" | "nda" | "proposal";
+  status: "draft" | "pending-signature" | "signed" | "expired";
+  createdAt: string;
+  signedAt?: string;
+  expiresAt?: string;
+  downloadUrl: string;
+  signedBy?: string;
 }
 
 const ClientDashboard = () => {
@@ -58,95 +109,26 @@ const ClientDashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState<ProjectInquiry | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [activeTab, setActiveTab] = useState("projects");
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
 
   useEffect(() => {
-    // Simulate loading inquiries
-    const mockInquiries: ProjectInquiry[] = [
-      {
-        id: 1,
-        clientName: "John Smith",
-        clientEmail: "john@example.com",
-        clientPhone: "+1234567890",
-        projectTitle: "E-commerce Website Development",
-        projectDescription: "Need a full-stack e-commerce website with payment integration, inventory management, and admin dashboard.",
-        budget: "$10,000 - $15,000",
-        timeline: "3-4 months",
-        status: "in-progress",
-        priority: "high",
-        createdAt: "2024-01-15T10:30:00Z",
-        updatedAt: "2024-02-15T14:20:00Z",
-        estimatedCost: 12500,
-        actualCost: 0,
-        messages: [
-          {
-            id: 1,
-            sender: "client",
-            message: "Hi, I'm interested in developing an e-commerce website for my business.",
-            timestamp: "2024-01-15T10:30:00Z"
-          },
-          {
-            id: 2,
-            sender: "admin",
-            message: "Thank you for your inquiry! I'd be happy to help you with your e-commerce project. Let me gather some more details.",
-            timestamp: "2024-01-15T11:00:00Z"
-          }
-        ]
-      },
-      {
-        id: 2,
-        clientName: "Sarah Johnson",
-        clientEmail: "sarah@example.com",
-        projectTitle: "Mobile App Development",
-        projectDescription: "Looking for a React Native mobile app for iOS and Android with user authentication and real-time features.",
-        budget: "$8,000 - $12,000",
-        timeline: "2-3 months",
-        status: "pending",
-        priority: "medium",
-        createdAt: "2024-02-01T09:15:00Z",
-        updatedAt: "2024-02-01T09:15:00Z",
-        estimatedCost: 10000,
-        messages: [
-          {
-            id: 1,
-            sender: "client",
-            message: "I need a mobile app for my startup. Can you help?",
-            timestamp: "2024-02-01T09:15:00Z"
-          }
-        ]
-      },
-      {
-        id: 3,
-        clientName: "Mike Wilson",
-        clientEmail: "mike@example.com",
-        clientPhone: "+1234567892",
-        projectTitle: "Portfolio Website",
-        projectDescription: "Simple portfolio website with contact form and project showcase.",
-        budget: "$2,000 - $3,000",
-        timeline: "1 month",
-        status: "completed",
-        priority: "low",
-        createdAt: "2024-01-01T14:20:00Z",
-        updatedAt: "2024-01-30T16:45:00Z",
-        estimatedCost: 2500,
-        actualCost: 2500,
-        messages: [
-          {
-            id: 1,
-            sender: "client",
-            message: "I need a simple portfolio website.",
-            timestamp: "2024-01-01T14:20:00Z"
-          },
-          {
-            id: 2,
-            sender: "admin",
-            message: "Perfect! I can create a beautiful portfolio website for you.",
-            timestamp: "2024-01-01T15:00:00Z"
-          }
-        ]
+    // Load inquiries from API
+    const loadInquiries = async () => {
+      try {
+        const response = await fetch('/api/graphql?type=inquiries');
+        const result = await response.json();
+        if (result.success) {
+          setInquiries(result.data);
+        }
+      } catch (error) {
+        console.error('Error loading inquiries:', error);
       }
-    ];
-    setInquiries(mockInquiries);
-    setFilteredInquiries(mockInquiries);
+    };
+
+    loadInquiries();
   }, []);
 
   useEffect(() => {
@@ -258,17 +240,54 @@ const ClientDashboard = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Client Dashboard</h1>
-          <p className="text-gray-600 mt-1">Manage project inquiries and client communications</p>
+          <p className="text-gray-600 mt-1">Manage your projects, invoices, and documents</p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setShowModal(true)}
-          className="mt-4 sm:mt-0 bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center"
-        >
-          <FaPlus className="mr-2" />
-          New Inquiry
-        </motion.button>
+        <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowProfileModal(true)}
+            className="bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors flex items-center"
+          >
+            <FaUserEdit className="mr-2" />
+            Profile
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowModal(true)}
+            className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center"
+          >
+            <FaPlus className="mr-2" />
+            New Inquiry
+          </motion.button>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-2">
+        <div className="flex space-x-1">
+          {[
+            { id: "projects", label: "Projects", icon: FaFileAlt },
+            { id: "tasks", label: "Tasks", icon: FaTasks },
+            { id: "invoices", label: "Invoices", icon: FaFileInvoice },
+            { id: "documents", label: "Documents", icon: FaFileContract },
+            { id: "progress", label: "Progress", icon: FaChartLine }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+                activeTab === tab.id
+                  ? "bg-blue-500 text-white"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <tab.icon className="mr-2" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -347,45 +366,36 @@ const ClientDashboard = () => {
         </motion.div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
-            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search inquiries..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="in-progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-          
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">All Priorities</option>
-            <option value="urgent">Urgent</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
-      </div>
+      {/* Tab Content */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100">
+        {activeTab === "projects" && (
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Project Inquiries</h2>
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search projects..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
 
       {/* Inquiries List */}
       <div className="space-y-4">
@@ -602,6 +612,306 @@ const ClientDashboard = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+          </div>
+        )}
+
+        {activeTab === "tasks" && (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">My Tasks</h2>
+            <div className="space-y-4">
+              {inquiries.flatMap(inquiry => inquiry.tasks || []).map((task) => (
+                <div key={task.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{task.title}</h3>
+                      <p className="text-gray-600 text-sm mt-1">{task.description}</p>
+                      <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                        <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          task.priority === 'high' ? 'bg-red-100 text-red-800' :
+                          task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-green-100 text-green-800'
+                        }`}>
+                          {task.priority}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        task.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        task.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {task.status}
+                      </span>
+                      <button className="text-blue-600 hover:text-blue-800">
+                        <FaEdit />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "invoices" && (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Invoices</h2>
+            <div className="space-y-4">
+              {inquiries.flatMap(inquiry => inquiry.invoices || []).map((invoice) => (
+                <div key={invoice.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{invoice.invoiceNumber}</h3>
+                      <p className="text-gray-600 text-sm mt-1">{invoice.description}</p>
+                      <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                        <span>Amount: ${invoice.amount.toLocaleString()}</span>
+                        <span>Due: {new Date(invoice.dueDate).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        invoice.status === 'paid' ? 'bg-green-100 text-green-800' :
+                        invoice.status === 'overdue' ? 'bg-red-100 text-red-800' :
+                        invoice.status === 'sent' ? 'bg-blue-100 text-blue-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {invoice.status}
+                      </span>
+                      <button className="text-blue-600 hover:text-blue-800">
+                        <FaDownload />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "documents" && (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Documents</h2>
+            <div className="space-y-4">
+              {inquiries.flatMap(inquiry => inquiry.documents || []).map((document) => (
+                <div key={document.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{document.title}</h3>
+                      <p className="text-gray-600 text-sm mt-1 capitalize">{document.type}</p>
+                      <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                        <span>Created: {new Date(document.createdAt).toLocaleDateString()}</span>
+                        {document.expiresAt && (
+                          <span>Expires: {new Date(document.expiresAt).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        document.status === 'signed' ? 'bg-green-100 text-green-800' :
+                        document.status === 'pending-signature' ? 'bg-yellow-100 text-yellow-800' :
+                        document.status === 'expired' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {document.status}
+                      </span>
+                      <button 
+                        onClick={() => {
+                          setSelectedDocument(document);
+                          setShowDocumentModal(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <FaSignature />
+                      </button>
+                      <button className="text-blue-600 hover:text-blue-800">
+                        <FaDownload />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "progress" && (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Project Progress</h2>
+            <div className="space-y-6">
+              {inquiries.map((inquiry) => (
+                <div key={inquiry.id} className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">{inquiry.projectTitle}</h3>
+                    <span className="text-sm text-gray-500">{inquiry.progress || 0}% Complete</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${inquiry.progress || 0}%` }}
+                    ></div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-500">Estimated Cost:</span>
+                      <p className="font-semibold">${inquiry.estimatedCost?.toLocaleString() || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Actual Cost:</span>
+                      <p className="font-semibold">${inquiry.actualCost?.toLocaleString() || '0'}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Timeline:</span>
+                      <p className="font-semibold">{inquiry.timeline}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Status:</span>
+                      <p className="font-semibold capitalize">{inquiry.status}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Profile Update Modal */}
+      <AnimatePresence>
+        {showProfileModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-xl p-6 w-full max-w-md mx-4"
+            >
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Update Profile</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Your full name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="your@email.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Your company name"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={() => setShowProfileModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                  Save Changes
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Document Signing Modal */}
+      <AnimatePresence>
+        {showDocumentModal && selectedDocument && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-xl p-6 w-full max-w-2xl mx-4"
+            >
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Sign Document</h2>
+              <div className="mb-4">
+                <h3 className="font-medium text-gray-900">{selectedDocument.title}</h3>
+                <p className="text-sm text-gray-600 capitalize">{selectedDocument.type}</p>
+              </div>
+              
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <p className="text-sm text-gray-600 mb-2">Document Preview:</p>
+                <div className="bg-white border rounded p-4 h-64 overflow-y-auto">
+                  <p className="text-sm text-gray-800">
+                    This is a preview of the {selectedDocument.type}. Please review the document carefully before signing.
+                    <br /><br />
+                    By signing this document, you agree to the terms and conditions outlined within.
+                    <br /><br />
+                    Document ID: {selectedDocument.id}
+                    <br />
+                    Created: {new Date(selectedDocument.createdAt).toLocaleDateString()}
+                    {selectedDocument.expiresAt && (
+                      <>
+                        <br />
+                        Expires: {new Date(selectedDocument.expiresAt).toLocaleDateString()}
+                      </>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-4 mb-4">
+                <input
+                  type="checkbox"
+                  id="agree"
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label htmlFor="agree" className="text-sm text-gray-700">
+                  I have read and agree to the terms of this document
+                </label>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDocumentModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center">
+                  <FaSignature className="mr-2" />
+                  Sign Document
+                </button>
               </div>
             </motion.div>
           </motion.div>

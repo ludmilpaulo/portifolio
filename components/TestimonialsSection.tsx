@@ -75,13 +75,21 @@ function TestimonialsSection() {
             transition={{ duration: 0.5 }}
             className="max-w-xl w-full mx-auto bg-white/90 dark:bg-gray-900/90 rounded-2xl shadow-2xl px-6 md:px-10 py-8 text-center flex flex-col items-center border-2 border-blue-100 dark:border-cyan-800 hover:shadow-blue-300/30 transition"
           >
-            <Image
-              src={testimonial.avatar || "/testimonials/default.jpg"}
-              alt={testimonial.name}
-              width={72}
-              height={72}
-              className="rounded-full border-4 border-blue-200 mb-4 shadow object-cover"
-            />
+            {testimonial.avatar && testimonial.avatar !== "/testimonials/default.jpg" ? (
+              <Image
+                src={testimonial.avatar}
+                alt={testimonial.name}
+                width={72}
+                height={72}
+                className="rounded-full border-4 border-blue-200 mb-4 shadow object-cover"
+              />
+            ) : (
+              <div className="w-18 h-18 rounded-full border-4 border-blue-200 mb-4 shadow bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <span className="text-white font-bold text-xl">
+                  {testimonial.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                </span>
+              </div>
+            )}
             <blockquote className="text-lg text-gray-800 dark:text-cyan-100 italic mb-3">
               “{testimonial.text}”
             </blockquote>

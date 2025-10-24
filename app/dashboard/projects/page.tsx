@@ -12,7 +12,18 @@ import {
   FaExternalLinkAlt,
   FaCalendarAlt,
   FaTag,
-  FaProjectDiagram
+  FaProjectDiagram,
+  FaTasks,
+  FaFileContract,
+  FaSignature,
+  FaUserPlus,
+  FaChartLine,
+  FaFileAlt,
+  FaHandshake,
+  FaClipboardList,
+  FaCheckCircle,
+  FaClock,
+  FaExclamationTriangle
 } from "react-icons/fa";
 
 interface Project {
@@ -26,6 +37,49 @@ interface Project {
   updatedAt: string;
   url?: string;
   githubUrl?: string;
+  clientId?: number;
+  clientName?: string;
+  progress?: number;
+  estimatedCost?: number;
+  actualCost?: number;
+  timeline?: string;
+  tasks?: Task[];
+  documents?: Document[];
+  teamMembers?: TeamMember[];
+}
+
+interface Task {
+  id: number;
+  title: string;
+  description: string;
+  status: "pending" | "in-progress" | "completed";
+  assignedTo: "client" | "admin" | string;
+  dueDate: string;
+  createdAt: string;
+  priority: "low" | "medium" | "high";
+  projectId: number;
+}
+
+interface Document {
+  id: number;
+  title: string;
+  type: "contract" | "agreement" | "nda" | "proposal" | "invoice";
+  status: "draft" | "pending-signature" | "signed" | "expired";
+  createdAt: string;
+  signedAt?: string;
+  expiresAt?: string;
+  downloadUrl: string;
+  signedBy?: string;
+  projectId: number;
+}
+
+interface TeamMember {
+  id: number;
+  name: string;
+  role: string;
+  email: string;
+  avatar?: string;
+  projectId: number;
 }
 
 const ProjectsPage = () => {
@@ -36,47 +90,30 @@ const ProjectsPage = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
+  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [newTask, setNewTask] = useState<Partial<Task>>({});
+  const [newDocument, setNewDocument] = useState<Partial<Document>>({});
+  const [newTeamMember, setNewTeamMember] = useState<Partial<TeamMember>>({});
 
   useEffect(() => {
-    // Simulate loading projects
-    const mockProjects: Project[] = [
-      {
-        id: 1,
-        title: "E-Commerce Platform",
-        description: "A full-stack e-commerce solution with React and Node.js",
-        image: "/projects/ecommerce.jpg",
-        status: "live",
-        technologies: ["React", "Node.js", "MongoDB", "Stripe"],
-        createdAt: "2024-01-15",
-        updatedAt: "2024-01-20",
-        url: "https://ecommerce-demo.com",
-        githubUrl: "https://github.com/ludmilpaulo/ecommerce"
-      },
-      {
-        id: 2,
-        title: "Task Management App",
-        description: "A collaborative task management application",
-        image: "/projects/taskapp.jpg",
-        status: "in-progress",
-        technologies: ["Next.js", "TypeScript", "Prisma", "PostgreSQL"],
-        createdAt: "2024-02-01",
-        updatedAt: "2024-02-15",
-        githubUrl: "https://github.com/ludmilpaulo/taskapp"
-      },
-      {
-        id: 3,
-        title: "Portfolio Website",
-        description: "Personal portfolio website with modern design",
-        image: "/projects/portfolio.jpg",
-        status: "live",
-        technologies: ["Next.js", "Tailwind CSS", "Framer Motion"],
-        createdAt: "2024-01-01",
-        updatedAt: "2024-01-10",
-        url: "https://ludmilpaulo.com"
+    // Load projects from API
+    const loadProjects = async () => {
+      try {
+        const response = await fetch('/api/graphql?type=projects');
+        const result = await response.json();
+        if (result.success) {
+          setProjects(result.data);
+        }
+      } catch (error) {
+        console.error('Error loading projects:', error);
       }
-    ];
-    setProjects(mockProjects);
-    setFilteredProjects(mockProjects);
+    };
+
+    loadProjects();
   }, []);
 
   useEffect(() => {
@@ -132,6 +169,82 @@ const ProjectsPage = () => {
     if (confirm("Are you sure you want to delete this project?")) {
       setProjects(projects.filter(project => project.id !== id));
     }
+  };
+
+  const handleAddTask = (projectId: number) => {
+    const task: Task = {
+      id: Date.now(),
+      title: newTask.title || "",
+      description: newTask.description || "",
+      status: "pending",
+      assignedTo: newTask.assignedTo || "client",
+      dueDate: newTask.dueDate || "",
+      createdAt: new Date().toISOString(),
+      priority: newTask.priority || "medium",
+      projectId
+    };
+
+    setProjects(projects.map(project => 
+      project.id === projectId 
+        ? { ...project, tasks: [...(project.tasks || []), task] }
+        : project
+    ));
+
+    setNewTask({});
+    setShowTaskModal(false);
+  };
+
+  const handleAddDocument = (projectId: number) => {
+    const document: Document = {
+      id: Date.now(),
+      title: newDocument.title || "",
+      type: newDocument.type || "contract",
+      status: "draft",
+      createdAt: new Date().toISOString(),
+      downloadUrl: newDocument.downloadUrl || "",
+      projectId
+    };
+
+    setProjects(projects.map(project => 
+      project.id === projectId 
+        ? { ...project, documents: [...(project.documents || []), document] }
+        : project
+    ));
+
+    setNewDocument({});
+    setShowDocumentModal(false);
+  };
+
+  const handleAddTeamMember = (projectId: number) => {
+    const member: TeamMember = {
+      id: Date.now(),
+      name: newTeamMember.name || "",
+      role: newTeamMember.role || "",
+      email: newTeamMember.email || "",
+      projectId
+    };
+
+    setProjects(projects.map(project => 
+      project.id === projectId 
+        ? { ...project, teamMembers: [...(project.teamMembers || []), member] }
+        : project
+    ));
+
+    setNewTeamMember({});
+    setShowTeamModal(false);
+  };
+
+  const handleUpdateTaskStatus = (projectId: number, taskId: number, status: Task["status"]) => {
+    setProjects(projects.map(project => 
+      project.id === projectId 
+        ? {
+            ...project,
+            tasks: project.tasks?.map(task => 
+              task.id === taskId ? { ...task, status } : task
+            )
+          }
+        : project
+    ));
   };
 
   return (
@@ -217,8 +330,76 @@ const ProjectsPage = () => {
               </div>
               
               <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{project.title}</h3>
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-xl font-bold text-gray-900">{project.title}</h3>
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() => {
+                        setSelectedProject(project);
+                        setActiveTab("overview");
+                      }}
+                      className="p-1 text-blue-500 hover:bg-blue-50 rounded transition-colors"
+                      title="View Details"
+                    >
+                      <FaEye />
+                    </button>
+                    <button
+                      onClick={() => setEditingProject(project)}
+                      className="p-1 text-gray-500 hover:bg-gray-50 rounded transition-colors"
+                      title="Edit Project"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(project.id)}
+                      className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                      title="Delete Project"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                </div>
+
+                {project.clientName && (
+                  <div className="flex items-center text-sm text-gray-600 mb-2">
+                    <FaUserPlus className="mr-1" />
+                    Client: {project.clientName}
+                  </div>
+                )}
+
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.description}</p>
+                
+                {/* Progress Bar */}
+                {project.progress !== undefined && (
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between text-sm mb-1">
+                      <span className="text-gray-600">Progress</span>
+                      <span className="text-gray-800 font-medium">{project.progress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${project.progress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Project Stats */}
+                <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
+                  {project.estimatedCost && (
+                    <div className="bg-gray-50 rounded p-2">
+                      <div className="text-gray-500">Est. Cost</div>
+                      <div className="font-semibold">${project.estimatedCost.toLocaleString()}</div>
+                    </div>
+                  )}
+                  {project.timeline && (
+                    <div className="bg-gray-50 rounded p-2">
+                      <div className="text-gray-500">Timeline</div>
+                      <div className="font-semibold">{project.timeline}</div>
+                    </div>
+                  )}
+                </div>
                 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {project.technologies.slice(0, 3).map((tech, idx) => (
@@ -232,36 +413,48 @@ const ProjectsPage = () => {
                     </span>
                   )}
                 </div>
-                
+
+                {/* Quick Actions */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center text-gray-500 text-sm">
                     <FaCalendarAlt className="mr-1" />
                     {new Date(project.createdAt).toLocaleDateString()}
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() => {
+                        setSelectedProject(project);
+                        setActiveTab("tasks");
+                        setShowTaskModal(true);
+                      }}
+                      className="p-1 text-green-500 hover:bg-green-50 rounded transition-colors"
+                      title="Add Task"
+                    >
+                      <FaTasks />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedProject(project);
+                        setActiveTab("documents");
+                        setShowDocumentModal(true);
+                      }}
+                      className="p-1 text-purple-500 hover:bg-purple-50 rounded transition-colors"
+                      title="Add Document"
+                    >
+                      <FaFileContract />
+                    </button>
                     {project.url && (
                       <a
                         href={project.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-1 text-blue-500 hover:bg-blue-50 rounded transition-colors"
+                        title="View Live Site"
                       >
                         <FaExternalLinkAlt />
                       </a>
                     )}
-                    <button
-                      onClick={() => setEditingProject(project)}
-                      className="p-2 text-gray-500 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(project.id)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <FaTrash />
-                    </button>
                   </div>
                 </div>
               </div>

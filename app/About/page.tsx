@@ -32,7 +32,7 @@ function SkillsCloud({ skills }: { skills: Competence[] }) {
       animate={{}}
     >
       {/* Center avatar */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 shadow-xl border-4 border-blue-200 dark:border-cyan-400 rounded-full">
+      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 shadow-xl border-4 border-blue-200 dark:border-cyan-400 rounded-full">
         <Image
           src="/avatar-cloud.png"
           alt="Avatar"
