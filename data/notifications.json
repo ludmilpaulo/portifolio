@@ -1,0 +1,24 @@
+[
+  {
+    "id": "1",
+    "title": "New Project Inquiry",
+    "message": "John Smith submitted a new project inquiry for E-commerce Website Development",
+    "type": "info",
+    "category": "inquiry",
+    "isRead": false,
+    "createdAt": "2024-02-15T10:30:00Z",
+    "actionUrl": "/dashboard/client",
+    "actionText": "View Inquiry"
+  },
+  {
+    "id": "1761284880893",
+    "title": "New Project Inquiry",
+    "message": "Test Client submitted a new project inquiry: Test Project",
+    "type": "info",
+    "category": "inquiry",
+    "isRead": false,
+    "createdAt": "2025-10-24T05:48:00.893Z",
+    "actionUrl": "/dashboard/client",
+    "actionText": "View Inquiry"
+  }
+]
