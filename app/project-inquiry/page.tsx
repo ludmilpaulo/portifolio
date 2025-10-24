@@ -267,10 +267,11 @@ const ProjectInquiryPage = () => {
                     type="text"
                     value={formData.clientName}
                     onChange={(e) => handleInputChange("clientName", e.target.value)}
-                    className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 ${
                       errors.clientName ? "border-red-500 bg-red-50" : "border-gray-300 hover:border-gray-400"
                     }`}
                     placeholder="Your full name"
+                    style={{ color: '#111827' }}
                   />
                   {errors.clientName && (
                     <p className="text-red-500 text-sm mt-1">{errors.clientName}</p>
@@ -285,10 +286,11 @@ const ProjectInquiryPage = () => {
                     type="email"
                     value={formData.clientEmail}
                     onChange={(e) => handleInputChange("clientEmail", e.target.value)}
-                    className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 ${
                       errors.clientEmail ? "border-red-500 bg-red-50" : "border-gray-300 hover:border-gray-400"
                     }`}
                     placeholder="your@email.com"
+                    style={{ color: '#111827' }}
                   />
                   {errors.clientEmail && (
                     <p className="text-red-500 text-sm mt-1">{errors.clientEmail}</p>
@@ -303,8 +305,9 @@ const ProjectInquiryPage = () => {
                     type="tel"
                     value={formData.clientPhone}
                     onChange={(e) => handleInputChange("clientPhone", e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors hover:border-gray-400"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors hover:border-gray-400 bg-white text-gray-900"
                     placeholder="+1 (555) 123-4567"
+                    style={{ color: '#111827' }}
                   />
                 </div>
               </div>
@@ -326,10 +329,11 @@ const ProjectInquiryPage = () => {
                     type="text"
                     value={formData.projectTitle}
                     onChange={(e) => handleInputChange("projectTitle", e.target.value)}
-                    className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 ${
                       errors.projectTitle ? "border-red-500 bg-red-50" : "border-gray-300 hover:border-gray-400"
                     }`}
                     placeholder="e.g., E-commerce Website Development"
+                    style={{ color: '#111827' }}
                   />
                   {errors.projectTitle && (
                     <p className="text-red-500 text-sm mt-1">{errors.projectTitle}</p>
@@ -390,10 +394,11 @@ const ProjectInquiryPage = () => {
                     value={formData.projectDescription}
                     onChange={(e) => handleInputChange("projectDescription", e.target.value)}
                     rows={5}
-                    className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 ${
                       errors.projectDescription ? "border-red-500 bg-red-50" : "border-gray-300 hover:border-gray-400"
                     }`}
                     placeholder="Describe your project in detail. What features do you need? What&apos;s your vision?"
+                    style={{ color: '#111827' }}
                   />
                   {errors.projectDescription && (
                     <p className="text-red-500 text-sm mt-1">{errors.projectDescription}</p>
@@ -408,9 +413,10 @@ const ProjectInquiryPage = () => {
                     <select
                       value={formData.budget}
                       onChange={(e) => handleInputChange("budget", e.target.value)}
-                      className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                      className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 ${
                         errors.budget ? "border-red-500 bg-red-50" : "border-gray-300 hover:border-gray-400"
                       }`}
+                      style={{ color: '#111827' }}
                     >
                       <option value="" className="text-gray-500">Select budget range</option>
                       {budgetRanges.map((range) => (
@@ -434,9 +440,10 @@ const ProjectInquiryPage = () => {
                     <select
                       value={formData.timeline}
                       onChange={(e) => handleInputChange("timeline", e.target.value)}
-                      className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                      className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 ${
                         errors.timeline ? "border-red-500 bg-red-50" : "border-gray-300 hover:border-gray-400"
                       }`}
+                      style={{ color: '#111827' }}
                     >
                       <option value="" className="text-gray-500">Select timeline</option>
                       {timelineOptions.map((timeline) => (
@@ -462,8 +469,9 @@ const ProjectInquiryPage = () => {
                     value={formData.additionalRequirements}
                     onChange={(e) => handleInputChange("additionalRequirements", e.target.value)}
                     rows={3}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors hover:border-gray-400"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors hover:border-gray-400 bg-white text-gray-900"
                     placeholder="Any specific technologies, integrations, or special requirements?"
+                    style={{ color: '#111827' }}
                   />
                 </div>
               </div>
