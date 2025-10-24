@@ -253,50 +253,6 @@ export default function Home() {
             </Link>
           </motion.div>
           
-          {/* Dashboard Access Links */}
-          <motion.div 
-            className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-md sm:max-w-none"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.4 }}
-          >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full sm:w-auto"
-            >
-              <Link
-                href="/admin-login"
-                className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 rounded-full font-semibold text-sm sm:text-base shadow-xl hover:shadow-2xl transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-purple-300/30 focus:ring-offset-2 focus:ring-offset-transparent relative overflow-hidden group w-full"
-                aria-label="Admin Dashboard Access"
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-purple-400 to-purple-300 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  <span>🔐 Admin</span>
-                  <span>Dashboard</span>
-                </span>
-              </Link>
-            </motion.div>
-            
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full sm:w-auto"
-            >
-              <Link
-                href="/client-login"
-                className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 rounded-full font-semibold text-sm sm:text-base shadow-xl hover:shadow-2xl transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-emerald-300/30 focus:ring-offset-2 focus:ring-offset-transparent relative overflow-hidden group w-full"
-                aria-label="Client Dashboard Access"
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-300 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  <span>👤 Client</span>
-                  <span>Portal</span>
-                </span>
-              </Link>
-            </motion.div>
-          </motion.div>
-          
           </motion.div>
         </motion.div>
       </section>
@@ -582,6 +538,42 @@ export default function Home() {
           </Swiper>
         </motion.section>
       )}
+
+      {/* Footer with Login Links */}
+      <footer className="bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 text-white py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="text-center md:text-left">
+              <h3 className="text-xl font-bold mb-2">Ludmil Paulo</h3>
+              <p className="text-gray-300 text-sm">Full Stack Developer & Software Engineer</p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              <Link
+                href="/admin-login"
+                className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors text-sm font-medium"
+              >
+                <span>🔐</span>
+                <span>Admin Login</span>
+              </Link>
+              
+              <Link
+                href="/client-login"
+                className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors text-sm font-medium"
+              >
+                <span>👤</span>
+                <span>Client Portal</span>
+              </Link>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-700 mt-6 pt-6 text-center">
+            <p className="text-gray-400 text-sm">
+              © 2024 Ludmil Paulo. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
