@@ -27,7 +27,7 @@ function SkillsCloud({ skills }: { skills: Competence[] }) {
 
   return (
     <motion.div
-      className="relative flex justify-center items-center w-[290px] h-[290px] mx-auto mt-5 mb-14 select-none"
+      className="relative flex justify-center items-center w-[290px] h-[290px] mx-auto select-none"
       style={{ transform: `rotate(${rotation}deg)` }}
       animate={{}}
     >
@@ -200,11 +200,13 @@ const About = () => {
         </motion.div>
 
         {/* Skills Cloud */}
-        <section className="w-full flex flex-col items-center">
-          <h3 className="text-2xl md:text-3xl font-bold text-blue-700 dark:text-cyan-200 mb-3 mt-8 tracking-widest">
+        <section className="w-full flex flex-col items-center justify-center">
+          <h3 className="text-2xl md:text-3xl font-bold text-blue-700 dark:text-cyan-200 mb-6 mt-8 tracking-widest text-center">
             Tech Stack & Skills Cloud
           </h3>
-          <SkillsCloud skills={skills} />
+          <div className="flex justify-center items-center w-full">
+            <SkillsCloud skills={skills} />
+          </div>
         </section>
 
         {/* Contact and Download */}
