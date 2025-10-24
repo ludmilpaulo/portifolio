@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AdminLogin() {
   const [formData, setFormData] = useState({
@@ -10,24 +11,33 @@ export default function AdminLogin() {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { login, isLoading, isAuthenticated, user } = useAuth();
+
+  // Redirect if already authenticated as admin
+  useEffect(() => {
+    if (isAuthenticated && user?.user_type === 'admin') {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
 
-    // Simple authentication - in production, use proper authentication
-    if (formData.username === 'admin' && formData.password === 'admin123') {
-      localStorage.setItem('adminAuth', 'true');
-      router.push('/dashboard');
-    } else {
-      setError('Invalid credentials. Use admin/admin123 for demo.');
-    }
+    const result = await login(formData.username, formData.password);
     
-    setIsLoading(false);
+    if (result.success) {
+      // Check if user is admin
+      if (user?.user_type === 'admin') {
+        router.push('/dashboard');
+      } else {
+        setError('Access denied. Admin credentials required.');
+      }
+    } else {
+      setError(result.error || 'Login failed');
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -16,6 +16,8 @@ import {
   FaDesktop,
   FaSignOutAlt
 } from "react-icons/fa";
+import { useAuth } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 interface AnalyticsData {
   totalViews: number;
@@ -30,7 +32,7 @@ interface AnalyticsData {
 
 const DashboardPage = () => {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, logout } = useAuth();
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     totalViews: 0,
     uniqueVisitors: 0,
@@ -50,14 +52,6 @@ const DashboardPage = () => {
   });
 
   useEffect(() => {
-    // Check authentication
-    const adminAuth = localStorage.getItem('adminAuth');
-    if (!adminAuth) {
-      router.push('/admin-login');
-      return;
-    }
-    setIsAuthenticated(true);
-
     // Load analytics data
     const loadAnalytics = async () => {
       try {
@@ -82,20 +76,11 @@ const DashboardPage = () => {
       }
     };
     loadAnalytics();
-  }, [router]);
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
-    router.push('/admin-login');
+    logout();
   };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   const StatCard = ({ 
     title, 
@@ -139,7 +124,8 @@ const DashboardPage = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <ProtectedRoute requiredUserType="admin">
+      <div className="space-y-6">
       {/* Welcome Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -147,10 +133,10 @@ const DashboardPage = () => {
         className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white"
       >
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Welcome back, Ludmil!</h1>
-            <p className="text-blue-100">Here&apos;s what&apos;s happening with your portfolio today.</p>
-          </div>
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.first_name || 'Admin'}!</h1>
+              <p className="text-blue-100">Here&apos;s what&apos;s happening with your portfolio today.</p>
+            </div>
           <button
             onClick={handleLogout}
             className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors"
@@ -314,7 +300,8 @@ const DashboardPage = () => {
           ))}
         </div>
       </motion.div>
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 };
 

@@ -7,6 +7,7 @@ import PerformanceMonitor from "@/components/PerformanceMonitor";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import ParticleBackground from "@/components/ParticleBackground";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -204,12 +205,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ScrollProgress />
         <ParticleBackground />
         <div className="bg-gradient-to-r from-[#0093E9] to-[#80D0C7] text-white h-screen snap-y snap-mandatory overflow-scroll z-0">
-          <ProviderWrapper>
-            <Header />
-            <main role="main">
-              {children}
-            </main>
-          </ProviderWrapper>
+          <AuthProvider>
+            <ProviderWrapper>
+              <Header />
+              <main role="main">
+                {children}
+              </main>
+            </ProviderWrapper>
+          </AuthProvider>
         </div>
         <FloatingActionButton />
       </body>

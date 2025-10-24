@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaLock, FaEye, FaEyeSlash, FaEnvelope } from 'react-icons/fa';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function ClientLogin() {
   const [formData, setFormData] = useState({
@@ -10,24 +11,33 @@ export default function ClientLogin() {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { login, isLoading, isAuthenticated, user } = useAuth();
+
+  // Redirect if already authenticated as client
+  useEffect(() => {
+    if (isAuthenticated && user?.user_type === 'client') {
+      router.push('/dashboard/client');
+    }
+  }, [isAuthenticated, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
 
-    // Simple authentication - in production, use proper authentication
-    if (formData.email === 'client@example.com' && formData.password === 'client123') {
-      localStorage.setItem('clientAuth', 'true');
-      router.push('/dashboard/client');
-    } else {
-      setError('Invalid credentials. Use client@example.com/client123 for demo.');
-    }
+    const result = await login(formData.email, formData.password);
     
-    setIsLoading(false);
+    if (result.success) {
+      // Check if user is client
+      if (user?.user_type === 'client') {
+        router.push('/dashboard/client');
+      } else {
+        setError('Access denied. Client credentials required.');
+      }
+    } else {
+      setError(result.error || 'Login failed');
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -35,6 +35,8 @@ import {
   FaClipboardList,
   FaSignOutAlt
 } from "react-icons/fa";
+import { useAuth } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 interface ProjectInquiry {
   id: number;
@@ -104,7 +106,7 @@ interface Document {
 
 const ClientDashboard = () => {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, logout } = useAuth();
   const [inquiries, setInquiries] = useState<ProjectInquiry[]>([]);
   const [filteredInquiries, setFilteredInquiries] = useState<ProjectInquiry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -119,14 +121,6 @@ const ClientDashboard = () => {
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
 
   useEffect(() => {
-    // Check authentication
-    const clientAuth = localStorage.getItem('clientAuth');
-    if (!clientAuth) {
-      router.push('/client-login');
-      return;
-    }
-    setIsAuthenticated(true);
-
     // Load inquiries from API
     const loadInquiries = async () => {
       try {
@@ -141,7 +135,7 @@ const ClientDashboard = () => {
     };
 
     loadInquiries();
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     let filtered = inquiries;
@@ -169,17 +163,8 @@ const ClientDashboard = () => {
   }, [inquiries, searchTerm, statusFilter, priorityFilter]);
 
   const handleLogout = () => {
-    localStorage.removeItem('clientAuth');
-    router.push('/client-login');
+    logout();
   };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -260,7 +245,8 @@ const ClientDashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <ProtectedRoute requiredUserType="client">
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -952,6 +938,7 @@ const ClientDashboard = () => {
         )}
       </AnimatePresence>
     </div>
+    </ProtectedRoute>
   );
 };
 

@@ -176,6 +176,83 @@ function getFallbackData(endpoint: string, method: string, data?: any) {
         ]
       };
     
+    case '/login/':
+      // Demo authentication for testing
+      if (data.username === 'admin' && data.password === 'admin123') {
+        return {
+          success: true,
+          token: 'demo-admin-token-123',
+          user: {
+            id: 1,
+            username: 'admin',
+            email: 'admin@ludmilpaulo.co.za',
+            first_name: 'Admin',
+            last_name: 'User',
+            user_type: 'admin',
+            is_verified: true
+          }
+        };
+      } else if (data.username === 'client@example.com' && data.password === 'client123') {
+        return {
+          success: true,
+          token: 'demo-client-token-123',
+          user: {
+            id: 2,
+            username: 'client@example.com',
+            email: 'client@example.com',
+            first_name: 'Client',
+            last_name: 'User',
+            user_type: 'client',
+            is_verified: true
+          }
+        };
+      } else {
+        return {
+          success: false,
+          error: 'Invalid credentials'
+        };
+      }
+
+    case '/verify-token/':
+      // Demo token verification
+      if (data.token === 'demo-admin-token-123' || data.token === 'demo-client-token-123') {
+        return {
+          success: true,
+          valid: true
+        };
+      } else {
+        return {
+          success: false,
+          error: 'Invalid token'
+        };
+      }
+
+    case '/get-user/':
+      // Demo user data retrieval
+      if (data.token === 'demo-admin-token-123') {
+        return {
+          id: 1,
+          username: 'admin',
+          email: 'admin@ludmilpaulo.co.za',
+          first_name: 'Admin',
+          last_name: 'User',
+          user_type: 'admin',
+          is_verified: true
+        };
+      } else if (data.token === 'demo-client-token-123') {
+        return {
+          id: 2,
+          username: 'client@example.com',
+          email: 'client@example.com',
+          first_name: 'Client',
+          last_name: 'User',
+          user_type: 'client',
+          is_verified: true
+        };
+      } else {
+        throw new Error('Invalid token');
+      }
+    
     default:
       if (method === 'POST') {
         return {
@@ -334,17 +411,47 @@ export async function POST(request: NextRequest) {
         const updatedNotification = await djangoRequest('/update-notification/', 'POST', data);
         return NextResponse.json({ success: true, data: updatedNotification.data });
 
-      case 'login':
-        const loginResult = await djangoRequest('/login/', 'POST', data);
-        return NextResponse.json({ success: true, data: loginResult });
+          case 'login':
+            const loginResult = await djangoRequest('/login/', 'POST', data);
+            return NextResponse.json({ success: true, data: loginResult });
 
-      case 'forgot-password':
-        const forgotResult = await djangoRequest('/forgot-password/', 'POST', data);
-        return NextResponse.json({ success: true, data: forgotResult });
+          case 'verify-token':
+            // Verify token with Django backend
+            const authHeader = request.headers.get('authorization');
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+              return NextResponse.json({ success: false, error: 'No token provided' }, { status: 401 });
+            }
+            
+            const token = authHeader.substring(7);
+            try {
+              const verifyResult = await djangoRequest('/verify-token/', 'POST', { token });
+              return NextResponse.json({ success: true, data: verifyResult });
+            } catch (error) {
+              return NextResponse.json({ success: false, error: 'Invalid token' }, { status: 401 });
+            }
 
-      case 'reset-password':
-        const resetResult = await djangoRequest('/reset-password/', 'POST', data);
-        return NextResponse.json({ success: true, data: resetResult });
+          case 'get-user':
+            // Get user data with token
+            const userAuthHeader = request.headers.get('authorization');
+            if (!userAuthHeader || !userAuthHeader.startsWith('Bearer ')) {
+              return NextResponse.json({ success: false, error: 'No token provided' }, { status: 401 });
+            }
+            
+            const userToken = userAuthHeader.substring(7);
+            try {
+              const userResult = await djangoRequest('/get-user/', 'POST', { token: userToken });
+              return NextResponse.json({ success: true, data: userResult });
+            } catch (error) {
+              return NextResponse.json({ success: false, error: 'Failed to get user data' }, { status: 401 });
+            }
+
+          case 'forgot-password':
+            const forgotResult = await djangoRequest('/forgot-password/', 'POST', data);
+            return NextResponse.json({ success: true, data: forgotResult });
+
+          case 'reset-password':
+            const resetResult = await djangoRequest('/reset-password/', 'POST', data);
+            return NextResponse.json({ success: true, data: resetResult });
 
       default:
         return NextResponse.json(
