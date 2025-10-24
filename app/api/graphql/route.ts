@@ -334,6 +334,18 @@ export async function POST(request: NextRequest) {
         const updatedNotification = await djangoRequest('/update-notification/', 'POST', data);
         return NextResponse.json({ success: true, data: updatedNotification.data });
 
+      case 'login':
+        const loginResult = await djangoRequest('/login/', 'POST', data);
+        return NextResponse.json({ success: true, data: loginResult });
+
+      case 'forgot-password':
+        const forgotResult = await djangoRequest('/forgot-password/', 'POST', data);
+        return NextResponse.json({ success: true, data: forgotResult });
+
+      case 'reset-password':
+        const resetResult = await djangoRequest('/reset-password/', 'POST', data);
+        return NextResponse.json({ success: true, data: resetResult });
+
       default:
         return NextResponse.json(
           { success: false, error: 'Invalid type parameter' },

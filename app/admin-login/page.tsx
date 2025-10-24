@@ -133,6 +133,12 @@ export default function AdminLogin() {
             <p className="text-blue-200 text-sm">
               Demo credentials: <span className="text-white font-semibold">admin / admin123</span>
             </p>
+            <button
+              onClick={() => router.push('/admin-forgot-password')}
+              className="text-blue-200 hover:text-white transition-colors text-sm mt-2"
+            >
+              Forgot your password?
+            </button>
           </div>
 
           <div className="mt-8 text-center">
