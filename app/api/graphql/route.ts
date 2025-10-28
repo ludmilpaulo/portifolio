@@ -297,18 +297,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: true, data: notifications.data || [] });
 
       case 'analytics':
-        // Return mock analytics for now
-        const analytics = {
-          totalViews: 15420,
-          uniqueVisitors: 8930,
-          projects: 28,
-          testimonials: 15,
-          viewsChange: 12.5,
-          visitorsChange: 8.3,
-          projectsChange: 25.0,
-          testimonialsChange: 15.7
-        };
-        return NextResponse.json({ success: true, data: analytics });
+        const analyticsData = await djangoRequest('/information/get-analytics/');
+        return NextResponse.json({ success: true, data: analyticsData.data || {} });
 
       default:
         return NextResponse.json(
