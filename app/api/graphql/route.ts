@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Django backend URL - update this to match your Django server
-const DJANGO_BASE_URL = 'http://localhost:8000/api/information';
+const DJANGO_BASE_URL = process.env.DJANGO_API_URL || 'http://localhost:8000/api';
 
 // Helper function to make requests to Django backend with fallback
 async function djangoRequest(endpoint: string, method: string = 'GET', data?: any) {
@@ -289,11 +289,11 @@ export async function GET(request: NextRequest) {
         }
 
       case 'inquiries':
-        const inquiries = await djangoRequest('/get-project-inquiries/');
+        const inquiries = await djangoRequest('/information/get-project-inquiries/');
         return NextResponse.json({ success: true, data: inquiries.data || [] });
 
       case 'notifications':
-        const notifications = await djangoRequest('/get-notifications/');
+        const notifications = await djangoRequest('/information/get-notifications/');
         return NextResponse.json({ success: true, data: notifications.data || [] });
 
       case 'analytics':
@@ -368,52 +368,52 @@ export async function POST(request: NextRequest) {
         }
 
       case 'create-inquiry':
-        const newInquiry = await djangoRequest('/create-project-inquiry/', 'POST', data);
+        const newInquiry = await djangoRequest('/information/create-project-inquiry/', 'POST', data);
         return NextResponse.json({ success: true, data: newInquiry.data });
 
       case 'update-inquiry':
-        const updatedInquiry = await djangoRequest(`/project-inquiries/${data.id}/`, 'PUT', data);
+        const updatedInquiry = await djangoRequest(`/information/project-inquiries/${data.id}/`, 'PUT', data);
         return NextResponse.json({ success: true, data: updatedInquiry });
 
       case 'add-task':
-        const newTask = await djangoRequest('/add-task/', 'POST', data);
+        const newTask = await djangoRequest('/information/add-task/', 'POST', data);
         return NextResponse.json({ success: true, data: newTask.data });
 
       case 'update-task-status':
-        const updatedTask = await djangoRequest('/update-task-status/', 'POST', data);
+        const updatedTask = await djangoRequest('/information/update-task-status/', 'POST', data);
         return NextResponse.json({ success: true, data: updatedTask.data });
 
       case 'add-document':
-        const newDocument = await djangoRequest('/add-document/', 'POST', data);
+        const newDocument = await djangoRequest('/information/add-document/', 'POST', data);
         return NextResponse.json({ success: true, data: newDocument.data });
 
       case 'sign-document':
-        const signedDocument = await djangoRequest('/sign-document/', 'POST', data);
+        const signedDocument = await djangoRequest('/information/sign-document/', 'POST', data);
         return NextResponse.json({ success: true, data: signedDocument.data });
 
       case 'add-team-member':
-        const newTeamMember = await djangoRequest('/add-team-member/', 'POST', data);
+        const newTeamMember = await djangoRequest('/information/add-team-member/', 'POST', data);
         return NextResponse.json({ success: true, data: newTeamMember.data });
 
       case 'update-project-progress':
-        const updatedProgress = await djangoRequest('/update-project-progress/', 'POST', data);
+        const updatedProgress = await djangoRequest('/information/update-project-progress/', 'POST', data);
         return NextResponse.json({ success: true, data: updatedProgress.data });
 
       case 'add-message':
-        const newMessage = await djangoRequest('/add-message/', 'POST', data);
+        const newMessage = await djangoRequest('/information/add-message/', 'POST', data);
         return NextResponse.json({ success: true, data: newMessage.data });
 
       case 'create-invoice':
-        const newInvoice = await djangoRequest('/create-invoice/', 'POST', data);
+        const newInvoice = await djangoRequest('/information/create-invoice/', 'POST', data);
         return NextResponse.json({ success: true, data: newInvoice.data });
 
       case 'update-notification':
-        const updatedNotification = await djangoRequest('/update-notification/', 'POST', data);
+        const updatedNotification = await djangoRequest('/information/update-notification/', 'POST', data);
         return NextResponse.json({ success: true, data: updatedNotification.data });
 
           case 'login':
-            const loginResult = await djangoRequest('/login/', 'POST', data);
-            return NextResponse.json({ success: true, data: loginResult });
+            const loginResult = await djangoRequest('/accounts/login/', 'POST', data);
+            return NextResponse.json(loginResult);
 
           case 'verify-token':
             // Verify token with Django backend
@@ -446,12 +446,12 @@ export async function POST(request: NextRequest) {
             }
 
           case 'forgot-password':
-            const forgotResult = await djangoRequest('/forgot-password/', 'POST', data);
-            return NextResponse.json({ success: true, data: forgotResult });
+            const forgotResult = await djangoRequest('/accounts/forgot-password/', 'POST', data);
+            return NextResponse.json(forgotResult);
 
           case 'reset-password':
-            const resetResult = await djangoRequest('/reset-password/', 'POST', data);
-            return NextResponse.json({ success: true, data: resetResult });
+            const resetResult = await djangoRequest('/accounts/reset-password/', 'POST', data);
+            return NextResponse.json(resetResult);
 
       default:
         return NextResponse.json(

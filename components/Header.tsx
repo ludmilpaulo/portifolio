@@ -41,7 +41,7 @@ const Header = () => {
   const logoUrl = info?.avatar || "/avatar/lud.jpeg";
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-xl border-b border-blue-100/50 dark:border-cyan-900/50 shadow-lg transition-all duration-300">
+    <header className="sticky top-0 z-50 bg-white dark:bg-gray-950 md:bg-white/90 md:dark:bg-gray-950/90 md:backdrop-blur-xl border-b border-blue-100/50 dark:border-cyan-900/50 shadow-lg transition-all duration-300">
       <div className="flex items-center justify-between max-w-7xl mx-auto px-5 py-2 md:py-3">
         {/* Logo and Name */}
         <Link href="/" className="flex items-center gap-3 group">
