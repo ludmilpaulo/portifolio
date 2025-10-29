@@ -416,10 +416,11 @@ export async function POST(request: NextRequest) {
                 }
               });
             }
-            // Error response from Django
+            // Error response from Django - include error code
             return NextResponse.json({ 
               success: false, 
-              error: loginResult.error || 'Login failed' 
+              error: loginResult.error || 'Login failed',
+              error_code: loginResult.error_code || 'unknown_error'
             });
 
           case 'verify-token':

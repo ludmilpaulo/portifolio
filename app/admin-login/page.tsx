@@ -35,7 +35,18 @@ export default function AdminLogin() {
         router.push('/dashboard');
       }, 100);
     } else {
-      setError(result.error || 'Login failed');
+      // Display specific error messages based on error code
+      let errorMessage = result.error || 'Login failed';
+      
+      if (result.errorCode === 'user_not_found') {
+        errorMessage = 'Username or email does not exist. Please check your credentials.';
+      } else if (result.errorCode === 'wrong_password') {
+        errorMessage = 'Incorrect password. Please try again or use "Forgot password" to reset it.';
+      } else if (result.errorCode === 'account_disabled') {
+        errorMessage = 'Your account has been disabled. Please contact support.';
+      }
+      
+      setError(errorMessage);
     }
   };
 

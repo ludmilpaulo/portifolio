@@ -19,7 +19,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (username: string, password: string) => Promise<{ success: boolean; error?: string; errorCode?: string }>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -121,7 +121,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         return { success: true };
       } else {
-        return { success: false, error: result.error || 'Login failed' };
+        // Return detailed error with error code
+        return { 
+          success: false, 
+          error: result.error || 'Login failed',
+          errorCode: result.error_code || 'unknown_error'
+        };
       }
     } catch (error) {
       console.error('Login error:', error);
