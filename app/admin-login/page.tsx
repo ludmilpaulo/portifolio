@@ -139,9 +139,6 @@ export default function AdminLogin() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-blue-200 text-sm">
-              Admin credentials: <span className="text-white font-semibold">ludmil / Maitland@2026</span>
-            </p>
             <button
               onClick={() => router.push('/admin-forgot-password')}
               className="text-blue-200 hover:text-white transition-colors text-sm mt-2"
