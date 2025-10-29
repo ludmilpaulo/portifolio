@@ -122,11 +122,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return { success: true };
       } else {
         // Return detailed error with error code
-        return { 
-          success: false, 
-          error: result.error || 'Login failed',
-          errorCode: result.error_code || 'unknown_error'
-        };
+      const errorCode = result.error_code || 'unknown_error';
+      return { 
+        success: false, 
+        error: result.error || 'Login failed',
+        errorCode: errorCode
+      } as { success: boolean; error?: string; errorCode?: string };
       }
     } catch (error) {
       console.error('Login error:', error);
