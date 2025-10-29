@@ -29,12 +29,11 @@ export default function AdminLogin() {
     const result = await login(formData.username, formData.password);
     
     if (result.success) {
-      // Check if user is admin
-      if (user?.user_type === 'admin') {
+      // Redirect to dashboard - the auth context handles the user data
+      // Wait a moment for the user state to update
+      setTimeout(() => {
         router.push('/dashboard');
-      } else {
-        setError('Access denied. Admin credentials required.');
-      }
+      }, 100);
     } else {
       setError(result.error || 'Login failed');
     }
@@ -141,7 +140,7 @@ export default function AdminLogin() {
 
           <div className="mt-6 text-center">
             <p className="text-blue-200 text-sm">
-              Admin credentials: <span className="text-white font-semibold">ludmil / Maitland@2025</span>
+              Admin credentials: <span className="text-white font-semibold">ludmil / Maitland@2026</span>
             </p>
             <button
               onClick={() => router.push('/admin-forgot-password')}

@@ -29,12 +29,11 @@ export default function ClientLogin() {
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      // Check if user is client
-      if (user?.user_type === 'client') {
+      // Redirect to client dashboard - the auth context handles the user data
+      // Wait a moment for the user state to update
+      setTimeout(() => {
         router.push('/dashboard/client');
-      } else {
-        setError('Access denied. Client credentials required.');
-      }
+      }, 100);
     } else {
       setError(result.error || 'Login failed');
     }

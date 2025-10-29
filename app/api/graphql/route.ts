@@ -404,7 +404,22 @@ export async function POST(request: NextRequest) {
 
           case 'login':
             const loginResult = await djangoRequest('/accounts/login/', 'POST', data);
-            return NextResponse.json(loginResult);
+            // Check if response already has the expected structure
+            if (loginResult.success && loginResult.token && loginResult.user) {
+              // Response is from Django backend - wrap it properly
+              return NextResponse.json({ 
+                success: true, 
+                data: {
+                  token: loginResult.token,
+                  user: loginResult.user
+                }
+              });
+            }
+            // Error response from Django
+            return NextResponse.json({ 
+              success: false, 
+              error: loginResult.error || 'Login failed' 
+            });
 
           case 'verify-token':
             // Verify token with Django backend
