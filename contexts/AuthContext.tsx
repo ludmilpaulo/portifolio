@@ -92,7 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (username: string, password: string): Promise<{ success: boolean; error?: string; errorCode?: string }> => {
     try {
       setIsLoading(true);
       
@@ -107,9 +107,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         })
       });
 
+      // Check if response is ok first
+      if (!response.ok) {
+        console.error('HTTP Error:', response.status, response.statusText);
+      }
+
       const result = await response.json();
+      console.log('Login API Response:', result); // Debug log
       
-      if (result.success && result.data.token && result.data.user) {
+      if (result.success && result.data && result.data.token && result.data.user) {
         const { token: authToken, user: userData } = result.data;
         
         // Store authentication data
@@ -122,16 +128,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return { success: true };
       } else {
         // Return detailed error with error code
-      const errorCode = result.error_code || 'unknown_error';
-      return { 
-        success: false, 
-        error: result.error || 'Login failed',
-        errorCode: errorCode
-      } as { success: boolean; error?: string; errorCode?: string };
+        const errorCode = result.error_code || 'unknown_error';
+        const errorMessage = result.error || 'Login failed';
+        
+        console.log('Login failed:', { errorCode, errorMessage }); // Debug log
+        
+        return { 
+          success: false, 
+          error: errorMessage,
+          errorCode: errorCode
+        };
       }
     } catch (error) {
       console.error('Login error:', error);
-      return { success: false, error: 'Network error. Please try again.' };
+      return { 
+        success: false, 
+        error: 'Network error. Please try again.',
+        errorCode: 'network_error'
+      };
     } finally {
       setIsLoading(false);
     }

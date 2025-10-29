@@ -26,7 +26,9 @@ export default function AdminLogin() {
     e.preventDefault();
     setError('');
 
+    console.log('Submitting login:', formData.username); // Debug log
     const result = await login(formData.username, formData.password);
+    console.log('Login result:', result); // Debug log
     
     if (result.success) {
       // Redirect to dashboard - the auth context handles the user data
@@ -46,6 +48,7 @@ export default function AdminLogin() {
         errorMessage = 'Your account has been disabled. Please contact support.';
       }
       
+      console.log('Setting error:', errorMessage); // Debug log
       setError(errorMessage);
     }
   };

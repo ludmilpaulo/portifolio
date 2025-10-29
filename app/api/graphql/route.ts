@@ -21,13 +21,35 @@ async function djangoRequest(endpoint: string, method: string = 'GET', data?: an
     }
     
     const response = await fetch(url, options);
+    
+    // Try to parse JSON even if status is not ok (for error responses)
+    const responseData = await response.json().catch(() => null);
+    
+    // For login endpoint, always return the response even if it's an error
+    // This allows us to pass through error messages from Django
+    if (endpoint === '/accounts/login/') {
+      return responseData || { success: false, error: 'Failed to parse response' };
+    }
+    
+    // For other endpoints, throw on error status
     if (!response.ok) {
       throw new Error(`Django API error: ${response.status}`);
     }
-    return await response.json();
+    
+    return responseData;
   } catch (error) {
     console.error('Django request error:', error);
-    // Return fallback data for testing when Django is not available
+    
+    // For login endpoint, don't use fallback - return error
+    if (endpoint === '/accounts/login/') {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error occurred',
+        error_code: 'network_error'
+      };
+    }
+    
+    // Return fallback data for testing when Django is not available (for other endpoints)
     return getFallbackData(endpoint, method, data);
   }
 }
@@ -404,24 +426,35 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true, data: updatedNotification.data });
 
           case 'login':
-            const loginResult = await djangoRequest('/accounts/login/', 'POST', data);
-            // Check if response already has the expected structure
-            if (loginResult.success && loginResult.token && loginResult.user) {
-              // Response is from Django backend - wrap it properly
+            try {
+              const loginResult = await djangoRequest('/accounts/login/', 'POST', data);
+              console.log('Django login result:', loginResult); // Debug log
+              
+              // Check if response already has the expected structure
+              if (loginResult.success && loginResult.token && loginResult.user) {
+                // Response is from Django backend - wrap it properly
+                return NextResponse.json({ 
+                  success: true, 
+                  data: {
+                    token: loginResult.token,
+                    user: loginResult.user
+                  }
+                });
+              }
+              // Error response from Django - include error code
               return NextResponse.json({ 
-                success: true, 
-                data: {
-                  token: loginResult.token,
-                  user: loginResult.user
-                }
-              });
+                success: false, 
+                error: loginResult.error || 'Login failed',
+                error_code: loginResult.error_code || 'unknown_error'
+              }, { status: 401 });
+            } catch (error) {
+              console.error('Login API error:', error);
+              return NextResponse.json({ 
+                success: false, 
+                error: 'Failed to connect to server. Please try again.',
+                error_code: 'server_error'
+              }, { status: 500 });
             }
-            // Error response from Django - include error code
-            return NextResponse.json({ 
-              success: false, 
-              error: loginResult.error || 'Login failed',
-              error_code: loginResult.error_code || 'unknown_error'
-            });
 
           case 'verify-token':
             // Verify token with Django backend
