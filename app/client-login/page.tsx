@@ -143,7 +143,7 @@ export default function ClientLogin() {
 
           <div className="mt-6 text-center">
             <p className="text-green-200 text-sm">
-              Demo credentials: <span className="text-white font-semibold">client@example.com / client123</span>
+              Client credentials: <span className="text-white font-semibold">john.smith@example.com / Client123!</span>
             </p>
             <button
               onClick={() => router.push('/client-forgot-password')}

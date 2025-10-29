@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Django backend URL - update this to match your Django server
-const DJANGO_BASE_URL = process.env.DJANGO_API_URL || 'http://localhost:8000/api';
+// Django backend URL - configured for production
+// Set DJANGO_API_URL environment variable to override
+const DJANGO_BASE_URL = process.env.DJANGO_API_URL || 'https://ludmil.pythonanywhere.com/api';
 
 // Helper function to make requests to Django backend with fallback
 async function djangoRequest(endpoint: string, method: string = 'GET', data?: any) {
