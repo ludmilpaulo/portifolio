@@ -20,13 +20,13 @@ export default function Home() {
   const projects = myInfo?.projects?.slice(0, 5) || [];
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-gradient-to-br from-[#0093E9] via-[#4facfe] to-[#00f2fe] text-white overflow-hidden">
+    <div className="relative min-h-screen flex flex-col bg-gradient-to-br from-[#0093E9] via-[#3b9ee0] to-[#00c9d4] text-white overflow-hidden">
       {/* Floating Shapes */}
-      <div className="pointer-events-none absolute z-0 inset-0">
-        <div className="absolute -top-28 -left-40 w-[340px] h-[340px] bg-cyan-400/30 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-[280px] h-[180px] bg-blue-200/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute left-1/2 top-10 -translate-x-1/2 w-[460px] h-[180px] bg-gradient-to-r from-cyan-100/20 via-blue-200/20 to-transparent rounded-2xl blur-2xl animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/3 right-1/4 w-[200px] h-[200px] bg-gradient-to-br from-blue-300/15 to-cyan-200/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '3s' }} />
+      <div className="pointer-events-none absolute z-0 inset-0 overflow-hidden">
+        <div className="absolute -top-28 -left-40 w-[380px] h-[380px] bg-cyan-400/25 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-[320px] h-[200px] bg-blue-200/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "1s" }} />
+        <div className="absolute left-1/2 top-10 -translate-x-1/2 w-[480px] h-[200px] bg-gradient-to-r from-cyan-100/20 via-blue-200/15 to-transparent rounded-2xl blur-2xl animate-pulse" style={{ animationDelay: "2s" }} />
+        <div className="absolute top-1/3 right-1/4 w-[220px] h-[220px] bg-gradient-to-br from-blue-300/12 to-cyan-200/12 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "3s" }} />
       </div>
 
       {/* Enhanced HERO - Responsive */}
@@ -66,22 +66,22 @@ export default function Home() {
           transition={{ duration: 1, delay: 0.2 }}
           className="flex flex-col items-center lg:items-start text-center lg:text-left max-w-2xl w-full"
         >
-          <motion.h1 
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight mb-2 drop-shadow-xl"
+          <motion.h1
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight mb-2 drop-shadow-lg [font-family:var(--font-heading),sans-serif]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
             Hi, I&apos;m{" "}
-            <motion.span 
+            <motion.span
               className="bg-gradient-to-r from-[#52e5e7] via-[#0093e9] to-[#80D0C7] bg-clip-text text-transparent"
-              animate={{ 
+              animate={{
                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
               }}
-              transition={{ 
+              transition={{
                 duration: 3,
                 repeat: Infinity,
-                ease: "linear"
+                ease: "linear",
               }}
               style={{ backgroundSize: "200% 200%" }}
             >
@@ -293,19 +293,19 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-3xl md:text-4xl font-bold text-white/95 mb-4">
+            <h3 className="text-3xl md:text-4xl font-bold text-white/98 mb-3 [font-family:var(--font-heading),sans-serif] tracking-tight">
               <span className="bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent">
                 Featured Projects
               </span>
             </h3>
             <motion.div
-              className="w-24 h-1 bg-gradient-to-r from-cyan-400 to-blue-400 mx-auto rounded-full"
+              className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-blue-400 mx-auto rounded-full"
               initial={{ width: 0 }}
-              whileInView={{ width: 96 }}
+              whileInView={{ width: 80 }}
               transition={{ duration: 1, delay: 0.3 }}
               viewport={{ once: true }}
             />
-            <p className="text-white/80 mt-4 text-lg">
+            <p className="text-white/85 mt-3 text-base sm:text-lg max-w-xl mx-auto">
               Explore some of my recent work and innovative solutions
             </p>
           </motion.div>
@@ -428,19 +428,19 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-3xl md:text-4xl font-bold text-white/95 mb-4">
+            <h3 className="text-3xl md:text-4xl font-bold text-white/98 mb-3 [font-family:var(--font-heading),sans-serif] tracking-tight">
               <span className="bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent">
                 What My Clients & Collaborators Say
               </span>
             </h3>
             <motion.div
-              className="w-32 h-1 bg-gradient-to-r from-cyan-400 to-blue-400 mx-auto rounded-full"
+              className="w-24 h-1 bg-gradient-to-r from-cyan-400 to-blue-400 mx-auto rounded-full"
               initial={{ width: 0 }}
-              whileInView={{ width: 128 }}
+              whileInView={{ width: 96 }}
               transition={{ duration: 1, delay: 0.3 }}
               viewport={{ once: true }}
             />
-            <p className="text-white/80 mt-4 text-lg">
+            <p className="text-white/85 mt-3 text-base sm:text-lg max-w-xl mx-auto">
               Trusted by clients worldwide for exceptional results
             </p>
           </motion.div>
@@ -540,36 +540,33 @@ export default function Home() {
       )}
 
       {/* Footer with Login Links */}
-      <footer className="bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 text-white py-8 px-4">
+      <footer className="relative z-10 bg-slate-900/95 backdrop-blur-sm text-white py-10 sm:py-12 px-4 sm:px-6 border-t border-white/10">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
             <div className="text-center md:text-left">
-              <h3 className="text-xl font-bold mb-2">Ludmil Paulo</h3>
-              <p className="text-gray-300 text-sm">Full Stack Developer & Software Engineer</p>
+              <h3 className="text-xl font-bold tracking-tight text-white">Ludmil Paulo</h3>
+              <p className="text-slate-400 text-sm mt-1">Full Stack Developer & Software Engineer</p>
             </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center">
               <Link
                 href="/admin-login"
-                className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors text-sm font-medium"
+                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-700/80 hover:bg-slate-600 rounded-xl transition-colors text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
               >
-                <span>🔐</span>
+                <span aria-hidden>🔐</span>
                 <span>Admin Login</span>
               </Link>
-              
               <Link
                 href="/client-login"
-                className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors text-sm font-medium"
+                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600/90 hover:bg-emerald-500 rounded-xl transition-colors text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
               >
-                <span>👤</span>
+                <span aria-hidden>👤</span>
                 <span>Client Portal</span>
               </Link>
             </div>
           </div>
-          
-          <div className="border-t border-gray-700 mt-6 pt-6 text-center">
-            <p className="text-gray-400 text-sm">
-              © 2024 Ludmil Paulo. All rights reserved.
+          <div className="border-t border-slate-700/80 mt-8 pt-6 text-center">
+            <p className="text-slate-500 text-sm">
+              © 2025 Ludmil Paulo. All rights reserved.
             </p>
           </div>
         </div>

@@ -60,11 +60,12 @@ const ProjectCard: React.FC<Project> = ({
       animate="animate"
       exit="exit"
       whileHover={{
-        scale: 1.045,
-        boxShadow: "0 12px 32px #0093e944",
+        scale: 1.02,
+        y: -4,
+        boxShadow: "0 12px 32px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(0, 147, 233, 0.08)",
         transition: { duration: 0.3 },
       }}
-      className="flex flex-col bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all border border-blue-100 group"
+      className="flex flex-col bg-white dark:bg-slate-900/95 rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 border border-slate-200/80 dark:border-slate-700/80 group overflow-hidden"
       tabIndex={0}
       aria-label={`Project card: ${title}`}
     >
@@ -93,15 +94,15 @@ const ProjectCard: React.FC<Project> = ({
 
         {/* Details */}
         <div className="flex-1 px-6 py-4 flex flex-col">
-          <h3 className="font-extrabold text-2xl mb-1 text-blue-700">{title}</h3>
-          <p className="text-gray-600 text-sm mb-3">{truncatedDescription}</p>
+          <h3 className="font-bold text-xl mb-1.5 text-slate-800 dark:text-slate-100 tracking-tight">{title}</h3>
+          <p className="text-slate-600 dark:text-slate-400 text-sm mb-3 leading-relaxed">{truncatedDescription}</p>
           {/* Tools */}
           <div>
-            <span className="text-xs text-gray-500 font-medium">Tech Stack:</span>
-            <div className="flex gap-2 mt-1 overflow-x-auto pb-1 no-scrollbar">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Tech Stack</span>
+            <div className="flex gap-2 mt-1.5 overflow-x-auto pb-1 no-scrollbar scrollbar-thin">
               {tools.map((tool) => (
                 <Tooltip key={tool.id} text={tool.description}>
-                  <span className="inline-flex items-center bg-gradient-to-r from-cyan-50 to-blue-100 px-2 py-1 rounded-full text-xs shadow border border-blue-200">
+                  <span className="inline-flex items-center bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200/80 dark:border-slate-600/80">
                     <Image
                       src={tool.image}
                       alt={`${tool.title} technology icon`}
@@ -123,25 +124,25 @@ const ProjectCard: React.FC<Project> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-between items-center border-t px-6 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-b-2xl">
+        <div className="flex justify-between items-center border-t border-slate-200/80 dark:border-slate-700/80 px-6 py-3 bg-slate-50/80 dark:bg-slate-800/40 rounded-b-2xl">
           <a
             href={demo}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center text-blue-600 hover:text-yellow-600 font-bold transition"
-            aria-label={`Demo for ${title}`}
+            className="flex items-center gap-2 text-[#0093E9] dark:text-cyan-400 hover:text-[#0066b3] dark:hover:text-cyan-300 font-semibold text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0093E9] focus-visible:ring-offset-2 rounded"
+            aria-label={`View demo for ${title}`}
           >
-            <FaExternalLinkAlt className="mr-2" />
+            <FaExternalLinkAlt className="w-4 h-4" aria-hidden />
             Demo
           </a>
           <a
             href={github}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center text-gray-700 hover:text-yellow-600 font-bold transition"
-            aria-label={`GitHub for ${title}`}
+            className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 rounded"
+            aria-label={`View GitHub repo for ${title}`}
           >
-            <FaGithub className="mr-2" />
+            <FaGithub className="w-4 h-4" aria-hidden />
             GitHub
           </a>
         </div>

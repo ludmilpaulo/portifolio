@@ -119,33 +119,64 @@ const ClientDashboard = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [isLoadingInquiries, setIsLoadingInquiries] = useState(true);
 
   useEffect(() => {
-    // Load inquiries from API
+    // Load inquiries from API - filtered by logged-in client
     const loadInquiries = async () => {
+      setIsLoadingInquiries(true);
       try {
-        const response = await fetch('/api/graphql?type=inquiries');
+        const token = localStorage.getItem('authToken');
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+        
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch('/api/graphql?type=inquiries', {
+          headers,
+        });
         const result = await response.json();
         if (result.success) {
-          setInquiries(result.data);
+          // Filter inquiries by logged-in client's email
+          const clientInquiries = result.data.filter((inquiry: ProjectInquiry) => 
+            inquiry.clientEmail.toLowerCase() === user?.email?.toLowerCase()
+          );
+          setInquiries(clientInquiries);
+        } else {
+          setInquiries([]);
         }
       } catch (error) {
         console.error('Error loading inquiries:', error);
+        // Set empty array on error to prevent UI issues
+        setInquiries([]);
+      } finally {
+        setIsLoadingInquiries(false);
       }
     };
 
-    loadInquiries();
-  }, []);
+    if (user) {
+      loadInquiries();
+    } else {
+      setIsLoadingInquiries(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     let filtered = inquiries;
 
+    // First, ensure we only show inquiries for the logged-in client
+    filtered = filtered.filter(inquiry => 
+      inquiry.clientEmail.toLowerCase() === user?.email?.toLowerCase()
+    );
+
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(inquiry =>
-        inquiry.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         inquiry.projectTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inquiry.clientEmail.toLowerCase().includes(searchTerm.toLowerCase())
+        inquiry.projectDescription.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -160,7 +191,7 @@ const ClientDashboard = () => {
     }
 
     setFilteredInquiries(filtered);
-  }, [inquiries, searchTerm, statusFilter, priorityFilter]);
+  }, [inquiries, searchTerm, statusFilter, priorityFilter, user]);
 
   const handleLogout = () => {
     logout();
@@ -211,38 +242,50 @@ const ClientDashboard = () => {
     }
   };
 
-  const handleStatusChange = (id: number, newStatus: string) => {
-    setInquiries(inquiries.map(inquiry =>
-      inquiry.id === id
-        ? { ...inquiry, status: newStatus as any, updatedAt: new Date().toISOString() }
-        : inquiry
-    ));
-  };
-
-  const handleSendMessage = (inquiryId: number) => {
+  const handleSendMessage = async (inquiryId: number) => {
     if (!newMessage.trim()) return;
 
     const message = {
       id: Date.now(),
-      sender: "admin" as const,
+      sender: "client" as const,
       message: newMessage,
       timestamp: new Date().toISOString()
     };
 
+    // Optimistically update UI
     setInquiries(inquiries.map(inquiry =>
       inquiry.id === inquiryId
         ? { ...inquiry, messages: [...inquiry.messages, message], updatedAt: new Date().toISOString() }
         : inquiry
     ));
 
+    // Send message to API
+    try {
+      const token = localStorage.getItem('authToken');
+      await fetch('/api/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
+        body: JSON.stringify({
+          type: 'add-message',
+          data: {
+            inquiryId,
+            message: newMessage,
+            sender: 'client'
+          }
+        })
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Revert optimistic update on error
+      setInquiries(inquiries);
+    }
+
     setNewMessage("");
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this inquiry?")) {
-      setInquiries(inquiries.filter(inquiry => inquiry.id !== id));
-    }
-  };
 
   return (
     <ProtectedRoute requiredUserType="client">
@@ -417,10 +460,19 @@ const ClientDashboard = () => {
               </div>
             </div>
 
+      {/* Loading State */}
+      {isLoadingInquiries && (
+        <div className="text-center py-12">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600 font-medium">Loading your projects...</p>
+        </div>
+      )}
+
       {/* Inquiries List */}
-      <div className="space-y-4">
-        <AnimatePresence>
-          {filteredInquiries.map((inquiry, index) => {
+      {!isLoadingInquiries && (
+        <div className="space-y-4">
+          <AnimatePresence>
+            {filteredInquiries.map((inquiry, index) => {
             const StatusIcon = getStatusIcon(inquiry.status);
             return (
               <motion.div
@@ -480,23 +532,9 @@ const ClientDashboard = () => {
                         >
                           <FaEye />
                         </button>
-                        <select
-                          value={inquiry.status}
-                          onChange={(e) => handleStatusChange(inquiry.id, e.target.value)}
-                          className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="in-progress">In Progress</option>
-                          <option value="completed">Completed</option>
-                          <option value="cancelled">Cancelled</option>
-                        </select>
-                        <button
-                          onClick={() => handleDelete(inquiry.id)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete"
-                        >
-                          <FaTrash />
-                        </button>
+                        <span className={`px-3 py-1 rounded-lg text-sm font-medium ${getStatusColor(inquiry.status)}`}>
+                          {inquiry.status.replace("-", " ")}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -504,10 +542,11 @@ const ClientDashboard = () => {
               </motion.div>
             );
           })}
-        </AnimatePresence>
-      </div>
+          </AnimatePresence>
+        </div>
+      )}
 
-      {filteredInquiries.length === 0 && (
+      {!isLoadingInquiries && filteredInquiries.length === 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -595,14 +634,14 @@ const ClientDashboard = () => {
                       <div
                         key={message.id}
                         className={`p-3 rounded-lg ${
-                          message.sender === "admin"
+                          message.sender === "client"
                             ? "bg-blue-50 ml-8"
                             : "bg-gray-50 mr-8"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm font-medium text-gray-700">
-                            {message.sender === "admin" ? "You" : selectedInquiry.clientName}
+                            {message.sender === "client" ? "You" : "Admin"}
                           </span>
                           <span className="text-xs text-gray-500">
                             {new Date(message.timestamp).toLocaleString()}

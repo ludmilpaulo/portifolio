@@ -58,7 +58,17 @@ const DashboardPage = () => {
         const response = await fetch('/api/graphql?type=analytics');
         const result = await response.json();
         if (result.success) {
-          setAnalytics(result.data);
+          const d = result.data || {};
+          setAnalytics({
+            totalViews: Number(d.totalViews ?? 0),
+            uniqueVisitors: Number(d.uniqueVisitors ?? 0),
+            projects: Number(d.projects ?? 0),
+            testimonials: Number(d.testimonials ?? 0),
+            viewsChange: Number(d.viewsChange ?? 0),
+            visitorsChange: Number(d.visitorsChange ?? 0),
+            projectsChange: Number(d.projectsChange ?? 0),
+            testimonialsChange: Number(d.testimonialsChange ?? 0),
+          });
         }
       } catch (error) {
         console.error('Error loading analytics:', error);
@@ -90,11 +100,14 @@ const DashboardPage = () => {
     color 
   }: {
     title: string;
-    value: number;
-    change: number;
+    value?: number | null;
+    change?: number | null;
     icon: any;
     color: string;
-  }) => (
+  }) => {
+    const safeValue = Number(value ?? 0);
+    const safeChange = Number(change ?? 0);
+    return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -103,15 +116,17 @@ const DashboardPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-gray-600 text-sm font-medium">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">
+            {Number.isFinite(safeValue) ? safeValue.toLocaleString() : '0'}
+          </p>
           <div className="flex items-center mt-2">
-            {change > 0 ? (
+            {safeChange > 0 ? (
               <FaArrowUp className="text-green-500 text-sm mr-1" />
             ) : (
               <FaArrowDown className="text-red-500 text-sm mr-1" />
             )}
-            <span className={`text-sm font-medium ${change > 0 ? 'text-green-500' : 'text-red-500'}`}>
-              {Math.abs(change)}%
+            <span className={`text-sm font-medium ${safeChange > 0 ? 'text-green-500' : 'text-red-500'}`}>
+              {Math.abs(safeChange) || 0}%
             </span>
             <span className="text-gray-500 text-sm ml-1">vs last month</span>
           </div>
@@ -122,6 +137,7 @@ const DashboardPage = () => {
       </div>
     </motion.div>
   );
+  }
 
   return (
     <ProtectedRoute requiredUserType="admin">

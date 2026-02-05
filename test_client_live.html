@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Portal Live Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .credentials {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .credential-card {
+            border: 2px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .credential-card:hover {
+            border-color: #0093E9;
+            background: #f0f8ff;
+        }
+        .credential-card.active {
+            border-color: #0093E9;
+            background: #e3f2fd;
+        }
+        .test-button {
+            background: #0093E9;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .test-button:hover {
+            background: #0077b6;
+        }
+        .test-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        .log-success { color: #4caf50; }
+        .log-error { color: #f44336; }
+        .log-info { color: #2196f3; }
+        .log-warning { color: #ff9800; }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online { background: #4caf50; }
+        .status-offline { background: #f44336; }
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .iframe-container {
+            width: 100%;
+            height: 800px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Client Portal Live Test</h1>
+    
+    <div class="test-section">
+        <h2>📊 Server Status</h2>
+        <p>
+            <span class="status-indicator" id="frontend-status"></span>
+            <strong>Frontend:</strong> <span id="frontend-url">http://localhost:3000</span>
+        </p>
+        <p>
+            <span class="status-indicator" id="backend-status"></span>
+            <strong>Backend:</strong> <span id="backend-url">http://localhost:8000</span>
+        </p>
+    </div>
+
+    <div class="test-section">
+        <h2>🔐 Test Client Credentials</h2>
+        <div class="credentials" id="credentials-list">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Test Actions</h2>
+        <button class="test-button" onclick="checkServers()">Check Server Status</button>
+        <button class="test-button" onclick="testLogin()">Test Login</button>
+        <button class="test-button" onclick="testInquiries()">Test Fetch Inquiries</button>
+        <button class="test-button" onclick="openClientPortal()">Open Client Portal</button>
+        <button class="test-button" onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 Test Log</h2>
+        <div class="log" id="test-log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🌐 Client Portal Preview</h2>
+        <button class="test-button" onclick="loadPortal()">Load Portal in Frame</button>
+        <div class="iframe-container" id="portal-frame" style="display: none;">
+            <iframe id="portal-iframe" src=""></iframe>
+        </div>
+    </div>
+
+    <script>
+        const FRONTEND_URL = 'http://localhost:3000';
+        const BACKEND_URL = 'http://localhost:8000';
+        let selectedCredentials = null;
+        let authToken = null;
+        let currentUser = null;
+
+        const testClients = [
+            { email: 'john.smith@example.com', password: 'Client123!', name: 'John Smith' },
+            { email: 'sarah.johnson@example.com', password: 'Client123!', name: 'Sarah Johnson' },
+            { email: 'michael.brown@example.com', password: 'Client123!', name: 'Michael Brown' },
+            { email: 'client1@example.com', password: 'Client123!', name: 'Client 1' },
+            { email: 'client2@example.com', password: 'Client123!', name: 'Client 2' },
+        ];
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('test-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('test-log').innerHTML = '';
+        }
+
+        function initCredentials() {
+            const container = document.getElementById('credentials-list');
+            testClients.forEach((client, index) => {
+                const card = document.createElement('div');
+                card.className = 'credential-card';
+                card.innerHTML = `
+                    <strong>${client.name}</strong><br>
+                    <small>${client.email}</small><br>
+                    <small>Password: ${client.password}</small>
+                `;
+                card.onclick = () => selectCredentials(client, card);
+                container.appendChild(card);
+            });
+        }
+
+        function selectCredentials(client, cardElement) {
+            // Remove active class from all cards
+            document.querySelectorAll('.credential-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            // Add active class to selected card
+            cardElement.classList.add('active');
+            selectedCredentials = client;
+            log(`Selected credentials: ${client.email}`, 'info');
+        }
+
+        async function checkServers() {
+            log('Checking server status...', 'info');
+            
+            // Check frontend
+            try {
+                const frontendResponse = await fetch(FRONTEND_URL, { method: 'HEAD' });
+                document.getElementById('frontend-status').className = 'status-indicator status-online';
+                log(`✅ Frontend is online (${frontendResponse.status})`, 'success');
+            } catch (error) {
+                document.getElementById('frontend-status').className = 'status-indicator status-offline';
+                log(`❌ Frontend is offline: ${error.message}`, 'error');
+            }
+
+            // Check backend
+            try {
+                const backendResponse = await fetch(`${BACKEND_URL}/admin/`, { method: 'HEAD' });
+                document.getElementById('backend-status').className = 'status-indicator status-online';
+                log(`✅ Backend is online (${backendResponse.status})`, 'success');
+            } catch (error) {
+                document.getElementById('backend-status').className = 'status-indicator status-offline';
+                log(`❌ Backend is offline: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            if (!selectedCredentials) {
+                log('⚠️ Please select credentials first', 'warning');
+                return;
+            }
+
+            log(`Testing login with: ${selectedCredentials.email}`, 'info');
+            
+            try {
+                const response = await fetch(`${FRONTEND_URL}/api/graphql`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        type: 'login',
+                        data: {
+                            username: selectedCredentials.email,
+                            password: selectedCredentials.password
+                        }
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success && result.data && result.data.token) {
+                    authToken = result.data.token;
+                    currentUser = result.data.user;
+                    log(`✅ Login successful!`, 'success');
+                    log(`   Token: ${authToken.substring(0, 20)}...`, 'info');
+                    log(`   User: ${currentUser.first_name} ${currentUser.last_name}`, 'info');
+                    log(`   Type: ${currentUser.user_type}`, 'info');
+                    log(`   Email: ${currentUser.email}`, 'info');
+                } else {
+                    log(`❌ Login failed: ${result.error || 'Unknown error'}`, 'error');
+                    if (result.error_code) {
+                        log(`   Error code: ${result.error_code}`, 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ Login error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testInquiries() {
+            if (!authToken) {
+                log('⚠️ Please login first', 'warning');
+                return;
+            }
+
+            log('Fetching client inquiries...', 'info');
+            
+            try {
+                const response = await fetch(`${FRONTEND_URL}/api/graphql?type=inquiries`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    const clientInquiries = result.data.filter(
+                        inquiry => inquiry.clientEmail.toLowerCase() === currentUser.email.toLowerCase()
+                    );
+                    log(`✅ Found ${clientInquiries.length} inquiries for ${currentUser.email}`, 'success');
+                    
+                    if (clientInquiries.length > 0) {
+                        clientInquiries.forEach((inquiry, idx) => {
+                            log(`   ${idx + 1}. ${inquiry.projectTitle} - Status: ${inquiry.status}`, 'info');
+                        });
+                    } else {
+                        log('ℹ️ No inquiries found for this client', 'info');
+                    }
+                } else {
+                    log(`❌ Failed to fetch inquiries: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error fetching inquiries: ${error.message}`, 'error');
+            }
+        }
+
+        function openClientPortal() {
+            window.open(`${FRONTEND_URL}/client-login`, '_blank');
+            log('Opened client portal in new tab', 'info');
+        }
+
+        function loadPortal() {
+            const frame = document.getElementById('portal-frame');
+            const iframe = document.getElementById('portal-iframe');
+            iframe.src = `${FRONTEND_URL}/client-login`;
+            frame.style.display = 'block';
+            log('Loaded client portal in iframe', 'info');
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            initCredentials();
+            checkServers();
+            log('Client Portal Live Test initialized', 'success');
+            log('Select credentials and click "Test Login" to begin', 'info');
+        };
+    </script>
+</body>
+</html>

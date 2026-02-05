@@ -79,11 +79,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
-        setToken(null);
-        setUser(null);
+        // Network or server error during verification - keep existing session to avoid UX loop
+        console.error('Auth check failed (keeping session):', error);
       } finally {
         setIsLoading(false);
       }

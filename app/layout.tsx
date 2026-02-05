@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import ProviderWrapper from "@/components/ProviderWrapper";
-import PerformanceMonitor from "@/components/PerformanceMonitor";
-import FloatingActionButton from "@/components/FloatingActionButton";
-import ScrollProgress from "@/components/ScrollProgress";
-import ParticleBackground from "@/components/ParticleBackground";
-import { AuthProvider } from "@/contexts/AuthContext";
+import RootProviders from "@/components/RootProviders";
+import LayoutShell from "@/components/LayoutShell";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
-  display: 'swap',
+  display: "swap",
   preload: true,
-  variable: '--font-inter'
+  variable: "--font-inter",
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-heading",
 });
 
 export const metadata: Metadata = {
@@ -173,7 +174,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${plusJakarta.variable}`}>
       <head>
         <script
           type="application/ld+json"
@@ -200,21 +201,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <body className={`${inter.className} antialiased`}>
-        <PerformanceMonitor />
-        <ScrollProgress />
-        <ParticleBackground />
-        <div className="bg-gradient-to-r from-[#0093E9] to-[#80D0C7] text-white h-screen snap-y snap-mandatory overflow-scroll z-0">
-          <AuthProvider>
-            <ProviderWrapper>
-              <Header />
-              <main role="main">
-                {children}
-              </main>
-            </ProviderWrapper>
-          </AuthProvider>
-        </div>
-        <FloatingActionButton />
+      <body className={`${inter.className} antialiased min-h-screen bg-slate-50`} suppressHydrationWarning>
+        <RootProviders>
+          <LayoutShell>{children}</LayoutShell>
+        </RootProviders>
       </body>
     </html>
   );

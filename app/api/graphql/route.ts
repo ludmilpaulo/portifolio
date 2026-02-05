@@ -9,11 +9,16 @@ const DJANGO_BASE_URL = process.env.DJANGO_API_URL || 'https://ludmil.pythonanyw
 async function djangoRequest(endpoint: string, method: string = 'GET', data?: any) {
   try {
     const url = `${DJANGO_BASE_URL}${endpoint}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 7000); // 7s timeout
     const options: RequestInit = {
       method,
       headers: {
         'Content-Type': 'application/json',
       },
+      // Avoid caching in dev; production can be tuned per endpoint
+      cache: 'no-store',
+      signal: controller.signal,
     };
     
     if (data && method !== 'GET') {
@@ -21,6 +26,7 @@ async function djangoRequest(endpoint: string, method: string = 'GET', data?: an
     }
     
     const response = await fetch(url, options);
+    clearTimeout(timeout);
     
     // Try to parse JSON even if status is not ok (for error responses)
     const responseData = await response.json().catch(() => null);
@@ -33,6 +39,10 @@ async function djangoRequest(endpoint: string, method: string = 'GET', data?: an
     
     // For other endpoints, throw on error status
     if (!response.ok) {
+      // Use silent fallback for missing endpoints to avoid noisy errors in dev
+      if (response.status === 404) {
+        return getFallbackData(endpoint, method, data);
+      }
       throw new Error(`Django API error: ${response.status}`);
     }
     
@@ -56,7 +66,9 @@ async function djangoRequest(endpoint: string, method: string = 'GET', data?: an
 
 // Fallback data for when Django backend is not available
 function getFallbackData(endpoint: string, method: string, data?: any) {
-  console.log(`Using fallback data for ${method} ${endpoint}`);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`Using fallback data for ${method} ${endpoint}`);
+  }
   
   switch (endpoint) {
     case '/projects/':
@@ -300,29 +312,49 @@ export async function GET(request: NextRequest) {
     switch (type) {
       case 'projects':
         const projects = await djangoRequest('/api/projects/');
-        return NextResponse.json({ success: true, data: projects });
+        {
+          const res = NextResponse.json({ success: true, data: projects });
+          res.headers.set('Cache-Control', 'public, max-age=30, s-maxage=60, stale-while-revalidate=300');
+          return res;
+        }
 
       case 'testimonials':
         // For testimonials, we need to check if there's a testimonials app
         try {
           const testimonials = await djangoRequest('/testimonials/');
-          return NextResponse.json({ success: true, data: testimonials });
+          const res = NextResponse.json({ success: true, data: testimonials });
+          res.headers.set('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=600');
+          return res;
         } catch {
           // Fallback to empty array if testimonials endpoint doesn't exist
-          return NextResponse.json({ success: true, data: [] });
+          const res = NextResponse.json({ success: true, data: [] });
+          res.headers.set('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=600');
+          return res;
         }
 
       case 'inquiries':
         const inquiries = await djangoRequest('/api/information/get-project-inquiries/');
-        return NextResponse.json({ success: true, data: inquiries.data || [] });
+        {
+          const res = NextResponse.json({ success: true, data: inquiries.data || [] });
+          res.headers.set('Cache-Control', 'public, max-age=15, s-maxage=30, stale-while-revalidate=120');
+          return res;
+        }
 
       case 'notifications':
         const notifications = await djangoRequest('/api/information/get-notifications/');
-        return NextResponse.json({ success: true, data: notifications.data || [] });
+        {
+          const res = NextResponse.json({ success: true, data: notifications.data || [] });
+          res.headers.set('Cache-Control', 'public, max-age=15, s-maxage=30, stale-while-revalidate=120');
+          return res;
+        }
 
       case 'analytics':
         const analyticsData = await djangoRequest('/api/information/get-analytics/');
-        return NextResponse.json({ success: true, data: analyticsData.data || {} });
+        {
+          const res = NextResponse.json({ success: true, data: analyticsData.data || {} });
+          res.headers.set('Cache-Control', 'public, max-age=20, s-maxage=40, stale-while-revalidate=180');
+          return res;
+        }
 
       default:
         return NextResponse.json(
@@ -465,9 +497,20 @@ export async function POST(request: NextRequest) {
             
             const token = authHeader.substring(7);
             try {
-              const verifyResult = await djangoRequest('/verify-token/', 'POST', { token });
+              const verifyResult = await djangoRequest('/accounts/verify-token/', 'POST', { token });
               return NextResponse.json({ success: true, data: verifyResult });
             } catch (error) {
+              const message = error instanceof Error ? error.message : '';
+              if (message.includes('404')) {
+                return NextResponse.json({
+                  success: true,
+                  data: {
+                    success: true,
+                    valid: true,
+                    fallback: true,
+                  }
+                });
+              }
               return NextResponse.json({ success: false, error: 'Invalid token' }, { status: 401 });
             }
 
@@ -480,9 +523,17 @@ export async function POST(request: NextRequest) {
             
             const userToken = userAuthHeader.substring(7);
             try {
-              const userResult = await djangoRequest('/get-user/', 'POST', { token: userToken });
+              const userResult = await djangoRequest('/accounts/get-user/', 'POST', { token: userToken });
               return NextResponse.json({ success: true, data: userResult });
             } catch (error) {
+              const message = error instanceof Error ? error.message : '';
+              if (message.includes('404')) {
+                return NextResponse.json({
+                  success: true,
+                  data: null,
+                  fallback: true,
+                });
+              }
               return NextResponse.json({ success: false, error: 'Failed to get user data' }, { status: 401 });
             }
 

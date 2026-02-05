@@ -11,6 +11,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-heading)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
         primary: {
@@ -86,6 +87,8 @@ const config: Config = {
         'glass-inset': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05)',
         'glow': '0 0 20px rgba(59, 130, 246, 0.5)',
         'glow-lg': '0 0 40px rgba(59, 130, 246, 0.6)',
+        'card': '0 4px 20px rgba(15, 23, 42, 0.06), 0 2px 8px rgba(15, 23, 42, 0.04)',
+        'card-hover': '0 12px 32px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(0, 147, 233, 0.06)',
       },
       backdropBlur: {
         'xs': '2px',

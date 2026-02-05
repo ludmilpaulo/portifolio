@@ -29,11 +29,8 @@ export default function ClientLogin() {
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      // Redirect to client dashboard - the auth context handles the user data
-      // Wait a moment for the user state to update
-      setTimeout(() => {
-        router.push('/dashboard/client');
-      }, 100);
+      // The useEffect hook will handle redirect when user state updates
+      // No need for setTimeout - the auth context updates synchronously
     } else {
       // Display specific error messages based on error code
       let errorMessage = result.error || 'Login failed';
