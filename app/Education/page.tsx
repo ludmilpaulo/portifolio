@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaGraduationCap } from "react-icons/fa";
 import { useGetMyInfoQuery } from "@/store/myInfoApi";
@@ -63,12 +64,13 @@ const Education: React.FC = () => {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
             >
-              <img
+              <Image
                 src="/error.svg"
                 alt="Error"
                 width={90}
                 height={90}
                 className="mb-4 opacity-60"
+                unoptimized
               />
               <div className="text-red-500 text-lg mb-1">Error loading education data.</div>
               <div className="text-gray-400 text-center text-sm">Please try again later.</div>
@@ -82,12 +84,13 @@ const Education: React.FC = () => {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.4 }}
             >
-              <img
+              <Image
                 src="/no-data.svg"
                 alt="No education"
                 width={90}
                 height={90}
                 className="mb-4 opacity-60"
+                unoptimized
               />
               <div className="text-gray-500 text-lg">No education records yet.</div>
             </motion.div>

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useCallback } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaCloudUploadAlt, FaFile, FaImage, FaVideo, FaTrash, FaCheck } from "react-icons/fa";
 
@@ -174,10 +175,13 @@ const FileUpload = ({
                 >
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
                     {uploadedFile.preview ? (
-                      <img
+                      <Image
                         src={uploadedFile.preview}
                         alt="Preview"
-                        className="w-12 h-12 object-cover rounded"
+                        width={48}
+                        height={48}
+                        className="object-cover rounded flex-shrink-0"
+                        unoptimized
                       />
                     ) : (
                       <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">

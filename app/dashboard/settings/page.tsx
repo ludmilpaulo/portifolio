@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { 
   FaSave, 
@@ -104,11 +105,13 @@ const SettingsPage = () => {
   const renderProfileSettings = () => (
     <div className="space-y-6">
       <div className="flex items-center space-x-6">
-        <div className="relative">
-          <img
+        <div className="relative w-24 h-24">
+          <Image
             src={settings.profile.avatar}
             alt="Profile"
-            className="w-24 h-24 rounded-full object-cover"
+            fill
+            className="rounded-full object-cover"
+            sizes="96px"
           />
           <button className="absolute bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors">
             <FaUpload className="text-sm" />

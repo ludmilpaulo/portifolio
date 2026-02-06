@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import {
   FaCheckCircle,
@@ -38,7 +39,7 @@ const getAllTools = (projects: Project[]): Competence[] => {
 const Projects: React.FC = () => {
   // RTK Query
   const { data, isLoading, isError } = useGetMyInfoQuery();
-  const projects: Project[] = data?.projects || [];
+  const projects = useMemo<Project[]>(() => data?.projects ?? [], [data?.projects]);
 
   const [activeTab, setActiveTab] = useState<number>(2);
   const [search, setSearch] = useState("");
@@ -221,12 +222,13 @@ const Projects: React.FC = () => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
               >
-                <img
+                <Image
                   src="/error.svg"
                   alt="Error"
                   width={140}
                   height={140}
                   className="mb-6 opacity-70"
+                  unoptimized
                 />
                 <div className="text-xl text-red-400 text-center mb-2">
                   Error loading projects.
@@ -244,12 +246,13 @@ const Projects: React.FC = () => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
               >
-                <img
+                <Image
                   src="/no-data.svg"
                   alt="No projects"
                   width={140}
                   height={140}
                   className="mb-6 opacity-70"
+                  unoptimized
                 />
                 <div className="text-xl text-gray-400 text-center mb-2">
                   No projects in this category yet.
@@ -294,12 +297,13 @@ const Projects: React.FC = () => {
             ) : (
               <SwiperSlide>
                 <div className="flex flex-col items-center py-16">
-                  <img
+                  <Image
                     src="/no-data.svg"
                     alt="No projects"
                     width={120}
                     height={120}
                     className="mb-4 opacity-60"
+                    unoptimized
                   />
                   <div className="text-base text-gray-400 text-center mb-1">
                     No projects in this category.

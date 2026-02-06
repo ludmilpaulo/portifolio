@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FaUpload, 
@@ -309,10 +310,13 @@ const MediaPage = () => {
                 >
                   <div className="h-32 bg-gray-100 flex items-center justify-center relative">
                     {file.thumbnail ? (
-                      <img
+                      <Image
                         src={file.thumbnail}
                         alt={file.name}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="256px"
+                        unoptimized
                       />
                     ) : (
                       <Icon className="text-4xl text-gray-400" />
