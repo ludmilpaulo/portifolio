@@ -28,11 +28,11 @@ function SkillsCloud({ skills }: { skills: Competence[] }) {
   return (
     <motion.div
       className="relative flex justify-center items-center w-[290px] h-[290px] mx-auto select-none"
-      style={{ transform: `rotate(${rotation}deg)` }}
+      style={{ transform: `rotate(${rotation}deg)`, transformOrigin: "center center" }}
       animate={{}}
     >
-      {/* Center avatar */}
-      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 shadow-xl border-4 border-blue-200 dark:border-cyan-400 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+      {/* Center avatar - centered in the middle */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 shadow-xl border-4 border-blue-200 dark:border-cyan-400 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center w-[121px] h-[121px]">
         <Image
           src="/avatar/lud.jpeg"
           alt="Ludmil Paulo"
@@ -48,7 +48,11 @@ function SkillsCloud({ skills }: { skills: Competence[] }) {
         return (
           <motion.div
             key={skill.id}
-            style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)` }}
+            style={{
+              left: `calc(50% + ${x}px)`,
+              top: `calc(50% + ${y}px)`,
+              transform: "translate(-50%, -50%)",
+            }}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1.12, opacity: 1 }}
             whileHover={{
@@ -57,7 +61,7 @@ function SkillsCloud({ skills }: { skills: Competence[] }) {
               zIndex: 30,
             }}
             transition={{ type: "spring", stiffness: 300, delay: 0.07 * i }}
-            className="absolute w-16 h-16 flex flex-col items-center justify-center bg-white/90 dark:bg-gray-900/90 border border-blue-100 dark:border-cyan-700 rounded-full shadow-lg text-xs group hover:-translate-y-2 transition"
+            className="absolute w-16 h-16 flex flex-col items-center justify-center bg-white/90 dark:bg-gray-900/90 border border-blue-100 dark:border-cyan-700 rounded-full shadow-lg text-xs group transition origin-center"
           >
             <Image src={skill.image} alt={skill.title} width={36} height={36} className="rounded-full mb-1" />
             <span className="text-gray-700 dark:text-cyan-100 font-semibold">{skill.title}</span>
@@ -120,13 +124,12 @@ const About = () => {
           <div className="flex-shrink-0 w-full md:w-1/3 flex flex-col items-center z-10">
             <div className="relative">
               <Image
-                src={aboutMe.avatar}
+                src={aboutMe.avatar || "/avatar/lud.jpeg"}
                 alt="Ludmil Paulo - Senior Software Engineer Profile Picture"
                 className="rounded-full object-cover shadow-2xl border-4 border-blue-200 dark:border-cyan-300"
                 width={220}
                 height={220}
                 priority
-                quality={90}
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                 sizes="(max-width: 768px) 180px, 220px"
@@ -200,11 +203,11 @@ const About = () => {
         </motion.div>
 
         {/* Skills Cloud */}
-        <section className="w-full flex flex-col items-center justify-center">
-          <h3 className="text-2xl md:text-3xl font-bold text-blue-700 dark:text-cyan-200 mb-6 mt-8 tracking-widest text-center">
+        <section className="w-full flex flex-col items-center justify-center py-8">
+          <h3 className="text-2xl md:text-3xl font-bold text-blue-700 dark:text-cyan-200 mb-8 mt-8 tracking-widest text-center">
             Tech Stack & Skills Cloud
           </h3>
-          <div className="flex justify-center items-center w-full">
+          <div className="flex justify-center items-center w-full min-h-[320px]">
             <SkillsCloud skills={skills} />
           </div>
         </section>

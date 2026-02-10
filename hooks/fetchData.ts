@@ -1,9 +1,12 @@
 import { Competence, Experience, Project, Info, Education } from "@/hooks/types";
 
 
-export const baseUrl ='https://ludmil.pythonanywhere.com/'
-
-//export const baseUrl ='http://127.0.0.1:8000/'
+const rawBase =
+  (typeof window !== "undefined"
+    ? process.env.NEXT_PUBLIC_API_URL
+    : process.env.DJANGO_API_URL) || "https://ludmil.pythonanywhere.com";
+/** Backend API base URL (always ends with /) for full frontend-backend interaction */
+export const baseUrl = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 interface MyInfoResponse {
     competences: Competence[];
     experiences: Experience[];
