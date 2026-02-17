@@ -171,7 +171,7 @@ const ProjectInquiryPage = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          type: 'create-inquiry',
+          type: 'create-project-inquiry',
           data: {
             clientName: formData.clientName,
             clientEmail: formData.clientEmail,
