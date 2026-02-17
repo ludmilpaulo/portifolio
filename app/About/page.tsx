@@ -13,7 +13,7 @@ import { Info, Competence } from "@/hooks/types"
 
 // -------- Animated Skills Cloud with Rotation --------
 const SKILL_CLOUD_RADIUS = 110;
-function SkillsCloud({ skills }: { skills: Competence[] }) {
+function SkillsCloud({ skills, avatar }: { skills: Competence[]; avatar?: string }) {
   const [rotation, setRotation] = React.useState(0);
 
   React.useEffect(() => {
@@ -31,14 +31,14 @@ function SkillsCloud({ skills }: { skills: Competence[] }) {
       style={{ transform: `rotate(${rotation}deg)`, transformOrigin: "center center" }}
       animate={{}}
     >
-      {/* Center avatar - centered in the middle */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 shadow-xl border-4 border-blue-200 dark:border-cyan-400 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center w-[121px] h-[121px]">
+      {/* Center avatar - perfectly centered in the middle */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 shadow-xl border-4 border-blue-200 dark:border-cyan-400 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center w-[121px] h-[121px] overflow-hidden">
         <Image
-          src="/avatar/lud.jpeg"
+          src={avatar || "/avatar/lud.jpeg"}
           alt="Ludmil Paulo"
-          width={105}
-          height={105}
-          className="rounded-full object-cover"
+          width={121}
+          height={121}
+          className="rounded-full object-cover w-full h-full"
         />
       </div>
       {visibleSkills.map((skill, i) => {
@@ -208,7 +208,7 @@ const About = () => {
             Tech Stack & Skills Cloud
           </h3>
           <div className="flex justify-center items-center w-full min-h-[320px]">
-            <SkillsCloud skills={skills} />
+            <SkillsCloud skills={skills} avatar={aboutMe.avatar} />
           </div>
         </section>
 
