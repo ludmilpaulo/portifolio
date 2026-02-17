@@ -19,6 +19,31 @@ export default function Home() {
   const info = myInfo?.info?.[0];
   const projects = myInfo?.projects?.slice(0, 5) || [];
 
+  // Function to get initials from name
+  const getInitials = (name: string): string => {
+    if (!name) return '??';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) {
+      return parts[0].charAt(0).toUpperCase();
+    }
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  };
+
+  // Function to get avatar background color based on name
+  const getAvatarColor = (name: string): string => {
+    const colors = [
+      'bg-gradient-to-br from-blue-500 to-cyan-500',
+      'bg-gradient-to-br from-purple-500 to-pink-500',
+      'bg-gradient-to-br from-green-500 to-emerald-500',
+      'bg-gradient-to-br from-orange-500 to-red-500',
+      'bg-gradient-to-br from-indigo-500 to-purple-500',
+      'bg-gradient-to-br from-teal-500 to-cyan-500',
+    ];
+    if (!name) return colors[0];
+    const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[hash % colors.length];
+  };
+
   return (
     <div className="relative min-h-screen flex flex-col bg-gradient-to-br from-[#0093E9] via-[#3b9ee0] to-[#00c9d4] text-white overflow-hidden">
       {/* Floating Shapes */}
@@ -468,17 +493,25 @@ export default function Home() {
                     whileHover={{ scale: 1.1 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <Image
-                      src={t.avatar || "/testimonials/default.jpg"}
-                      alt={`${t.name} - Testimonial`}
-                      width={80}
-                      height={80}
-                      className="rounded-full border-3 border-blue-400 dark:border-cyan-400 shadow-xl group-hover:shadow-2xl transition-all duration-300 w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] lg:w-[80px] lg:h-[80px]"
-                      loading="lazy"
-                      placeholder="blur"
-                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                      sizes="(max-width: 640px) 60px, (max-width: 1024px) 70px, 80px"
-                    />
+                    {t.avatar ? (
+                      <Image
+                        src={t.avatar}
+                        alt={`${t.name} - Testimonial`}
+                        width={80}
+                        height={80}
+                        className="rounded-full border-3 border-blue-400 dark:border-cyan-400 shadow-xl group-hover:shadow-2xl transition-all duration-300 w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] lg:w-[80px] lg:h-[80px] object-cover"
+                        loading="lazy"
+                        placeholder="blur"
+                        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                        sizes="(max-width: 640px) 60px, (max-width: 1024px) 70px, 80px"
+                      />
+                    ) : (
+                      <div
+                        className={`${getAvatarColor(t.name || '')} rounded-full border-3 border-blue-400 dark:border-cyan-400 shadow-xl group-hover:shadow-2xl transition-all duration-300 w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] lg:w-[80px] lg:h-[80px] flex items-center justify-center text-white font-bold text-xl sm:text-2xl lg:text-3xl`}
+                      >
+                        {getInitials(t.name || '')}
+                      </div>
+                    )}
                     <motion.div
                       className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-2 border-white dark:border-gray-900"
                       animate={{ scale: [1, 1.2, 1] }}
