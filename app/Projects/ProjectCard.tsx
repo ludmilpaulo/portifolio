@@ -120,31 +120,33 @@ const ProjectCard: React.FC<Project> = ({
             </div>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-between items-center border-t border-slate-200/80 dark:border-slate-700/80 px-6 py-3 bg-slate-50/80 dark:bg-slate-800/40 rounded-b-2xl">
-          <a
-            href={demo}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-[#0093E9] dark:text-cyan-400 hover:text-[#0066b3] dark:hover:text-cyan-300 font-semibold text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0093E9] focus-visible:ring-offset-2 rounded"
-            aria-label={`View demo for ${title}`}
-          >
-            <FaExternalLinkAlt className="w-4 h-4" aria-hidden />
-            Demo
-          </a>
-          <a
-            href={github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 rounded"
-            aria-label={`View GitHub repo for ${title}`}
-          >
-            <FaGithub className="w-4 h-4" aria-hidden />
-            GitHub
-          </a>
-        </div>
       </Link>
+
+      {/* Action Buttons - Outside Link to avoid nested anchor tags */}
+      <div className="flex justify-between items-center border-t border-slate-200/80 dark:border-slate-700/80 px-6 py-3 bg-slate-50/80 dark:bg-slate-800/40 rounded-b-2xl">
+        <a
+          href={demo}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="flex items-center gap-2 text-[#0093E9] dark:text-cyan-400 hover:text-[#0066b3] dark:hover:text-cyan-300 font-semibold text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0093E9] focus-visible:ring-offset-2 rounded"
+          aria-label={`View demo for ${title}`}
+        >
+          <FaExternalLinkAlt className="w-4 h-4" aria-hidden />
+          Demo
+        </a>
+        <a
+          href={github}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 rounded"
+          aria-label={`View GitHub repo for ${title}`}
+        >
+          <FaGithub className="w-4 h-4" aria-hidden />
+          GitHub
+        </a>
+      </div>
     </motion.div>
   );
 };

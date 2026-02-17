@@ -9,15 +9,18 @@ import {
   FaThumbsUp,
   FaArrowUp,
   FaArrowDown,
-  FaChartLine,
   FaCalendarAlt,
-  FaGlobe,
-  FaMobile,
-  FaDesktop,
   FaSignOutAlt
 } from "react-icons/fa";
 import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+
+interface RecentActivityItem {
+  type: string;
+  title: string;
+  time: string;
+  message?: string;
+}
 
 interface AnalyticsData {
   totalViews: number;
@@ -28,6 +31,19 @@ interface AnalyticsData {
   visitorsChange: number;
   projectsChange: number;
   testimonialsChange: number;
+  inquiries?: {
+    total: number;
+    pending: number;
+    inProgress: number;
+    completed: number;
+  };
+  tasks?: {
+    total: number;
+    pending: number;
+    inProgress: number;
+    completed: number;
+  };
+  recentActivities?: RecentActivityItem[];
 }
 
 const DashboardPage = () => {
@@ -44,17 +60,16 @@ const DashboardPage = () => {
     testimonialsChange: 0,
   });
 
-  const [recentActivity, setRecentActivity] = useState([]);
-  const [deviceStats, setDeviceStats] = useState({
-    mobile: 45,
-    desktop: 50,
-    tablet: 5
-  });
+  const [recentActivity, setRecentActivity] = useState<RecentActivityItem[]>([]);
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
 
   useEffect(() => {
     // Load analytics data
     const loadAnalytics = async () => {
       try {
+        setIsLoadingAnalytics(true);
+        setAnalyticsError(null);
         const response = await fetch('/api/graphql?type=analytics');
         const result = await response.json();
         if (result.success) {
@@ -68,21 +83,34 @@ const DashboardPage = () => {
             visitorsChange: Number(d.visitorsChange ?? 0),
             projectsChange: Number(d.projectsChange ?? 0),
             testimonialsChange: Number(d.testimonialsChange ?? 0),
+            inquiries: d.inquiries,
+            tasks: d.tasks,
+            recentActivities: d.recentActivities,
           });
+          setRecentActivity(Array.isArray(d.recentActivities) ? d.recentActivities : []);
+        } else {
+          setAnalyticsError(result.error || "Failed to load analytics");
         }
       } catch (error) {
         console.error('Error loading analytics:', error);
-        // Fallback data
-        setAnalytics({
-          totalViews: 15420,
-          uniqueVisitors: 8930,
-          projects: 28,
-          testimonials: 15,
-          viewsChange: 12.5,
-          visitorsChange: 8.3,
-          projectsChange: 25.0,
-          testimonialsChange: 15.7,
-        });
+        setAnalyticsError("Failed to load analytics from backend");
+        // Keep real values only (zeros) rather than showing fake/demo numbers
+        setAnalytics((prev) => ({
+          ...prev,
+          totalViews: 0,
+          uniqueVisitors: 0,
+          projects: 0,
+          testimonials: 0,
+          viewsChange: 0,
+          visitorsChange: 0,
+          projectsChange: 0,
+          testimonialsChange: 0,
+          inquiries: undefined,
+          tasks: undefined,
+        }));
+        setRecentActivity([]);
+      } finally {
+        setIsLoadingAnalytics(false);
       }
     };
     loadAnalytics();
@@ -195,94 +223,91 @@ const DashboardPage = () => {
         />
       </div>
 
-      {/* Charts and Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Traffic Chart */}
+      {/* Backend-only info: loading/error */}
+      {(isLoadingAnalytics || analyticsError) && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+          className={`rounded-xl p-4 border ${
+            analyticsError ? "bg-red-50 border-red-200" : "bg-blue-50 border-blue-200"
+          }`}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Traffic Overview</h3>
-            <div className="flex items-center space-x-2">
-              <FaChartLine className="text-blue-500" />
-              <span className="text-sm text-gray-600">Last 30 days</span>
+          {isLoadingAnalytics && (
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-blue-800 font-medium">Loading analytics from backend...</p>
             </div>
-          </div>
-          <div className="h-64 flex items-end justify-between space-x-2">
-            {[65, 78, 45, 89, 67, 92, 85, 78, 95, 88, 76, 82].map((height, index) => (
-              <motion.div
-                key={index}
-                initial={{ height: 0 }}
-                animate={{ height: `${height}%` }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="bg-gradient-to-t from-blue-500 to-blue-300 rounded-t-lg flex-1"
-              />
-            ))}
-          </div>
+          )}
+          {!isLoadingAnalytics && analyticsError && (
+            <p className="text-red-800 font-medium">
+              {analyticsError}. Please make sure the Django backend is running and reachable.
+            </p>
+          )}
         </motion.div>
+      )}
 
-        {/* Device Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
-        >
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Device Breakdown</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <FaDesktop className="text-blue-500 mr-3" />
-                <span className="text-gray-700">Desktop</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-32 bg-gray-200 rounded-full h-2 mr-3">
-                  <div 
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{ width: `${deviceStats.desktop}%` }}
-                  />
+      {/* Backend breakdown cards (real data) */}
+      {(analytics.inquiries || analytics.tasks) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {analytics.inquiries && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+            >
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Inquiries (Backend)</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-gray-600 text-sm">Total</p>
+                  <p className="text-2xl font-bold text-gray-900">{analytics.inquiries.total}</p>
                 </div>
-                <span className="text-gray-900 font-semibold">{deviceStats.desktop}%</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <FaMobile className="text-green-500 mr-3" />
-                <span className="text-gray-700">Mobile</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-32 bg-gray-200 rounded-full h-2 mr-3">
-                  <div 
-                    className="bg-green-500 h-2 rounded-full"
-                    style={{ width: `${deviceStats.mobile}%` }}
-                  />
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <p className="text-yellow-700 text-sm">Pending</p>
+                  <p className="text-2xl font-bold text-yellow-800">{analytics.inquiries.pending}</p>
                 </div>
-                <span className="text-gray-900 font-semibold">{deviceStats.mobile}%</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <FaGlobe className="text-purple-500 mr-3" />
-                <span className="text-gray-700">Tablet</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-32 bg-gray-200 rounded-full h-2 mr-3">
-                  <div 
-                    className="bg-purple-500 h-2 rounded-full"
-                    style={{ width: `${deviceStats.tablet}%` }}
-                  />
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <p className="text-blue-700 text-sm">In Progress</p>
+                  <p className="text-2xl font-bold text-blue-800">{analytics.inquiries.inProgress}</p>
                 </div>
-                <span className="text-gray-900 font-semibold">{deviceStats.tablet}%</span>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <p className="text-green-700 text-sm">Completed</p>
+                  <p className="text-2xl font-bold text-green-800">{analytics.inquiries.completed}</p>
+                </div>
               </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
+            </motion.div>
+          )}
+
+          {analytics.tasks && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+            >
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Tasks (Backend)</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-gray-600 text-sm">Total</p>
+                  <p className="text-2xl font-bold text-gray-900">{analytics.tasks.total}</p>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <p className="text-yellow-700 text-sm">Pending</p>
+                  <p className="text-2xl font-bold text-yellow-800">{analytics.tasks.pending}</p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <p className="text-blue-700 text-sm">In Progress</p>
+                  <p className="text-2xl font-bold text-blue-800">{analytics.tasks.inProgress}</p>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <p className="text-green-700 text-sm">Completed</p>
+                  <p className="text-2xl font-bold text-green-800">{analytics.tasks.completed}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      )}
 
       {/* Recent Activity */}
       <motion.div
@@ -296,22 +321,22 @@ const DashboardPage = () => {
           <FaCalendarAlt className="text-gray-400" />
         </div>
         <div className="space-y-3">
-          {[
-            { action: "New project added", time: "2 hours ago", type: "project" },
-            { action: "Testimonial received", time: "4 hours ago", type: "testimonial" },
-            { action: "Profile updated", time: "1 day ago", type: "profile" },
-            { action: "Media uploaded", time: "2 days ago", type: "media" },
-          ].map((activity, index) => (
+          {recentActivity.length === 0 && (
+            <div className="p-3 bg-gray-50 rounded-lg text-gray-600">
+              No recent activity from backend yet.
+            </div>
+          )}
+          {recentActivity.map((activity, index) => (
             <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div className="flex items-center">
-                <div className={`w-2 h-2 rounded-full mr-3 ${
-                  activity.type === 'project' ? 'bg-purple-500' :
-                  activity.type === 'testimonial' ? 'bg-orange-500' :
-                  activity.type === 'profile' ? 'bg-green-500' : 'bg-pink-500'
-                }`} />
-                <span className="text-gray-700">{activity.action}</span>
+              <div className="flex flex-col">
+                <span className="text-gray-800 font-medium">{activity.title}</span>
+                {activity.message && (
+                  <span className="text-gray-600 text-sm">{activity.message}</span>
+                )}
               </div>
-              <span className="text-gray-500 text-sm">{activity.time}</span>
+              <span className="text-gray-500 text-sm">
+                {activity.time ? new Date(activity.time).toLocaleString() : ""}
+              </span>
             </div>
           ))}
         </div>

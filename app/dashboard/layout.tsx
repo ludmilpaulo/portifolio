@@ -15,7 +15,8 @@ import {
   FaUpload,
   FaUsers,
   FaFileAlt,
-  FaShieldAlt
+  FaShieldAlt,
+  FaInbox
 } from "react-icons/fa";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -39,6 +40,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { href: "/dashboard", icon: FaHome, label: "Dashboard", color: "text-blue-500" },
     { href: "/dashboard/profile", icon: FaUser, label: "Profile", color: "text-green-500" },
     { href: "/dashboard/projects", icon: FaProjectDiagram, label: "Projects", color: "text-purple-500" },
+    { href: "/dashboard/inquiries", icon: FaInbox, label: "Inquiries", color: "text-cyan-500" },
     { href: "/dashboard/analytics", icon: FaChartBar, label: "Analytics", color: "text-orange-500" },
     { href: "/dashboard/media", icon: FaUpload, label: "Media", color: "text-pink-500" },
     { href: "/dashboard/testimonials", icon: FaUsers, label: "Testimonials", color: "text-indigo-500" },

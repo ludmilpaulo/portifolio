@@ -1,306 +1,695 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Django backend URL - configured for production
-// Set DJANGO_API_URL environment variable to override
-// Note: Use the site root here; include \/api in individual endpoints where needed
-const DJANGO_BASE_URL = process.env.DJANGO_API_URL || 'https://ludmil.pythonanywhere.com';
+const DJANGO_API_URL = process.env.DJANGO_API_URL || 'http://localhost:8002';
 
-// Helper function to make requests to Django backend with fallback
-async function djangoRequest(endpoint: string, method: string = 'GET', data?: any) {
-  try {
-    const url = `${DJANGO_BASE_URL}${endpoint}`;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 7000); // 7s timeout
-    const options: RequestInit = {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      // Avoid caching in dev; production can be tuned per endpoint
-      cache: 'no-store',
-      signal: controller.signal,
-    };
-    
-    if (data && method !== 'GET') {
-      options.body = JSON.stringify(data);
-    }
-    
-    const response = await fetch(url, options);
-    clearTimeout(timeout);
-    
-    // Try to parse JSON even if status is not ok (for error responses)
-    const responseData = await response.json().catch(() => null);
-    
-    // For login endpoint, always return the response even if it's an error
-    // This allows us to pass through error messages from Django
-    if (endpoint === '/accounts/login/') {
-      return responseData || { success: false, error: 'Failed to parse response' };
-    }
-    
-    // For other endpoints, throw on error status
-    if (!response.ok) {
-      // Use silent fallback for missing endpoints to avoid noisy errors in dev
-      if (response.status === 404) {
-        return getFallbackData(endpoint, method, data);
-      }
-      throw new Error(`Django API error: ${response.status}`);
-    }
-    
-    return responseData;
-  } catch (error) {
-    console.error('Django request error:', error);
-    
-    // For login endpoint, don't use fallback - return error
-    if (endpoint === '/accounts/login/') {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Network error occurred',
-        error_code: 'network_error'
-      };
-    }
-    
-    // Return fallback data for testing when Django is not available (for other endpoints)
-    return getFallbackData(endpoint, method, data);
+function toNumber(value: unknown): number | undefined {
+  if (value === null || value === undefined) return undefined;
+  if (typeof value === 'number') return Number.isFinite(value) ? value : undefined;
+  if (typeof value === 'string') {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : undefined;
+  }
+  return undefined;
+}
+
+function normalizeInquiryMessage(raw: any) {
+  return {
+    id: raw?.id,
+    sender: raw?.sender,
+    message: raw?.message,
+    timestamp: raw?.timestamp,
+  };
+}
+
+function normalizeTask(raw: any) {
+  return {
+    id: raw?.id,
+    title: raw?.title,
+    description: raw?.description,
+    status: raw?.status,
+    assignedTo: raw?.assigned_to ?? raw?.assignedTo,
+    dueDate: raw?.due_date ?? raw?.dueDate,
+    createdAt: raw?.created_at ?? raw?.createdAt,
+    priority: raw?.priority,
+  };
+}
+
+function normalizeInvoiceItem(raw: any) {
+  return {
+    description: raw?.description,
+    quantity: raw?.quantity,
+    price: toNumber(raw?.price) ?? raw?.price,
+  };
+}
+
+function normalizeInvoice(raw: any) {
+  return {
+    id: raw?.id,
+    invoiceNumber: raw?.invoice_number ?? raw?.invoiceNumber,
+    amount: toNumber(raw?.amount) ?? raw?.amount,
+    status: raw?.status,
+    dueDate: raw?.due_date ?? raw?.dueDate,
+    createdAt: raw?.created_at ?? raw?.createdAt,
+    description: raw?.description,
+    items: Array.isArray(raw?.items) ? raw.items.map(normalizeInvoiceItem) : [],
+  };
+}
+
+function normalizeDocument(raw: any) {
+  return {
+    id: raw?.id,
+    title: raw?.title,
+    type: raw?.type,
+    status: raw?.status,
+    createdAt: raw?.created_at ?? raw?.createdAt,
+    signedAt: raw?.signed_at ?? raw?.signedAt,
+    expiresAt: raw?.expires_at ?? raw?.expiresAt,
+    downloadUrl: raw?.download_url ?? raw?.downloadUrl,
+    content: raw?.content,
+    file: raw?.file,
+    signedBy: raw?.signed_by ?? raw?.signedBy,
+    adminSignedAt: raw?.admin_signed_at ?? raw?.adminSignedAt,
+    adminSignedBy: raw?.admin_signed_by ?? raw?.adminSignedBy,
+    clientSignedAt: raw?.client_signed_at ?? raw?.clientSignedAt,
+    clientSignedBy: raw?.client_signed_by ?? raw?.clientSignedBy,
+  };
+}
+
+function normalizeTeamMember(raw: any) {
+  return {
+    id: raw?.id,
+    name: raw?.name,
+    role: raw?.role,
+    email: raw?.email,
+  };
+}
+
+function normalizeInquiry(raw: any) {
+  return {
+    id: raw?.id,
+    clientName: raw?.client_name ?? raw?.clientName,
+    clientEmail: raw?.client_email ?? raw?.clientEmail,
+    clientPhone: raw?.client_phone ?? raw?.clientPhone,
+    projectTitle: raw?.project_title ?? raw?.projectTitle,
+    projectDescription: raw?.project_description ?? raw?.projectDescription,
+    projectType: raw?.project_type ?? raw?.projectType,
+    budget: raw?.budget,
+    timeline: raw?.timeline,
+    additionalRequirements: raw?.additional_requirements ?? raw?.additionalRequirements ?? '',
+    status: raw?.status,
+    priority: raw?.priority,
+    estimatedCost: toNumber(raw?.estimated_cost ?? raw?.estimatedCost),
+    actualCost: toNumber(raw?.actual_cost ?? raw?.actualCost),
+    progress: toNumber(raw?.progress) ?? 0,
+    createdAt: raw?.created_at ?? raw?.createdAt,
+    updatedAt: raw?.updated_at ?? raw?.updatedAt,
+    messages: Array.isArray(raw?.messages) ? raw.messages.map(normalizeInquiryMessage) : [],
+    tasks: Array.isArray(raw?.tasks) ? raw.tasks.map(normalizeTask) : [],
+    invoices: Array.isArray(raw?.invoices) ? raw.invoices.map(normalizeInvoice) : [],
+    documents: Array.isArray(raw?.documents) ? raw.documents.map(normalizeDocument) : [],
+    teamMembers: Array.isArray(raw?.team_members) ? raw.team_members.map(normalizeTeamMember) : (Array.isArray(raw?.teamMembers) ? raw.teamMembers.map(normalizeTeamMember) : []),
+  };
+}
+
+function stripHtml(html: unknown): string {
+  if (typeof html !== 'string') return '';
+  return html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeProjectStatus(status: any): 'live' | 'upcoming' | 'in-progress' | 'clone' {
+  // Backend Project model uses integers:
+  // 1=clone, 2=live, 3=upcoming, 4=in_progress
+  const n = toNumber(status);
+  switch (n) {
+    case 1:
+      return 'clone';
+    case 2:
+      return 'live';
+    case 3:
+      return 'upcoming';
+    case 4:
+      return 'in-progress';
+    default:
+      return 'live';
   }
 }
 
-// Fallback data for when Django backend is not available
-function getFallbackData(endpoint: string, method: string, data?: any) {
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`Using fallback data for ${method} ${endpoint}`);
-  }
-  
-  switch (endpoint) {
-    case '/projects/':
-      return [
-        {
-          id: '1',
-          title: 'E-Commerce Platform',
-          description: 'A full-stack e-commerce solution with React and Node.js',
-          status: 'LIVE',
-          technologies: ['React', 'Node.js', 'MongoDB', 'Stripe'],
-          createdAt: '2024-01-15T00:00:00Z',
-          updatedAt: '2024-01-20T00:00:00Z',
-          url: 'https://ecommerce-demo.com',
-          githubUrl: 'https://github.com/ludmilpaulo/ecommerce'
-        },
-        {
-          id: '2',
-          title: 'Task Management App',
-          description: 'A collaborative task management application',
-          status: 'IN_PROGRESS',
-          technologies: ['Next.js', 'TypeScript', 'Prisma', 'PostgreSQL'],
-          createdAt: '2024-02-01T00:00:00Z',
-          updatedAt: '2024-02-15T00:00:00Z',
-          githubUrl: 'https://github.com/ludmilpaulo/taskapp'
+function normalizeProject(raw: any) {
+  const tools = Array.isArray(raw?.tools) ? raw.tools : [];
+  return {
+    id: raw?.id,
+    title: raw?.title,
+    description: stripHtml(raw?.description) || raw?.description || '',
+    image: raw?.image,
+    status: normalizeProjectStatus(raw?.status),
+    technologies: tools.map((t: any) => t?.title).filter(Boolean),
+    createdAt: raw?.created_at ?? raw?.createdAt,
+    updatedAt: raw?.updated_at ?? raw?.updatedAt,
+    url: raw?.demo ?? raw?.url,
+    githubUrl: raw?.github ?? raw?.githubUrl,
+    progress: toNumber(raw?.progress),
+    estimatedCost: toNumber(raw?.estimated_cost ?? raw?.estimatedCost),
+    actualCost: toNumber(raw?.actual_cost ?? raw?.actualCost),
+    timeline: raw?.timeline,
+    tasks: [],
+    documents: [],
+    teamMembers: [],
+  };
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Support multipart form submissions for project CRUD (image upload)
+    const contentType = request.headers.get("content-type") || "";
+    if (contentType.includes("multipart/form-data")) {
+      const form = await request.formData();
+      const type = String(form.get("type") || "");
+
+      if (type === "create-project" || type === "update-project") {
+        const endpoint = type === "create-project" ? "/api/create-project/" : "/api/update-project/";
+
+        // forward form data to Django
+        const res = await fetch(`${DJANGO_API_URL}${endpoint}`, {
+          method: "POST",
+          body: form,
+        });
+
+        const json = await res.json().catch(() => null);
+        if (!res.ok) {
+          return NextResponse.json(
+            { success: false, error: json?.error || json?.message || "Project save failed" },
+            { status: res.status }
+          );
         }
-      ];
-    
-    case '/get-project-inquiries/':
-      return {
-        data: [
-          {
-            id: '1',
-            clientName: 'John Smith',
-            clientEmail: 'john@example.com',
-            clientPhone: '+1234567890',
-            projectTitle: 'E-commerce Website Development',
-            projectDescription: 'Need a full-stack e-commerce website with payment integration, inventory management, and admin dashboard.',
-            projectType: 'e-commerce',
-            budget: '$10,000 - $15,000',
-            timeline: '3-4 months',
-            status: 'in-progress',
-            priority: 'high',
-            createdAt: '2024-01-15T10:30:00Z',
-            updatedAt: '2024-02-15T14:20:00Z',
-            estimatedCost: 12500,
-            actualCost: 8500,
-            progress: 75,
-            messages: [
-              {
-                id: 1,
-                sender: 'client',
-                message: 'Hi, I\'m interested in developing an e-commerce website for my business.',
-                timestamp: '2024-01-15T10:30:00Z'
-              },
-              {
-                id: 2,
-                sender: 'admin',
-                message: 'Thank you for your inquiry! I\'d be happy to help you with your e-commerce project.',
-                timestamp: '2024-01-15T11:00:00Z'
-              }
-            ],
-            tasks: [
-              {
-                id: 1,
-                title: 'Database Setup',
-                description: 'Set up MongoDB database with user authentication',
-                status: 'completed',
-                assignedTo: 'admin',
-                dueDate: '2024-01-20T00:00:00Z',
-                createdAt: '2024-01-15T00:00:00Z',
-                priority: 'high',
-                projectId: 1
-              },
-              {
-                id: 2,
-                title: 'Payment Integration',
-                description: 'Integrate Stripe payment gateway',
-                status: 'in-progress',
-                assignedTo: 'admin',
-                dueDate: '2024-02-01T00:00:00Z',
-                createdAt: '2024-01-20T00:00:00Z',
-                priority: 'high',
-                projectId: 1
-              }
-            ],
-            invoices: [
-              {
-                id: 1,
-                invoiceNumber: 'INV-001',
-                amount: 5000,
-                status: 'paid',
-                dueDate: '2024-01-30T00:00:00Z',
-                createdAt: '2024-01-15T00:00:00Z',
-                description: 'Initial Payment - E-commerce Website',
-                items: [
-                  { description: 'Project Setup & Planning', quantity: 1, price: 2000 },
-                  { description: 'Design & UI/UX', quantity: 1, price: 3000 }
-                ]
-              }
-            ],
-            documents: [
-              {
-                id: 1,
-                title: 'Project Contract',
-                type: 'contract',
-                status: 'signed',
-                createdAt: '2024-01-15T00:00:00Z',
-                signedAt: '2024-01-16T00:00:00Z',
-                downloadUrl: '/documents/contract-001.pdf',
-                signedBy: 'John Smith',
-                projectId: 1
-              }
-            ],
-            teamMembers: [
-              {
-                id: 1,
-                name: 'Ludmil Paulo',
-                role: 'Lead Developer',
-                email: 'ludmil@example.com',
-                projectId: 1
-              }
-            ]
-          }
-        ]
-      };
-    
-    case '/get-notifications/':
-      return {
-        data: [
-          {
-            id: '1',
-            title: 'New Project Inquiry',
-            message: 'John Smith submitted a new project inquiry for E-commerce Website Development',
-            type: 'info',
-            category: 'inquiry',
-            isRead: false,
-            createdAt: '2024-02-15T10:30:00Z',
-            actionUrl: '/dashboard/client',
-            actionText: 'View Inquiry'
-          }
-        ]
-      };
-    
-    case '/login/':
-      // Demo authentication for testing
-      if (data.username === 'admin' && data.password === 'admin123') {
-        return {
-          success: true,
-          token: 'demo-admin-token-123',
-          user: {
-            id: 1,
-            username: 'admin',
-            email: 'admin@ludmilpaulo.co.za',
-            first_name: 'Admin',
-            last_name: 'User',
-            user_type: 'admin',
-            is_verified: true
-          }
-        };
-      } else if (data.username === 'client@example.com' && data.password === 'client123') {
-        return {
-          success: true,
-          token: 'demo-client-token-123',
-          user: {
-            id: 2,
-            username: 'client@example.com',
-            email: 'client@example.com',
-            first_name: 'Client',
-            last_name: 'User',
-            user_type: 'client',
-            is_verified: true
-          }
-        };
-      } else {
-        return {
-          success: false,
-          error: 'Invalid credentials'
-        };
+
+        if (json?.success && json?.data) {
+          return NextResponse.json({ success: true, data: normalizeProject(json.data) });
+        }
+        return NextResponse.json(json ?? { success: false, error: "Invalid response" });
       }
 
-    case '/verify-token/':
-      // Demo token verification
-      if (data.token === 'demo-admin-token-123' || data.token === 'demo-client-token-123') {
-        return {
-          success: true,
-          valid: true
-        };
-      } else {
-        return {
-          success: false,
-          error: 'Invalid token'
-        };
+      if (type === "add-document") {
+        // Forward FormData to Django for document creation with file upload
+        const res = await fetch(`${DJANGO_API_URL}/api/add-document/`, {
+          method: "POST",
+          body: form,
+        });
+
+        const json = await res.json().catch(() => null);
+        if (!res.ok) {
+          return NextResponse.json(
+            { success: false, error: json?.error || json?.message || "Failed to add document" },
+            { status: res.status }
+          );
+        }
+
+        if (json?.success && json?.data) {
+          return NextResponse.json({ success: true, data: normalizeDocument(json.data) });
+        }
+        return NextResponse.json(json ?? { success: false, error: "Invalid response" });
       }
 
-    case '/get-user/':
-      // Demo user data retrieval
-      if (data.token === 'demo-admin-token-123') {
-        return {
-          id: 1,
-          username: 'admin',
-          email: 'admin@ludmilpaulo.co.za',
-          first_name: 'Admin',
-          last_name: 'User',
-          user_type: 'admin',
-          is_verified: true
-        };
-      } else if (data.token === 'demo-client-token-123') {
-        return {
-          id: 2,
-          username: 'client@example.com',
-          email: 'client@example.com',
-          first_name: 'Client',
-          last_name: 'User',
-          user_type: 'client',
-          is_verified: true
-        };
-      } else {
-        throw new Error('Invalid token');
+      return NextResponse.json({ success: false, error: `Unknown multipart type: ${type}` }, { status: 400 });
+    }
+
+    const body = await request.json();
+    const { type, data } = body;
+
+    // Get authorization token from headers
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '');
+
+    // Handle login request
+    if (type === 'login') {
+      const { username, password } = data || {};
+      
+      if (!username || !password) {
+        return NextResponse.json(
+          { success: false, error: 'Username and password are required' },
+          { status: 400 }
+        );
       }
-    
-    default:
-      if (method === 'POST') {
-        return {
+
+      const response = await fetch(`${DJANGO_API_URL}/accounts/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return NextResponse.json(
+          { success: false, error: result.error || 'Login failed', error_code: result.error_code },
+          { status: response.status }
+        );
+      }
+
+      // Django returns { success, token, user } - wrap it in data for consistency
+      if (result.success && result.token && result.user) {
+        return NextResponse.json({
+          success: true,
           data: {
-            id: Date.now(),
-            ...data,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            token: result.token,
+            user: result.user
           }
-        };
+        });
       }
-      return { data: [] };
+
+      return NextResponse.json(result);
+    }
+
+    // Handle token verification
+    if (type === 'verify-token') {
+      if (!token) {
+        return NextResponse.json(
+          { success: false, error: 'Token is required' },
+          { status: 401 }
+        );
+      }
+
+      // Try to verify token by attempting to get user info
+      // If Django has a verify endpoint, use it; otherwise verify by trying to use the token
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/accounts/user/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          return NextResponse.json({ success: true, data: result });
+        } else if (response.status === 404) {
+          // Endpoint doesn't exist, return success if token is present (basic validation)
+          return NextResponse.json({ success: true, message: 'Token present' });
+        } else {
+          return NextResponse.json(
+            { success: false, error: 'Token verification failed' },
+            { status: response.status }
+          );
+        }
+      } catch (error) {
+        // If endpoint doesn't exist, consider token valid if present
+        return NextResponse.json({ success: true, message: 'Token present' });
+      }
+    }
+
+    // Handle get-user request
+    if (type === 'get-user') {
+      if (!token) {
+        return NextResponse.json(
+          { success: false, error: 'Token is required' },
+          { status: 401 }
+        );
+      }
+
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/accounts/user/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          return NextResponse.json({ success: true, data: result });
+        } else if (response.status === 404) {
+          // Endpoint doesn't exist - try to decode token or return success with token validation
+          // For now, return success since token verification already passed
+          return NextResponse.json({
+            success: true,
+            message: 'User endpoint not implemented, using token validation'
+          });
+        } else {
+          return NextResponse.json(
+            { success: false, error: 'Failed to get user data' },
+            { status: response.status }
+          );
+        }
+      } catch (error) {
+        // If endpoint doesn't exist, return success (token is valid)
+        return NextResponse.json({
+          success: true,
+          message: 'User endpoint not implemented, token is valid'
+        });
+      }
+    }
+
+    // Handle project inquiry (both 'project-inquiry' and 'create-inquiry')
+    if (type === 'project-inquiry' || type === 'create-inquiry') {
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/api/create-project-inquiry/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        let result;
+        
+        if (contentType && contentType.includes('application/json')) {
+          result = await response.json();
+        } else {
+          // If not JSON, read as text for error details
+          const text = await response.text();
+          console.error('Django API returned non-JSON:', text);
+          return NextResponse.json(
+            { success: false, error: `Server error: ${response.status} ${response.statusText}` },
+            { status: response.status }
+          );
+        }
+
+        if (!response.ok) {
+          return NextResponse.json(
+            { success: false, error: result.error || result.message || 'Failed to submit inquiry' },
+            { status: response.status }
+          );
+        }
+
+        // Normalize inquiry payload so dashboards get camelCase fields
+        if (result?.success && result?.data) {
+          return NextResponse.json({ success: true, data: normalizeInquiry(result.data) });
+        }
+
+        return NextResponse.json(result);
+      } catch (fetchError) {
+        console.error('Error calling Django API:', fetchError);
+        return NextResponse.json(
+          { success: false, error: `Network error: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}` },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Client/Admin dashboard: add message to inquiry
+    if (type === 'add-message') {
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/api/add-message/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          return NextResponse.json(
+            { success: false, error: result.error || result.message || 'Failed to add message' },
+            { status: response.status }
+          );
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: normalizeInquiryMessage(result?.data ?? result),
+        });
+      } catch (error) {
+        return NextResponse.json(
+          { success: false, error: 'Failed to add message' },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Client dashboard: sign document
+    if (type === 'sign-document') {
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/api/sign-document/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          return NextResponse.json(
+            { success: false, error: result.error || result.message || 'Failed to sign document' },
+            { status: response.status }
+          );
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: normalizeDocument(result?.data ?? result),
+        });
+      } catch (error) {
+        return NextResponse.json(
+          { success: false, error: 'Failed to sign document' },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Admin dashboard: add document to inquiry (JSON only - multipart handled above)
+    if (type === 'add-document') {
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/api/add-document/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          return NextResponse.json(
+            { success: false, error: result.error || result.message || 'Failed to add document' },
+            { status: response.status }
+          );
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: normalizeDocument(result?.data ?? result),
+        });
+      } catch (error) {
+        return NextResponse.json(
+          { success: false, error: 'Failed to add document' },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Handle forgot password
+    if (type === 'forgot-password') {
+      const { email } = data || {};
+      
+      if (!email) {
+        return NextResponse.json(
+          { success: false, error: 'Email is required' },
+          { status: 400 }
+        );
+      }
+
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/accounts/forgot-password/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        if (response.status === 404) {
+          // Endpoint doesn't exist - return success message anyway
+          return NextResponse.json({
+            success: true,
+            message: 'Password reset endpoint not implemented. Please contact support.'
+          });
+        }
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          return NextResponse.json(
+            { success: false, error: result.error || 'Failed to send reset email' },
+            { status: response.status }
+          );
+        }
+
+        return NextResponse.json(result);
+      } catch (error) {
+        // If endpoint doesn't exist, return success message
+        return NextResponse.json({
+          success: true,
+          message: 'Password reset endpoint not implemented. Please contact support.'
+        });
+      }
+    }
+
+    // Admin dashboard: update inquiry
+    if (type === "update-inquiry") {
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/api/update-inquiry/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          return NextResponse.json(
+            { success: false, error: result.error || result.message || "Failed to update inquiry" },
+            { status: response.status }
+          );
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: normalizeInquiry(result?.data ?? result),
+        });
+      } catch (error) {
+        return NextResponse.json(
+          { success: false, error: "Failed to update inquiry" },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Admin dashboard: create invoice
+    if (type === "create-invoice") {
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/api/create-invoice/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          return NextResponse.json(
+            { success: false, error: result.error || result.message || "Failed to create invoice" },
+            { status: response.status }
+          );
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: normalizeInvoice(result?.data ?? result),
+        });
+      } catch (error) {
+        return NextResponse.json(
+          { success: false, error: "Failed to create invoice" },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Admin dashboard: update invoice status
+    if (type === "update-invoice-status") {
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/api/update-invoice-status/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          return NextResponse.json(
+            { success: false, error: result.error || result.message || "Failed to update invoice status" },
+            { status: response.status }
+          );
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: normalizeInvoice(result?.data ?? result),
+        });
+      } catch (error) {
+        return NextResponse.json(
+          { success: false, error: "Failed to update invoice status" },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Admin dashboard: delete inquiry
+    if (type === "delete-inquiry") {
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/api/delete-inquiry/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          return NextResponse.json(
+            { success: false, error: result.error || result.message || "Failed to delete inquiry" },
+            { status: response.status }
+          );
+        }
+        return NextResponse.json(result ?? { success: true });
+      } catch (error) {
+        return NextResponse.json({ success: false, error: "Failed to delete inquiry" }, { status: 500 });
+      }
+    }
+
+    // Admin dashboard: delete project
+    if (type === "delete-project") {
+      try {
+        const response = await fetch(`${DJANGO_API_URL}/api/delete-project/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json().catch(() => null);
+        if (!response.ok) {
+          return NextResponse.json(
+            { success: false, error: result?.error || result?.message || "Failed to delete project" },
+            { status: response.status }
+          );
+        }
+        return NextResponse.json(result ?? { success: true });
+      } catch (error) {
+        return NextResponse.json({ success: false, error: "Failed to delete project" }, { status: 500 });
+      }
+    }
+
+    // Handle other request types
+    return NextResponse.json(
+      { success: false, error: `Unknown request type: ${type}` },
+      { status: 400 }
+    );
+  } catch (error) {
+    console.error('API route error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
@@ -309,250 +698,119 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
 
+    if (!type) {
+      return NextResponse.json(
+        { success: false, error: 'Type parameter is required' },
+        { status: 400 }
+      );
+    }
+
+    // Handle different GET request types
+    let endpoint = '';
     switch (type) {
       case 'projects':
-        const projects = await djangoRequest('/api/projects/');
-        {
-          const res = NextResponse.json({ success: true, data: projects });
-          res.headers.set('Cache-Control', 'public, max-age=30, s-maxage=60, stale-while-revalidate=300');
-          return res;
-        }
-
-      case 'testimonials':
-        // For testimonials, we need to check if there's a testimonials app
-        try {
-          const testimonials = await djangoRequest('/testimonials/');
-          const res = NextResponse.json({ success: true, data: testimonials });
-          res.headers.set('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=600');
-          return res;
-        } catch {
-          // Fallback to empty array if testimonials endpoint doesn't exist
-          const res = NextResponse.json({ success: true, data: [] });
-          res.headers.set('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=600');
-          return res;
-        }
-
+        // Admin/project management: fetch ALL projects
+        endpoint = '/api/get-projects/';
+        break;
       case 'inquiries':
-        const inquiries = await djangoRequest('/api/information/get-project-inquiries/');
-        {
-          const res = NextResponse.json({ success: true, data: inquiries.data || [] });
-          res.headers.set('Cache-Control', 'public, max-age=15, s-maxage=30, stale-while-revalidate=120');
-          return res;
-        }
-
-      case 'notifications':
-        const notifications = await djangoRequest('/api/information/get-notifications/');
-        {
-          const res = NextResponse.json({ success: true, data: notifications.data || [] });
-          res.headers.set('Cache-Control', 'public, max-age=15, s-maxage=30, stale-while-revalidate=120');
-          return res;
-        }
-
+        endpoint = '/api/get-project-inquiries/';
+        break;
       case 'analytics':
-        const analyticsData = await djangoRequest('/api/information/get-analytics/');
-        {
-          const res = NextResponse.json({ success: true, data: analyticsData.data || {} });
-          res.headers.set('Cache-Control', 'public, max-age=20, s-maxage=40, stale-while-revalidate=180');
-          return res;
-        }
-
+        endpoint = '/api/get-analytics/';
+        break;
+      case 'competences':
+        endpoint = '/api/competence/';
+        break;
       default:
         return NextResponse.json(
-          { success: false, error: 'Invalid type parameter' },
+          { success: false, error: `Unknown type: ${type}` },
           { status: 400 }
         );
     }
-  } catch (error) {
-    console.error('Error in GET request:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { type, data } = body;
+    // Get authorization token from headers for authenticated requests
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
 
-    switch (type) {
-      case 'create-project':
-        const newProject = await djangoRequest('/api/projects/', 'POST', data);
-        return NextResponse.json({ success: true, data: newProject });
+    try {
+      const response = await fetch(`${DJANGO_API_URL}${endpoint}`, {
+        method: 'GET',
+        headers,
+      });
 
-      case 'update-project':
-        const updatedProject = await djangoRequest(`/api/projects/${data.id}/`, 'PUT', data);
-        return NextResponse.json({ success: true, data: updatedProject });
-
-      case 'delete-project':
-        await djangoRequest(`/api/projects/${data.id}/`, 'DELETE');
-        return NextResponse.json({ success: true });
-
-      case 'create-testimonial':
-        try {
-          const newTestimonial = await djangoRequest('/testimonials/', 'POST', data);
-          return NextResponse.json({ success: true, data: newTestimonial });
-        } catch {
-          return NextResponse.json({ success: false, error: 'Testimonials endpoint not available' });
-        }
-
-      case 'update-testimonial':
-        try {
-          const updatedTestimonial = await djangoRequest(`/testimonials/${data.id}/`, 'PUT', data);
-          return NextResponse.json({ success: true, data: updatedTestimonial });
-        } catch {
-          return NextResponse.json({ success: false, error: 'Testimonials endpoint not available' });
-        }
-
-      case 'delete-testimonial':
-        try {
-          await djangoRequest(`/testimonials/${data.id}/`, 'DELETE');
-          return NextResponse.json({ success: true });
-        } catch {
-          return NextResponse.json({ success: false, error: 'Testimonials endpoint not available' });
-        }
-
-      case 'create-inquiry':
-        const newInquiry = await djangoRequest('/api/information/create-project-inquiry/', 'POST', data);
-        return NextResponse.json({ success: true, data: newInquiry.data });
-
-      case 'update-inquiry':
-        const updatedInquiry = await djangoRequest(`/api/information/project-inquiries/${data.id}/`, 'PUT', data);
-        return NextResponse.json({ success: true, data: updatedInquiry });
-
-      case 'add-task':
-        const newTask = await djangoRequest('/api/information/add-task/', 'POST', data);
-        return NextResponse.json({ success: true, data: newTask.data });
-
-      case 'update-task-status':
-        const updatedTask = await djangoRequest('/api/information/update-task-status/', 'POST', data);
-        return NextResponse.json({ success: true, data: updatedTask.data });
-
-      case 'add-document':
-        const newDocument = await djangoRequest('/api/information/add-document/', 'POST', data);
-        return NextResponse.json({ success: true, data: newDocument.data });
-
-      case 'sign-document':
-        const signedDocument = await djangoRequest('/api/information/sign-document/', 'POST', data);
-        return NextResponse.json({ success: true, data: signedDocument.data });
-
-      case 'add-team-member':
-        const newTeamMember = await djangoRequest('/api/information/add-team-member/', 'POST', data);
-        return NextResponse.json({ success: true, data: newTeamMember.data });
-
-      case 'update-project-progress':
-        const updatedProgress = await djangoRequest('/api/information/update-project-progress/', 'POST', data);
-        return NextResponse.json({ success: true, data: updatedProgress.data });
-
-      case 'add-message':
-        const newMessage = await djangoRequest('/api/information/add-message/', 'POST', data);
-        return NextResponse.json({ success: true, data: newMessage.data });
-
-      case 'create-invoice':
-        const newInvoice = await djangoRequest('/api/information/create-invoice/', 'POST', data);
-        return NextResponse.json({ success: true, data: newInvoice.data });
-
-      case 'update-notification':
-        const updatedNotification = await djangoRequest('/api/information/update-notification/', 'POST', data);
-        return NextResponse.json({ success: true, data: updatedNotification.data });
-
-          case 'login':
-            try {
-              const loginResult = await djangoRequest('/accounts/login/', 'POST', data);
-              console.log('Django login result:', loginResult); // Debug log
-              
-              // Check if response already has the expected structure
-              if (loginResult.success && loginResult.token && loginResult.user) {
-                // Response is from Django backend - wrap it properly
-                return NextResponse.json({ 
-                  success: true, 
-                  data: {
-                    token: loginResult.token,
-                    user: loginResult.user
-                  }
-                });
-              }
-              // Error response from Django - include error code
-              return NextResponse.json({ 
-                success: false, 
-                error: loginResult.error || 'Login failed',
-                error_code: loginResult.error_code || 'unknown_error'
-              }, { status: 401 });
-            } catch (error) {
-              console.error('Login API error:', error);
-              return NextResponse.json({ 
-                success: false, 
-                error: 'Failed to connect to server. Please try again.',
-                error_code: 'server_error'
-              }, { status: 500 });
-            }
-
-          case 'verify-token':
-            // Verify token with Django backend
-            const authHeader = request.headers.get('authorization');
-            if (!authHeader || !authHeader.startsWith('Bearer ')) {
-              return NextResponse.json({ success: false, error: 'No token provided' }, { status: 401 });
-            }
-            
-            const token = authHeader.substring(7);
-            try {
-              const verifyResult = await djangoRequest('/accounts/verify-token/', 'POST', { token });
-              return NextResponse.json({ success: true, data: verifyResult });
-            } catch (error) {
-              const message = error instanceof Error ? error.message : '';
-              if (message.includes('404')) {
-                return NextResponse.json({
-                  success: true,
-                  data: {
-                    success: true,
-                    valid: true,
-                    fallback: true,
-                  }
-                });
-              }
-              return NextResponse.json({ success: false, error: 'Invalid token' }, { status: 401 });
-            }
-
-          case 'get-user':
-            // Get user data with token
-            const userAuthHeader = request.headers.get('authorization');
-            if (!userAuthHeader || !userAuthHeader.startsWith('Bearer ')) {
-              return NextResponse.json({ success: false, error: 'No token provided' }, { status: 401 });
-            }
-            
-            const userToken = userAuthHeader.substring(7);
-            try {
-              const userResult = await djangoRequest('/accounts/get-user/', 'POST', { token: userToken });
-              return NextResponse.json({ success: true, data: userResult });
-            } catch (error) {
-              const message = error instanceof Error ? error.message : '';
-              if (message.includes('404')) {
-                return NextResponse.json({
-                  success: true,
-                  data: null,
-                  fallback: true,
-                });
-              }
-              return NextResponse.json({ success: false, error: 'Failed to get user data' }, { status: 401 });
-            }
-
-          case 'forgot-password':
-            const forgotResult = await djangoRequest('/accounts/forgot-password/', 'POST', data);
-            return NextResponse.json(forgotResult);
-
-          case 'reset-password':
-            const resetResult = await djangoRequest('/accounts/reset-password/', 'POST', data);
-            return NextResponse.json(resetResult);
-
-      default:
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      let result;
+      
+      if (contentType && contentType.includes('application/json')) {
+        result = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Django API returned non-JSON:', text);
         return NextResponse.json(
-          { success: false, error: 'Invalid type parameter' },
-          { status: 400 }
+          { success: false, error: `Server error: ${response.status} ${response.statusText}` },
+          { status: response.status }
         );
+      }
+
+      if (!response.ok) {
+        return NextResponse.json(
+          { success: false, error: result.error || result.message || 'Request failed' },
+          { status: response.status }
+        );
+      }
+
+      // Handle projects type
+      if (type === 'projects') {
+        if (result?.success && Array.isArray(result?.data)) {
+          return NextResponse.json({ success: true, data: result.data.map(normalizeProject) });
+        }
+        if (Array.isArray(result)) {
+          return NextResponse.json({ success: true, data: result.map(normalizeProject) });
+        }
+        // Legacy: my_info shape
+        if (result?.projects && Array.isArray(result.projects)) {
+          return NextResponse.json({ success: true, data: result.projects.map(normalizeProject) });
+        }
+        return NextResponse.json({ success: true, data: [] });
+      }
+
+      // Handle competences (for project CRUD tool picker)
+      if (type === 'competences') {
+        if (Array.isArray(result)) return NextResponse.json({ success: true, data: result });
+        if (result?.results && Array.isArray(result.results)) return NextResponse.json({ success: true, data: result.results });
+        if (result?.success && Array.isArray(result?.data)) return NextResponse.json({ success: true, data: result.data });
+        return NextResponse.json({ success: true, data: [] });
+      }
+
+      // Handle inquiries type - normalize snake_case fields to camelCase for dashboards
+      if (type === 'inquiries' && result?.success && Array.isArray(result?.data)) {
+        return NextResponse.json({ success: true, data: result.data.map(normalizeInquiry) });
+      }
+
+      // Wrap response in success format if needed
+      if (result.success !== undefined) {
+        return NextResponse.json(result);
+      }
+
+      return NextResponse.json({ success: true, data: result });
+    } catch (fetchError) {
+      console.error('Error calling Django API:', fetchError);
+      return NextResponse.json(
+        { success: false, error: `Network error: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}` },
+        { status: 500 }
+      );
     }
   } catch (error) {
-    console.error('Error in POST request:', error);
+    console.error('API route error:', error);
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

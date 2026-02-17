@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   FaUser, 
@@ -20,6 +20,7 @@ import {
   FaGraduationCap,
   FaBriefcase
 } from "react-icons/fa";
+import { detectCountry, getCurrencyForCountry, convertBudgetRange, type Country, type Currency } from "@/lib/currency";
 
 interface ProjectInquiryForm {
   clientName: string;
@@ -50,6 +51,36 @@ const ProjectInquiryPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<Partial<ProjectInquiryForm>>({});
 
+  // Detect user's country and convert budget ranges
+  useEffect(() => {
+    const detectUserLocation = async () => {
+      try {
+        setIsDetectingLocation(true);
+        const detectedCountry = await detectCountry();
+        setCountry(detectedCountry);
+        
+        const detectedCurrency = getCurrencyForCountry(detectedCountry);
+        setCurrency(detectedCurrency);
+        
+        // Convert budget ranges to the detected currency
+        const convertedRanges = baseBudgetRanges.map(range => 
+          convertBudgetRange(range, detectedCurrency)
+        );
+        setBudgetRanges(convertedRanges);
+      } catch (error) {
+        console.error('Error detecting location:', error);
+        // Fallback to USD
+        setCountry('Other');
+        setCurrency('USD');
+        setBudgetRanges(baseBudgetRanges);
+      } finally {
+        setIsDetectingLocation(false);
+      }
+    };
+
+    detectUserLocation();
+  }, []);
+
   const projectTypes = [
     { value: "web-development", label: "Web Development", icon: FaDesktop },
     { value: "mobile-app", label: "Mobile App Development", icon: FaMobile },
@@ -61,7 +92,8 @@ const ProjectInquiryPage = () => {
     { value: "other", label: "Other", icon: FaCode }
   ];
 
-  const budgetRanges = [
+  // Base budget ranges in USD
+  const baseBudgetRanges = [
     "$1,000 - $3,000",
     "$3,000 - $5,000",
     "$5,000 - $10,000",
@@ -70,6 +102,11 @@ const ProjectInquiryPage = () => {
     "$50,000+",
     "Let's discuss"
   ];
+
+  const [country, setCountry] = useState<Country>('Other');
+  const [currency, setCurrency] = useState<Currency>('USD');
+  const [budgetRanges, setBudgetRanges] = useState<string[]>(baseBudgetRanges);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(true);
 
   const timelineOptions = [
     "1-2 weeks",
@@ -151,17 +188,31 @@ const ProjectInquiryPage = () => {
         })
       });
 
+      // Check if response is ok before parsing JSON
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = `Server error (${response.status})`;
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.error || errorJson.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
       const result = await response.json();
       
       if (result.success) {
         console.log("Project inquiry submitted successfully:", result.data);
         setIsSubmitted(true);
       } else {
-        throw new Error(result.error || 'Failed to submit inquiry');
+        throw new Error(result.error || result.message || 'Failed to submit inquiry');
       }
     } catch (error) {
       console.error("Error submitting inquiry:", error);
-      alert("Failed to submit inquiry. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit inquiry. Please try again.';
+      alert(`Error: ${errorMessage}\n\nPlease check your connection and try again.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -408,17 +459,24 @@ const ProjectInquiryPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Budget Range *
+                      Budget Range * {isDetectingLocation ? (
+                        <span className="text-xs text-gray-500 font-normal">(Detecting location...)</span>
+                      ) : (
+                        <span className="text-xs text-gray-500 font-normal">({currency})</span>
+                      )}
                     </label>
                     <select
                       value={formData.budget}
                       onChange={(e) => handleInputChange("budget", e.target.value)}
+                      disabled={isDetectingLocation}
                       className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 ${
                         errors.budget ? "border-red-500 bg-red-50" : "border-gray-300 hover:border-gray-400"
-                      }`}
+                      } ${isDetectingLocation ? "opacity-50 cursor-not-allowed" : ""}`}
                       style={{ color: '#111827' }}
                     >
-                      <option value="" className="text-gray-500">Select budget range</option>
+                      <option value="" className="text-gray-500">
+                        {isDetectingLocation ? "Detecting location..." : "Select budget range"}
+                      </option>
                       {budgetRanges.map((range) => (
                         <option key={range} value={range} className="text-gray-900">
                           {range}
@@ -429,6 +487,11 @@ const ProjectInquiryPage = () => {
                       <p className="text-red-500 text-sm mt-2 flex items-center">
                         <span className="mr-1">⚠️</span>
                         {errors.budget}
+                      </p>
+                    )}
+                    {!isDetectingLocation && country !== 'Other' && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Prices displayed in {currency} for {country}
                       </p>
                     )}
                   </div>

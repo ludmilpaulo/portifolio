@@ -1,13 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import "swiper/css";
 @import "swiper/css/effect-coverflow";
 @import "swiper/css/pagination";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Design tokens */
 :root {
+  --font-heading: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --color-brand: #0093e9;
   --color-brand-light: #52e5e7;
   --color-brand-muted: #80d0c7;

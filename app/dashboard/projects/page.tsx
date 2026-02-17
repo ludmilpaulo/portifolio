@@ -24,7 +24,8 @@ import {
   FaClipboardList,
   FaCheckCircle,
   FaClock,
-  FaExclamationTriangle
+  FaExclamationTriangle,
+  FaTimes
 } from "react-icons/fa";
 
 interface Project {
@@ -32,7 +33,8 @@ interface Project {
   title: string;
   description: string;
   image: string;
-  status: "live" | "upcoming" | "in-progress" | "clone";
+  // backend/proxy should provide a string, but keep this tolerant
+  status: "live" | "upcoming" | "in-progress" | "clone" | number;
   technologies: string[];
   createdAt: string;
   updatedAt: string;
@@ -47,6 +49,11 @@ interface Project {
   tasks?: Task[];
   documents?: Document[];
   teamMembers?: TeamMember[];
+}
+
+interface Competence {
+  id: number;
+  title: string;
 }
 
 interface Task {
@@ -100,6 +107,29 @@ const ProjectsPage = () => {
   const [newDocument, setNewDocument] = useState<Partial<Document>>({});
   const [newTeamMember, setNewTeamMember] = useState<Partial<TeamMember>>({});
 
+  const [competences, setCompetences] = useState<Competence[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [projectForm, setProjectForm] = useState<{
+    title: string;
+    description: string;
+    status: "live" | "upcoming" | "in-progress" | "clone";
+    url: string;
+    githubUrl: string;
+    showInSlider: boolean;
+    toolIds: number[];
+    imageFile: File | null;
+  }>({
+    title: "",
+    description: "",
+    status: "live",
+    url: "",
+    githubUrl: "",
+    showInSlider: true,
+    toolIds: [],
+    imageFile: null,
+  });
+
   useEffect(() => {
     // Load projects from API
     const loadProjects = async () => {
@@ -107,7 +137,23 @@ const ProjectsPage = () => {
         const response = await fetch('/api/graphql?type=projects');
         const result = await response.json();
         if (result.success) {
-          setProjects(result.data);
+          const normalized: Project[] = (Array.isArray(result.data) ? result.data : []).map((p: any) => {
+            const rawStatus = p?.status;
+            const status =
+              typeof rawStatus === 'string'
+                ? rawStatus
+                : rawStatus === 1
+                  ? 'clone'
+                  : rawStatus === 2
+                    ? 'live'
+                    : rawStatus === 3
+                      ? 'upcoming'
+                      : rawStatus === 4
+                        ? 'in-progress'
+                        : 'live';
+            return { ...p, status };
+          });
+          setProjects(normalized);
         }
       } catch (error) {
         console.error('Error loading projects:', error);
@@ -115,6 +161,21 @@ const ProjectsPage = () => {
     };
 
     loadProjects();
+  }, []);
+
+  useEffect(() => {
+    const loadCompetences = async () => {
+      try {
+        const res = await fetch("/api/graphql?type=competences");
+        const json = await res.json();
+        if (json.success) {
+          setCompetences((json.data || []).map((c: any) => ({ id: c.id, title: c.title })));
+        }
+      } catch (e) {
+        console.error("Failed to load competences:", e);
+      }
+    };
+    loadCompetences();
   }, []);
 
   useEffect(() => {
@@ -151,7 +212,13 @@ const ProjectsPage = () => {
     setFilteredProjects(filtered);
   }, [projects, searchTerm, statusFilter, sortBy]);
 
-  const getStatusColor = (status: string) => {
+  const normalizeStatusLabel = (status: Project["status"]) => {
+    const s = typeof status === "string" ? status : String(status ?? "");
+    return s.replace(/_/g, "-");
+  };
+
+  const getStatusColor = (status: Project["status"]) => {
+    const s = normalizeStatusLabel(status);
     switch (status) {
       case "live":
         return "bg-green-100 text-green-800";
@@ -166,9 +233,106 @@ const ProjectsPage = () => {
     }
   };
 
+  const formatStatus = (status: Project["status"]) => {
+    const s = normalizeStatusLabel(status);
+    return s.replace("-", " ");
+  };
+
   const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this project?")) {
-      setProjects(projects.filter(project => project.id !== id));
+    if (!confirm("Are you sure you want to delete this project?")) return;
+    (async () => {
+      try {
+        const res = await fetch("/api/graphql", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "delete-project", data: { id } }),
+        });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error || "Delete failed");
+        setProjects((prev) => prev.filter((p) => p.id !== id));
+      } catch (e: any) {
+        alert(`Failed to delete project: ${e?.message || e}`);
+      }
+    })();
+  };
+
+  const openCreateModal = () => {
+    setFormError(null);
+    setEditingProject(null);
+    setProjectForm({
+      title: "",
+      description: "",
+      status: "live",
+      url: "",
+      githubUrl: "",
+      showInSlider: true,
+      toolIds: [],
+      imageFile: null,
+    });
+    setShowModal(true);
+  };
+
+  const openEditModal = (project: Project) => {
+    setFormError(null);
+    setEditingProject(project);
+    // Extract technology IDs from project.technologies array
+    // technologies is an array of strings (technology names), we need to find matching competence IDs
+    const toolIds = project.technologies
+      ? competences
+          .filter((c) => project.technologies.includes(c.title))
+          .map((c) => c.id)
+      : [];
+    
+    setProjectForm({
+      title: project.title || "",
+      description: project.description || "",
+      status: (typeof project.status === "string" ? (project.status as any) : "live"),
+      url: project.url || "",
+      githubUrl: project.githubUrl || "",
+      showInSlider: true,
+      toolIds: toolIds,
+      imageFile: null,
+    });
+    setShowModal(true);
+  };
+
+  const handleSaveProject = async () => {
+    setFormError(null);
+    if (!projectForm.title.trim()) return setFormError("Title is required");
+    if (!projectForm.url.trim()) return setFormError("Demo URL is required");
+    if (!projectForm.githubUrl.trim()) return setFormError("GitHub URL is required");
+    if (!editingProject && !projectForm.imageFile) return setFormError("Image file is required");
+    if (projectForm.toolIds.length === 0) return setFormError("Select at least one technology");
+
+    setIsSaving(true);
+    try {
+      const form = new FormData();
+      form.append("type", editingProject ? "update-project" : "create-project");
+      if (editingProject) form.append("id", String(editingProject.id));
+      form.append("title", projectForm.title);
+      form.append("description", projectForm.description);
+      form.append("status", projectForm.status);
+      form.append("url", projectForm.url);
+      form.append("githubUrl", projectForm.githubUrl);
+      form.append("showInSlider", String(projectForm.showInSlider));
+      projectForm.toolIds.forEach((id) => form.append("tools", String(id)));
+      if (projectForm.imageFile) form.append("image", projectForm.imageFile);
+
+      const res = await fetch("/api/graphql", { method: "POST", body: form });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Save failed");
+
+      const saved: Project = json.data;
+      setProjects((prev) => {
+        if (editingProject) return prev.map((p) => (p.id === saved.id ? saved : p));
+        return [saved, ...prev];
+      });
+      setShowModal(false);
+      setEditingProject(null);
+    } catch (e: any) {
+      setFormError(e?.message || String(e));
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -259,7 +423,7 @@ const ProjectsPage = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setShowModal(true)}
+          onClick={openCreateModal}
           className="mt-4 sm:mt-0 bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center"
         >
           <FaPlus className="mr-2" />
@@ -327,7 +491,7 @@ const ProjectsPage = () => {
                 />
                 <div className="absolute top-4 right-4">
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(project.status)}`}>
-                    {project.status.replace("-", " ")}
+                    {formatStatus(project.status)}
                   </span>
                 </div>
               </div>
@@ -347,7 +511,7 @@ const ProjectsPage = () => {
                       <FaEye />
                     </button>
                     <button
-                      onClick={() => setEditingProject(project)}
+                      onClick={() => openEditModal(project)}
                       className="p-1 text-gray-500 hover:bg-gray-50 rounded transition-colors"
                       title="Edit Project"
                     >
@@ -476,13 +640,186 @@ const ProjectsPage = () => {
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No projects found</h3>
           <p className="text-gray-600 mb-6">Try adjusting your search or filters</p>
           <button
-            onClick={() => setShowModal(true)}
+            onClick={openCreateModal}
             className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
           >
             Add Your First Project
           </button>
         </motion.div>
       )}
+
+      {/* Create/Edit Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+            onClick={() => setShowModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {editingProject ? "Edit Project" : "Add Project"}
+                </h2>
+                <button
+                  className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+                  onClick={() => setShowModal(false)}
+                  aria-label="Close"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              {formError && (
+                <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-3 mb-4">
+                  {formError}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                  <input
+                    value={projectForm.title}
+                    onChange={(e) => setProjectForm((p) => ({ ...p, title: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    placeholder="Project title"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status *</label>
+                  <select
+                    value={projectForm.status}
+                    onChange={(e) => setProjectForm((p) => ({ ...p, status: e.target.value as any }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  >
+                    <option value="live">Live</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="clone">Clone</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2 pt-6">
+                  <input
+                    id="showInSlider"
+                    type="checkbox"
+                    checked={projectForm.showInSlider}
+                    onChange={(e) => setProjectForm((p) => ({ ...p, showInSlider: e.target.checked }))}
+                  />
+                  <label htmlFor="showInSlider" className="text-sm text-gray-700">
+                    Show in slider
+                  </label>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <textarea
+                    value={projectForm.description}
+                    onChange={(e) => setProjectForm((p) => ({ ...p, description: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    rows={4}
+                    placeholder="Short description"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Demo URL *</label>
+                  <input
+                    value={projectForm.url}
+                    onChange={(e) => setProjectForm((p) => ({ ...p, url: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">GitHub URL *</label>
+                  <input
+                    value={projectForm.githubUrl}
+                    onChange={(e) => setProjectForm((p) => ({ ...p, githubUrl: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    placeholder="https://github.com/..."
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Technologies *</label>
+                  <div className="flex flex-wrap gap-2">
+                    {competences.map((c) => {
+                      const checked = projectForm.toolIds.includes(c.id);
+                      return (
+                        <label
+                          key={c.id}
+                          className={`px-3 py-1 rounded-full border cursor-pointer text-sm ${
+                            checked ? "bg-blue-50 border-blue-400 text-blue-700" : "bg-white border-gray-300 text-gray-700"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={checked}
+                            onChange={() =>
+                              setProjectForm((p) => ({
+                                ...p,
+                                toolIds: checked ? p.toolIds.filter((id) => id !== c.id) : [...p.toolIds, c.id],
+                              }))
+                            }
+                          />
+                          {c.title}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Image {editingProject ? "(optional)" : "*"}
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setProjectForm((p) => ({ ...p, imageFile: e.target.files?.[0] || null }))
+                    }
+                    className="w-full"
+                  />
+                  {editingProject && (
+                    <p className="text-xs text-gray-500 mt-1">Leave empty to keep existing image.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  onClick={() => setShowModal(false)}
+                  disabled={isSaving}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                  onClick={handleSaveProject}
+                  disabled={isSaving}
+                >
+                  {isSaving ? "Saving..." : editingProject ? "Save changes" : "Create project"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
