@@ -26,6 +26,17 @@ const TAB_CONFIG: { label: string; icon: React.ReactNode; status: number }[] = [
   { label: "Clone", icon: <FaClone />, status: 1 },
 ];
 
+function projectStatusCode(status: number | string): number {
+  if (typeof status === "number" && Number.isFinite(status)) return status;
+  const text = String(status).trim().toLowerCase();
+  if (text === "clone") return 1;
+  if (text === "live") return 2;
+  if (text === "upcoming") return 3;
+  if (text === "in_progress" || text === "in-progress") return 4;
+  const numeric = Number(text);
+  return Number.isFinite(numeric) ? numeric : -1;
+}
+
 const getAllTools = (projects: Project[]): Competence[] => {
   const all: { [id: number]: Competence } = {};
   projects.forEach((p) =>
@@ -50,7 +61,7 @@ const Projects: React.FC = () => {
 
   // Filtered projects
   const filteredProjects = useMemo(() => {
-    let filtered = projects.filter((p) => Number(p.status) === Number(activeTab));
+    let filtered = projects.filter((p) => projectStatusCode(p.status) === Number(activeTab));
     if (search.trim())
       filtered = filtered.filter((p) =>
         p.title.toLowerCase().includes(search.trim().toLowerCase())
@@ -63,7 +74,7 @@ const Projects: React.FC = () => {
   }, [projects, activeTab, search, toolId]);
 
   // Handle swipe change for mobile
-  const handleSwiperTabChange = (swiper: any) => {
+  const handleSwiperTabChange = (swiper: { activeIndex: number }) => {
     setActiveTab(TAB_CONFIG[swiper.activeIndex].status);
   };
 

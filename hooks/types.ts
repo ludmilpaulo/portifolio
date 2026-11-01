@@ -25,7 +25,7 @@ export interface Project {
     slug: string;
     description: string;
     image: string;
-    status: number;
+    status: number | string;
     demo: string;
     github: string;
     show_in_slider: boolean;
@@ -71,6 +71,7 @@ export interface Certificate {
     document: string | null;
     description: string;
     sort_order: number;
+    is_published?: boolean;
   }
 
   export interface MyInfoResponse {

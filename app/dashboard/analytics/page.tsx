@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentType } from "react";
 import { motion } from "framer-motion";
-import { FaEye, FaUsers, FaDownload, FaCalendarAlt, FaClipboardList, FaTasks } from "react-icons/fa";
+import { FaEye, FaUsers, FaCalendarAlt, FaClipboardList, FaTasks } from "react-icons/fa";
+import { CountryBars, VisitAreaChart, type CountryStat, type VisitPoint } from "@/components/VisitCharts";
 
 interface RecentActivityItem {
   type: string;
@@ -22,6 +23,8 @@ interface BackendAnalyticsData {
   inquiries?: { total: number; pending: number; inProgress: number; completed: number };
   tasks?: { total: number; pending: number; inProgress: number; completed: number };
   recentActivities?: RecentActivityItem[];
+  series?: VisitPoint[];
+  countries?: CountryStat[];
 }
 
 export default function AnalyticsPage() {
@@ -48,7 +51,10 @@ export default function AnalyticsPage() {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch("/api/graphql?type=analytics");
+        const token = localStorage.getItem("authToken");
+        const res = await fetch(`/api/graphql?type=analytics&range=${timeRange}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         const json = await res.json();
         if (!json.success) throw new Error(json.error || "Failed to load analytics");
         const d = json.data || {};
@@ -64,9 +70,11 @@ export default function AnalyticsPage() {
           inquiries: d.inquiries,
           tasks: d.tasks,
           recentActivities: Array.isArray(d.recentActivities) ? d.recentActivities : [],
+          series: Array.isArray(d.series) ? d.series : [],
+          countries: Array.isArray(d.countries) ? d.countries : [],
         });
-      } catch (e: any) {
-        setError(e?.message || "Failed to load analytics");
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Failed to load analytics");
         setAnalytics({
           totalViews: 0,
           uniqueVisitors: 0,
@@ -84,7 +92,6 @@ export default function AnalyticsPage() {
         setLoading(false);
       }
     };
-    // Backend currently ignores timeRange; we still re-fetch on change.
     load();
   }, [timeRange]);
 
@@ -97,7 +104,7 @@ export default function AnalyticsPage() {
   }: {
     title: string;
     value: string | number;
-    icon: any;
+    icon: ComponentType<{ className?: string }>;
     color: string;
     subtitle?: string;
   }) => (
@@ -145,10 +152,6 @@ export default function AnalyticsPage() {
             <option value="90d">Last 90 days</option>
             <option value="1y">Last year</option>
           </select>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center">
-            <FaDownload className="mr-2" />
-            Export
-          </button>
         </div>
       </div>
 
@@ -157,10 +160,23 @@ export default function AnalyticsPage() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Views" value={analytics.totalViews.toLocaleString()} icon={FaEye} color="bg-blue-500" subtitle="Backend" />
-        <StatCard title="Unique Visitors" value={analytics.uniqueVisitors.toLocaleString()} icon={FaUsers} color="bg-green-500" subtitle="Backend" />
+        <StatCard title="Total Views" value={analytics.totalViews.toLocaleString()} icon={FaEye} color="bg-blue-500" subtitle="Public pages" />
+        <StatCard title="Unique Visitors" value={analytics.uniqueVisitors.toLocaleString()} icon={FaUsers} color="bg-green-500" subtitle="Public pages" />
         <StatCard title="Projects" value={analytics.projects.toLocaleString()} icon={FaClipboardList} color="bg-purple-500" subtitle="Backend" />
         <StatCard title="Tasks" value={(analytics.tasks?.total ?? 0).toLocaleString()} icon={FaTasks} color="bg-orange-500" subtitle="Backend" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
+        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-lg xl:col-span-3">
+          <h2 className="text-lg font-semibold text-gray-900">Page views</h2>
+          <p className="mt-1 text-sm text-gray-500">Daily visits for the selected range.</p>
+          <VisitAreaChart series={analytics.series ?? []} />
+        </div>
+        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-lg xl:col-span-2">
+          <h2 className="text-lg font-semibold text-gray-900">Countries</h2>
+          <p className="mb-4 mt-1 text-sm text-gray-500">Share of visits in this range.</p>
+          <CountryBars countries={analytics.countries ?? []} totalViews={analytics.totalViews} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

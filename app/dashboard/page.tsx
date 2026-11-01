@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentType } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { 
@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { CountryBars, VisitAreaChart, type CountryStat, type VisitPoint } from "@/components/VisitCharts";
 
 interface RecentActivityItem {
   type: string;
@@ -44,6 +45,8 @@ interface AnalyticsData {
     completed: number;
   };
   recentActivities?: RecentActivityItem[];
+  series?: VisitPoint[];
+  countries?: CountryStat[];
 }
 
 const DashboardPage = () => {
@@ -70,7 +73,10 @@ const DashboardPage = () => {
       try {
         setIsLoadingAnalytics(true);
         setAnalyticsError(null);
-        const response = await fetch('/api/graphql?type=analytics');
+        const token = localStorage.getItem("authToken");
+        const response = await fetch("/api/graphql?type=analytics&range=30d", {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         const result = await response.json();
         if (result.success) {
           const d = result.data || {};
@@ -86,6 +92,8 @@ const DashboardPage = () => {
             inquiries: d.inquiries,
             tasks: d.tasks,
             recentActivities: d.recentActivities,
+            series: Array.isArray(d.series) ? d.series : [],
+            countries: Array.isArray(d.countries) ? d.countries : [],
           });
           setRecentActivity(Array.isArray(d.recentActivities) ? d.recentActivities : []);
         } else {
@@ -130,7 +138,7 @@ const DashboardPage = () => {
     title: string;
     value?: number | null;
     change?: number | null;
-    icon: any;
+    icon: ComponentType<{ className?: string }>;
     color: string;
   }) => {
     const safeValue = Number(value ?? 0);
@@ -150,10 +158,10 @@ const DashboardPage = () => {
           <div className="flex items-center mt-2">
             {safeChange > 0 ? (
               <FaArrowUp className="text-green-500 text-sm mr-1" />
-            ) : (
+            ) : safeChange < 0 ? (
               <FaArrowDown className="text-red-500 text-sm mr-1" />
-            )}
-            <span className={`text-sm font-medium ${safeChange > 0 ? 'text-green-500' : 'text-red-500'}`}>
+            ) : null}
+            <span className={`text-sm font-medium ${safeChange > 0 ? "text-green-500" : safeChange < 0 ? "text-red-500" : "text-slate-500"}`}>
               {Math.abs(safeChange) || 0}%
             </span>
             <span className="text-gray-500 text-sm ml-1">vs last month</span>
@@ -221,6 +229,27 @@ const DashboardPage = () => {
           icon={FaThumbsUp}
           color="bg-orange-500"
         />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-xl border border-gray-100 bg-white p-6 shadow-lg xl:col-span-3"
+        >
+          <h2 className="text-lg font-semibold text-gray-900">Visits over the last 30 days</h2>
+          <p className="mt-1 text-sm text-gray-500">Each point is a day of public page views.</p>
+          <VisitAreaChart series={analytics.series ?? []} />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-xl border border-gray-100 bg-white p-6 shadow-lg xl:col-span-2"
+        >
+          <h2 className="text-lg font-semibold text-gray-900">Visits by country</h2>
+          <p className="mt-1 mb-4 text-sm text-gray-500">Where people opened the site from.</p>
+          <CountryBars countries={analytics.countries ?? []} totalViews={analytics.totalViews} />
+        </motion.div>
       </div>
 
       {/* Backend-only info: loading/error */}

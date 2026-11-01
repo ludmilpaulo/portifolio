@@ -18,7 +18,7 @@ export default function Home() {
   const { data: testimonials, isLoading: loadingTestimonials } = useGetTestimonialsQuery();
 
   const info = myInfo?.info?.[0];
-  const projects = myInfo?.projects?.slice(0, 5) || [];
+  const projects = (myInfo?.projects ?? []).filter((project) => project.show_in_slider).slice(0, 5);
 
   // Function to get avatar background color based on name
   const getAvatarColor = (name: string): string => {

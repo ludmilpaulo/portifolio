@@ -165,6 +165,27 @@ export async function POST(request: NextRequest) {
       const form = await request.formData();
       const type = String(form.get("type") || "");
 
+      if (type === "create-certificate") {
+        const authHeader = request.headers.get("Authorization");
+        const headers: HeadersInit = {};
+        if (authHeader) {
+          headers.Authorization = authHeader;
+        }
+        const res = await fetch(`${DJANGO_API_URL}/api/certificates/`, {
+          method: "POST",
+          headers,
+          body: form,
+        });
+        const json = await res.json().catch(() => null);
+        if (!res.ok) {
+          return NextResponse.json(
+            { success: false, error: json?.error || "Could not save the certificate" },
+            { status: res.status }
+          );
+        }
+        return NextResponse.json(json ?? { success: false, error: "Invalid response" });
+      }
+
       if (type === "create-project" || type === "update-project") {
         const endpoint = type === "create-project" ? "/api/create-project/" : "/api/update-project/";
 
@@ -374,7 +395,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle project inquiry (both 'project-inquiry' and 'create-inquiry')
-    if (type === 'project-inquiry' || type === 'create-inquiry') {
+    if (type === 'project-inquiry' || type === 'create-inquiry' || type === 'create-project-inquiry') {
       try {
         const response = await fetch(`${DJANGO_API_URL}/api/create-project-inquiry/`, {
           method: 'POST',
@@ -749,6 +770,9 @@ export async function GET(request: NextRequest) {
       case 'analytics':
         endpoint = '/api/get-analytics/';
         break;
+      case 'certificates':
+        endpoint = '/api/certificates/';
+        break;
       case 'competences':
         endpoint = '/api/competence/';
         break;
@@ -772,7 +796,11 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      const response = await fetch(`${DJANGO_API_URL}${endpoint}`, {
+      const range = searchParams.get('range');
+      const apiUrl = range
+        ? `${DJANGO_API_URL}${endpoint}?range=${encodeURIComponent(range)}`
+        : `${DJANGO_API_URL}${endpoint}`;
+      const response = await fetch(apiUrl, {
         method: 'GET',
         headers,
       });
