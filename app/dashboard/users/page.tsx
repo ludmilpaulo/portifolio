@@ -45,59 +45,6 @@ const UsersPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    // Simulate loading users
-    const mockUsers: User[] = [
-      {
-        id: 1,
-        name: "Ludmil Paulo",
-        email: "ludmil@example.com",
-        role: "admin",
-        status: "active",
-        avatar: "/avatar/lud.jpeg",
-        phone: "+1234567890",
-        createdAt: "2024-01-01T00:00:00Z",
-        lastLogin: "2024-02-15T10:30:00Z",
-        permissions: ["all"]
-      },
-      {
-        id: 2,
-        name: "John Client",
-        email: "john@client.com",
-        role: "client",
-        status: "active",
-        avatar: "/avatar/john.jpg",
-        phone: "+1234567891",
-        createdAt: "2024-01-15T00:00:00Z",
-        lastLogin: "2024-02-14T15:20:00Z",
-        permissions: ["view_projects", "create_inquiry"]
-      },
-      {
-        id: 3,
-        name: "Jane Moderator",
-        email: "jane@moderator.com",
-        role: "moderator",
-        status: "active",
-        avatar: "/avatar/jane.jpg",
-        phone: "+1234567892",
-        createdAt: "2024-01-20T00:00:00Z",
-        lastLogin: "2024-02-13T09:15:00Z",
-        permissions: ["view_projects", "manage_testimonials", "view_analytics"]
-      },
-      {
-        id: 4,
-        name: "Bob Pending",
-        email: "bob@pending.com",
-        role: "client",
-        status: "pending",
-        avatar: "/avatar/bob.jpg",
-        createdAt: "2024-02-10T00:00:00Z",
-        permissions: []
-      }
-    ];
-    setUsers(mockUsers);
-    setFilteredUsers(mockUsers);
-  }, []);
 
   useEffect(() => {
     let filtered = users;
@@ -449,8 +396,8 @@ const UsersPage = () => {
           className="text-center py-12"
         >
           <FaUser className="text-gray-400 text-6xl mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No users found</h3>
-          <p className="text-gray-600 mb-6">Try adjusting your search or filters</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No users yet</h3>
+          <p className="text-gray-600 mb-6">Accounts appear here after they are created. Nothing is listed until then.</p>
           <button
             onClick={() => setShowModal(true)}
             className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"

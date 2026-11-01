@@ -12,7 +12,7 @@ import TestimonialsSection from "@/components/TestimonialsSection";
 import { Info, Competence } from "@/hooks/types"
 
 // -------- Animated Skills Cloud with Rotation --------
-const SKILL_CLOUD_RADIUS = 110;
+const SKILL_CLOUD_RADIUS = 120;
 function SkillsCloud({ skills, avatar }: { skills: Competence[]; avatar?: string }) {
   const [rotation, setRotation] = React.useState(0);
 
@@ -26,50 +26,53 @@ function SkillsCloud({ skills, avatar }: { skills: Competence[]; avatar?: string
   const visibleSkills = skills.slice(0, 10);
 
   return (
-    <motion.div
-      className="relative flex justify-center items-center w-[290px] h-[290px] mx-auto select-none"
-      style={{ transform: `rotate(${rotation}deg)`, transformOrigin: "center center" }}
-      animate={{}}
-    >
-      {/* Center avatar - perfectly centered in the middle */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 shadow-xl border-4 border-blue-200 dark:border-cyan-400 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center w-[121px] h-[121px] overflow-hidden">
+    <div className="relative mx-auto h-[340px] w-[340px] select-none">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-blue-400/10 to-cyan-200/10 blur-2xl" />
+      <motion.div
+        className="absolute inset-0"
+        style={{ rotate: rotation, transformOrigin: "center center" }}
+      >
+        {visibleSkills.map((skill, i) => {
+          const angle = (2 * Math.PI * i) / visibleSkills.length;
+          const x = Math.cos(angle) * SKILL_CLOUD_RADIUS;
+          const y = Math.sin(angle) * SKILL_CLOUD_RADIUS;
+          return (
+            <div
+              key={skill.id}
+              className="absolute"
+              style={{
+                left: `calc(50% + ${x}px)`,
+                top: `calc(50% + ${y}px)`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1.12, opacity: 1 }}
+                whileHover={{
+                  scale: 1.28,
+                  boxShadow: "0 0 18px 2px #0093e9a0",
+                }}
+                transition={{ type: "spring", stiffness: 300, delay: 0.07 * i }}
+                className="flex h-16 w-16 origin-center flex-col items-center justify-center rounded-full border border-blue-100 bg-white/90 text-xs shadow-lg dark:border-cyan-700 dark:bg-gray-900/90"
+              >
+                <Image src={skill.image} alt={skill.title} width={36} height={36} className="mb-1 rounded-full" />
+                <span className="font-semibold text-gray-700 dark:text-cyan-100">{skill.title}</span>
+              </motion.div>
+            </div>
+          );
+        })}
+      </motion.div>
+      <div className="absolute left-1/2 top-1/2 z-10 flex h-[120px] w-[120px] -translate-x-1/2 -translate-y-1/2 items-center justify-center overflow-hidden rounded-full border-4 border-blue-200 bg-gradient-to-br from-blue-500 to-purple-600 shadow-xl dark:border-cyan-400">
         <Image
           src={avatar || "/avatar/lud.jpeg"}
           alt="Ludmil Paulo"
-          width={121}
-          height={121}
-          className="rounded-full object-cover w-full h-full"
+          width={120}
+          height={120}
+          className="h-full w-full rounded-full object-cover object-center"
         />
       </div>
-      {visibleSkills.map((skill, i) => {
-        const angle = (2 * Math.PI * i) / visibleSkills.length;
-        const x = Math.cos(angle) * SKILL_CLOUD_RADIUS;
-        const y = Math.sin(angle) * SKILL_CLOUD_RADIUS;
-        return (
-          <motion.div
-            key={skill.id}
-            style={{
-              left: `calc(50% + ${x}px)`,
-              top: `calc(50% + ${y}px)`,
-              transform: "translate(-50%, -50%)",
-            }}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1.12, opacity: 1 }}
-            whileHover={{
-              scale: 1.28,
-              boxShadow: "0 0 18px 2px #0093e9a0",
-              zIndex: 30,
-            }}
-            transition={{ type: "spring", stiffness: 300, delay: 0.07 * i }}
-            className="absolute w-16 h-16 flex flex-col items-center justify-center bg-white/90 dark:bg-gray-900/90 border border-blue-100 dark:border-cyan-700 rounded-full shadow-lg text-xs group transition origin-center"
-          >
-            <Image src={skill.image} alt={skill.title} width={36} height={36} className="rounded-full mb-1" />
-            <span className="text-gray-700 dark:text-cyan-100 font-semibold">{skill.title}</span>
-          </motion.div>
-        );
-      })}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-gradient-to-tr from-blue-400/10 to-cyan-200/10 blur-2xl z-0" />
-    </motion.div>
+    </div>
   );
 }
 

@@ -40,97 +40,6 @@ const NotificationsPage = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  useEffect(() => {
-    // Simulate loading notifications
-    const mockNotifications: Notification[] = [
-      {
-        id: 1,
-        title: "New Project Inquiry",
-        message: "John Smith submitted a new project inquiry for E-commerce Website Development",
-        type: "info",
-        category: "inquiry",
-        isRead: false,
-        createdAt: "2024-02-15T10:30:00Z",
-        actionUrl: "/dashboard/client",
-        actionText: "View Inquiry"
-      },
-      {
-        id: 2,
-        title: "Project Completed",
-        message: "Portfolio Website project has been completed successfully",
-        type: "success",
-        category: "project",
-        isRead: false,
-        createdAt: "2024-02-14T16:45:00Z",
-        actionUrl: "/dashboard/projects",
-        actionText: "View Project"
-      },
-      {
-        id: 3,
-        title: "New User Registration",
-        message: "Jane Doe registered as a new client",
-        type: "info",
-        category: "user",
-        isRead: true,
-        createdAt: "2024-02-14T09:15:00Z",
-        actionUrl: "/dashboard/users",
-        actionText: "View User"
-      },
-      {
-        id: 4,
-        title: "System Maintenance",
-        message: "Scheduled maintenance will occur tonight from 2-4 AM",
-        type: "warning",
-        category: "system",
-        isRead: true,
-        createdAt: "2024-02-13T14:20:00Z"
-      },
-      {
-        id: 5,
-        title: "Payment Received",
-        message: "Payment of $2,500 received for Task Management App project",
-        type: "success",
-        category: "project",
-        isRead: false,
-        createdAt: "2024-02-13T11:30:00Z",
-        actionUrl: "/dashboard/projects",
-        actionText: "View Project"
-      },
-      {
-        id: 6,
-        title: "Testimonial Received",
-        message: "New testimonial received from Mike Wilson",
-        type: "info",
-        category: "project",
-        isRead: true,
-        createdAt: "2024-02-12T15:45:00Z",
-        actionUrl: "/dashboard/testimonials",
-        actionText: "View Testimonial"
-      },
-      {
-        id: 7,
-        title: "High Priority Inquiry",
-        message: "Urgent project inquiry requires immediate attention",
-        type: "error",
-        category: "inquiry",
-        isRead: false,
-        createdAt: "2024-02-12T08:20:00Z",
-        actionUrl: "/dashboard/client",
-        actionText: "View Inquiry"
-      },
-      {
-        id: 8,
-        title: "Backup Completed",
-        message: "Daily backup completed successfully",
-        type: "success",
-        category: "system",
-        isRead: true,
-        createdAt: "2024-02-11T23:59:00Z"
-      }
-    ];
-    setNotifications(mockNotifications);
-    setFilteredNotifications(mockNotifications);
-  }, []);
 
   useEffect(() => {
     let filtered = notifications;
@@ -480,8 +389,8 @@ const NotificationsPage = () => {
           className="text-center py-12"
         >
           <FaBell className="text-gray-400 text-6xl mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No notifications found</h3>
-          <p className="text-gray-600 mb-6">Try adjusting your search or filters</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No notifications yet</h3>
+          <p className="text-gray-600 mb-6">New inquiries and project updates will appear here when they happen.</p>
         </motion.div>
       )}
     </div>

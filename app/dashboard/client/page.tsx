@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { 
   FaPlus, 
   FaEdit, 
@@ -115,6 +115,7 @@ interface Document {
 
 const ClientDashboard = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, logout } = useAuth();
   const { t } = useI18n();
   const { format: formatAmount, symbol: currencySymbol } = useCurrency();
@@ -126,7 +127,13 @@ const ClientDashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState<ProjectInquiry | null>(null);
   const [newMessage, setNewMessage] = useState("");
-  const [activeTab, setActiveTab] = useState("projects");
+  const tabFromQuery = searchParams.get("tab");
+  const activeTab = ["projects", "tasks", "invoices", "documents", "progress"].includes(tabFromQuery ?? "")
+    ? tabFromQuery ?? "projects"
+    : "projects";
+  const setActiveTab = (tab: string) => {
+    router.replace(`/dashboard/client?tab=${tab}`, { scroll: false });
+  };
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);

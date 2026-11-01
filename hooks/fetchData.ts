@@ -1,4 +1,4 @@
-import { Competence, Experience, Project, Info, Education } from "@/hooks/types";
+import { Competence, Experience, Project, Info, Education, Certificate } from "@/hooks/types";
 
 
 const rawBase =
@@ -13,6 +13,7 @@ interface MyInfoResponse {
     projects: Project[];
     info: Info[];
     education: Education[];
+    certificates?: Certificate[];
   }
 
 export async function fetchTestimonials() {

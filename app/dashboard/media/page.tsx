@@ -41,52 +41,6 @@ const MediaPage = () => {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [dragOver, setDragOver] = useState(false);
 
-  useEffect(() => {
-    // Simulate loading media files
-    const mockFiles: MediaFile[] = [
-      {
-        id: "1",
-        name: "portfolio-hero.jpg",
-        type: "image",
-        size: 2048576,
-        url: "/media/portfolio-hero.jpg",
-        thumbnail: "/media/thumbnails/portfolio-hero.jpg",
-        uploadedAt: "2024-01-15T10:30:00Z",
-        category: "portfolio"
-      },
-      {
-        id: "2",
-        name: "project-demo.mp4",
-        type: "video",
-        size: 15728640,
-        url: "/media/project-demo.mp4",
-        thumbnail: "/media/thumbnails/project-demo.jpg",
-        uploadedAt: "2024-01-20T14:45:00Z",
-        category: "projects"
-      },
-      {
-        id: "3",
-        name: "resume.pdf",
-        type: "document",
-        size: 1024000,
-        url: "/media/resume.pdf",
-        uploadedAt: "2024-01-10T09:15:00Z",
-        category: "documents"
-      },
-      {
-        id: "4",
-        name: "avatar.jpg",
-        type: "image",
-        size: 512000,
-        url: "/media/avatar.jpg",
-        thumbnail: "/media/thumbnails/avatar.jpg",
-        uploadedAt: "2024-01-05T16:20:00Z",
-        category: "profile"
-      }
-    ];
-    setFiles(mockFiles);
-    setFilteredFiles(mockFiles);
-  }, []);
 
   useEffect(() => {
     let filtered = files;
@@ -442,8 +396,8 @@ const MediaPage = () => {
           className="text-center py-12"
         >
           <FaImage className="text-gray-400 text-6xl mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No files found</h3>
-          <p className="text-gray-600 mb-6">Try adjusting your search or filters</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No files yet</h3>
+          <p className="text-gray-600 mb-6">Uploaded images and documents will show up here. The library stays empty until then.</p>
           <button className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
             Upload Your First File
           </button>

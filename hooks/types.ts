@@ -56,10 +56,28 @@ export interface Education {
     the_year: string;
   }
 
+export type CertificateCategory = "course" | "professional" | "award";
+
+export interface Certificate {
+    id: number;
+    title: string;
+    issuer: string;
+    issued_on: string;
+    expires_on: string | null;
+    category: CertificateCategory;
+    credential_id: string;
+    credential_url: string;
+    image: string | null;
+    document: string | null;
+    description: string;
+    sort_order: number;
+  }
+
   export interface MyInfoResponse {
     competences: Competence[];
     experiences: Experience[];
     projects: Project[];
     info: Info[];
     education: Education[];
+    certificates?: Certificate[];
   }

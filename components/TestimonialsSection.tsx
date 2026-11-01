@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import { useGetTestimonialsQuery } from "@/store/testimonialsApi";
+import { TestimonialAvatar } from "@/components/TestimonialAvatar";
 
 const AUTO_ADVANCE_MS = 5000; // 5 seconds
 
@@ -75,21 +75,13 @@ function TestimonialsSection() {
             transition={{ duration: 0.5 }}
             className="max-w-xl w-full mx-auto bg-white/90 dark:bg-gray-900/90 rounded-2xl shadow-2xl px-6 md:px-10 py-8 text-center flex flex-col items-center border-2 border-blue-100 dark:border-cyan-800 hover:shadow-blue-300/30 transition"
           >
-            {testimonial.avatar && testimonial.avatar !== "/testimonials/default.jpg" ? (
-              <Image
-                src={testimonial.avatar}
-                alt={testimonial.name}
-                width={72}
-                height={72}
-                className="rounded-full border-4 border-blue-200 mb-4 shadow object-cover"
-              />
-            ) : (
-              <div className="w-18 h-18 rounded-full border-4 border-blue-200 mb-4 shadow bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <span className="text-white font-bold text-xl">
-                  {testimonial.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                </span>
-              </div>
-            )}
+            <TestimonialAvatar
+              name={testimonial.name}
+              src={testimonial.avatar}
+              size={72}
+              imageClassName="h-[72px] w-[72px] rounded-full border-4 border-blue-200 mb-4 shadow object-cover"
+              fallbackClassName="mb-4 flex h-[72px] w-[72px] items-center justify-center rounded-full border-4 border-blue-200 bg-gradient-to-br from-blue-500 to-purple-600 text-xl font-bold text-white shadow"
+            />
             <blockquote className="text-lg text-gray-800 dark:text-cyan-100 italic mb-3">
               “{testimonial.text}”
             </blockquote>

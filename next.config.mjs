@@ -7,6 +7,8 @@ const nextConfig = {
 
   // Image optimization
   images: {
+    // Local Django media is served from 127.0.0.1. Production stays blocked.
+    dangerouslyAllowLocalIP: process.env.NODE_ENV !== "production",
     remotePatterns: [
       { protocol: 'https', hostname: 'ludmil.pythonanywhere.com' },
       { protocol: 'http', hostname: 'localhost' },

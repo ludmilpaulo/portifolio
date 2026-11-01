@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { baseUrl } from "@/hooks/fetchData";
+import { TestimonialAvatar } from "@/components/TestimonialAvatar";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FaPlus, 
@@ -38,61 +40,61 @@ const TestimonialsPage = () => {
   const [ratingFilter, setRatingFilter] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate loading testimonials
-    const mockTestimonials: Testimonial[] = [
-      {
-        id: 1,
-        name: "John Doe",
-        position: "CEO",
-        company: "TechCorp",
-        content: "Ludmil delivered an exceptional project that exceeded our expectations. His attention to detail and technical expertise are outstanding.",
-        rating: 5,
-        avatar: "/testimonials/john.jpg",
-        status: "approved",
-        createdAt: "2024-01-15T10:30:00Z",
-        updatedAt: "2024-01-15T10:30:00Z"
-      },
-      {
-        id: 2,
-        name: "Jane Smith",
-        position: "Product Manager",
-        company: "StartupXYZ",
-        content: "Professional, reliable, and incredibly talented developer. Would definitely work with him again.",
-        rating: 5,
-        avatar: "/testimonials/jane.jpg",
-        status: "approved",
-        createdAt: "2024-01-20T14:45:00Z",
-        updatedAt: "2024-01-20T14:45:00Z"
-      },
-      {
-        id: 3,
-        name: "Mike Johnson",
-        position: "CTO",
-        company: "InnovateLab",
-        content: "Great communication and delivery. The project was completed on time and within budget.",
-        rating: 4,
-        avatar: "/testimonials/mike.jpg",
-        status: "pending",
-        createdAt: "2024-02-01T09:15:00Z",
-        updatedAt: "2024-02-01T09:15:00Z"
-      },
-      {
-        id: 4,
-        name: "Sarah Wilson",
-        position: "Designer",
-        company: "CreativeStudio",
-        content: "Excellent collaboration and understanding of design requirements.",
-        rating: 5,
-        avatar: "/testimonials/sarah.jpg",
-        status: "rejected",
-        createdAt: "2024-02-05T16:20:00Z",
-        updatedAt: "2024-02-05T16:20:00Z"
+    let cancelled = false;
+    const load = async () => {
+      try {
+        setIsLoading(true);
+        setLoadError(null);
+        const response = await fetch(`${baseUrl}testimonials/`);
+        if (!response.ok) throw new Error("Could not load testimonials");
+        const payload: unknown = await response.json();
+        const rows = Array.isArray(payload)
+          ? payload
+          : payload && typeof payload === "object" && Array.isArray((payload as { results?: unknown }).results)
+            ? (payload as { results: unknown[] }).results
+            : [];
+        const mapped: Testimonial[] = rows.map((row) => {
+          const item = row as {
+            id?: number;
+            name?: string;
+            role?: string;
+            text?: string;
+            avatar?: string | null;
+            created_at?: string;
+          };
+          return {
+            id: Number(item.id ?? 0),
+            name: item.name || "Client",
+            position: item.role || "",
+            company: "",
+            content: item.text || "",
+            rating: 5,
+            avatar: item.avatar || "",
+            status: "approved",
+            createdAt: item.created_at || new Date().toISOString(),
+            updatedAt: item.created_at || new Date().toISOString(),
+          };
+        });
+        if (!cancelled) {
+          setTestimonials(mapped);
+          setFilteredTestimonials(mapped);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setLoadError(error instanceof Error ? error.message : "Could not load testimonials");
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
-    ];
-    setTestimonials(mockTestimonials);
-    setFilteredTestimonials(mockTestimonials);
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -176,6 +178,9 @@ const TestimonialsPage = () => {
           Add Testimonial
         </motion.button>
       </div>
+
+      {isLoading && <p className="text-sm text-gray-500">Loading testimonials...</p>}
+      {loadError && <p className="text-sm text-red-600">{loadError}</p>}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -307,11 +312,13 @@ const TestimonialsPage = () => {
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold text-lg">
-                      {testimonial.name.charAt(0)}
-                    </span>
-                  </div>
+                  <TestimonialAvatar
+                    name={testimonial.name}
+                    src={testimonial.avatar}
+                    size={48}
+                    imageClassName="h-12 w-12 rounded-full object-cover"
+                    fallbackClassName="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 text-lg font-semibold text-white"
+                  />
                   
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
@@ -384,15 +391,15 @@ const TestimonialsPage = () => {
         </AnimatePresence>
       </div>
 
-      {filteredTestimonials.length === 0 && (
+      {!isLoading && !loadError && filteredTestimonials.length === 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center py-12"
         >
           <FaUser className="text-gray-400 text-6xl mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No testimonials found</h3>
-          <p className="text-gray-600 mb-6">Try adjusting your search or filters</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No testimonials yet</h3>
+          <p className="text-gray-600 mb-6">Published testimonials from the site will show up here.</p>
           <button
             onClick={() => setShowModal(true)}
             className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
