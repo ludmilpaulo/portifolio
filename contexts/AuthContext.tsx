@@ -14,12 +14,19 @@ interface User {
   is_verified: boolean;
 }
 
+interface AuthResult {
+  success: boolean;
+  error?: string;
+  errorCode?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<{ success: boolean; error?: string; errorCode?: string }>;
+  login: (username: string, password: string) => Promise<AuthResult>;
+  loginWithGoogle: (credential: string, role: 'admin' | 'client') => Promise<AuthResult>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -89,7 +96,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (username: string, password: string): Promise<{ success: boolean; error?: string; errorCode?: string }> => {
+  const storeSession = (authToken: string, userData: User) => {
+    localStorage.setItem('authToken', authToken);
+    localStorage.setItem('userData', JSON.stringify(userData));
+    setToken(authToken);
+    setUser(userData);
+  };
+
+  const login = async (username: string, password: string): Promise<AuthResult> => {
     try {
       setIsLoading(true);
       
@@ -113,15 +127,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('Login API Response:', result); // Debug log
       
       if (result.success && result.data && result.data.token && result.data.user) {
-        const { token: authToken, user: userData } = result.data;
-        
-        // Store authentication data
-        localStorage.setItem('authToken', authToken);
-        localStorage.setItem('userData', JSON.stringify(userData));
-        
-        setToken(authToken);
-        setUser(userData);
-        
+        storeSession(result.data.token, result.data.user);
         return { success: true };
       } else {
         // Return detailed error with error code
@@ -143,6 +149,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error: 'Network error. Please try again.',
         errorCode: 'network_error'
       };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithGoogle = async (credential: string, role: 'admin' | 'client'): Promise<AuthResult> => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/graphql', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'google-login',
+          data: { credential, role },
+        }),
+      });
+      const result = await response.json();
+      if (result.success && result.data?.token && result.data?.user) {
+        storeSession(result.data.token, result.data.user);
+        return { success: true };
+      }
+      return {
+        success: false,
+        error: result.error || 'Google sign-in failed',
+        errorCode: result.error_code || 'unknown_error',
+      };
+    } catch (error) {
+      console.error('Google login error:', error);
+      return { success: false, error: 'Network error. Please try again.', errorCode: 'network_error' };
     } finally {
       setIsLoading(false);
     }
@@ -191,6 +226,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     isAuthenticated,
     login,
+    loginWithGoogle,
     logout,
     refreshUser,
   };

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '@/contexts/AuthContext';
+import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 
 export default function AdminLogin() {
   const [formData, setFormData] = useState({
@@ -151,6 +152,8 @@ export default function AdminLogin() {
               )}
             </motion.button>
           </form>
+
+          <GoogleSignInButton role="admin" onError={setError} />
 
           <div className="mt-6 text-center">
             <button

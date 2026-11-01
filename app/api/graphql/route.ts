@@ -261,6 +261,37 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(result);
     }
 
+    if (type === 'google-login') {
+      const credential = typeof data?.credential === 'string' ? data.credential : '';
+      const role = data?.role === 'admin' ? 'admin' : 'client';
+      if (!credential) {
+        return NextResponse.json(
+          { success: false, error: 'Google credential is required', error_code: 'invalid_token' },
+          { status: 400 }
+        );
+      }
+
+      const response = await fetch(`${DJANGO_API_URL}/accounts/google/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential, role }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        return NextResponse.json(
+          { success: false, error: result.error || 'Google sign-in failed', error_code: result.error_code },
+          { status: response.status }
+        );
+      }
+      if (result.success && result.token && result.user) {
+        return NextResponse.json({
+          success: true,
+          data: { token: result.token, user: result.user },
+        });
+      }
+      return NextResponse.json(result);
+    }
+
     // Handle token verification
     if (type === 'verify-token') {
       if (!token) {
