@@ -165,14 +165,26 @@ export async function POST(request: NextRequest) {
       const form = await request.formData();
       const type = String(form.get("type") || "");
 
-      if (type === "create-certificate") {
+      if (type === "create-certificate" || type === "update-certificate") {
         const authHeader = request.headers.get("Authorization");
         const headers: HeadersInit = {};
         if (authHeader) {
           headers.Authorization = authHeader;
         }
-        const res = await fetch(`${DJANGO_API_URL}/api/certificates/`, {
-          method: "POST",
+        const certificateId = String(form.get("id") || "");
+        form.delete("type");
+        form.delete("id");
+        const endpoint = type === "update-certificate"
+          ? `/api/certificates/${certificateId}/`
+          : "/api/certificates/";
+        if (type === "update-certificate" && !certificateId) {
+          return NextResponse.json(
+            { success: false, error: "Certificate id is required" },
+            { status: 400 }
+          );
+        }
+        const res = await fetch(`${DJANGO_API_URL}${endpoint}`, {
+          method: type === "update-certificate" ? "PUT" : "POST",
           headers,
           body: form,
         });
@@ -704,6 +716,37 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(result ?? { success: true });
       } catch (error) {
         return NextResponse.json({ success: false, error: "Failed to delete inquiry" }, { status: 500 });
+      }
+    }
+
+    if (type === "delete-certificate") {
+      const certificateId = data?.id;
+      if (!certificateId) {
+        return NextResponse.json(
+          { success: false, error: "Certificate id is required" },
+          { status: 400 }
+        );
+      }
+      try {
+        const headers: HeadersInit = {};
+        if (authHeader) headers.Authorization = authHeader;
+        const response = await fetch(`${DJANGO_API_URL}/api/certificates/${certificateId}/`, {
+          method: "DELETE",
+          headers,
+        });
+        const result = await response.json().catch(() => null);
+        if (!response.ok) {
+          return NextResponse.json(
+            { success: false, error: result?.error || "Could not delete the certificate" },
+            { status: response.status }
+          );
+        }
+        return NextResponse.json(result ?? { success: true });
+      } catch {
+        return NextResponse.json(
+          { success: false, error: "Could not delete the certificate" },
+          { status: 500 }
+        );
       }
     }
 

@@ -1,519 +1,176 @@
 "use client";
-import { useState } from "react";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { 
-  FaSave, 
-  FaEye, 
-  FaEyeSlash, 
-  FaUpload, 
-  FaTrash,
-  FaCog,
-  FaPalette,
-  FaShieldAlt,
-  FaBell,
-  FaGlobe,
-  FaDatabase,
-  FaDownload,
-  FaUpload as FaUploadIcon
-} from "react-icons/fa";
 
-const SettingsPage = () => {
-  const [activeTab, setActiveTab] = useState("profile");
-  const [showPassword, setShowPassword] = useState(false);
-  const [settings, setSettings] = useState({
-    profile: {
-      name: "Ludmil Paulo",
-      email: "ludmil@example.com",
-      bio: "Senior Software Engineer & Full Stack Developer with 7+ years of experience.",
-      avatar: "/avatar/lud.jpeg",
-      location: "Global",
-      website: "https://ludmilpaulo.com"
-    },
-    security: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-      twoFactorEnabled: false,
-      loginNotifications: true
-    },
-    appearance: {
-      theme: "light",
-      primaryColor: "#0093E9",
-      secondaryColor: "#80D0C7",
-      fontFamily: "Inter",
-      fontSize: "medium"
-    },
-    notifications: {
-      emailNotifications: true,
-      projectUpdates: true,
-      testimonialAlerts: true,
-      securityAlerts: true,
-      weeklyReports: false
-    },
-    seo: {
-      siteTitle: "Ludmil Paulo | Senior Software Engineer & Full Stack Developer",
-      metaDescription: "Senior Software Engineer & Full Stack Developer with 7+ years of experience. Expert in React, Node.js, Python, and mobile app development.",
-      keywords: "software engineer, full stack developer, react developer, node.js developer",
-      googleAnalytics: "",
-      googleSearchConsole: ""
-    }
-  });
+import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
+import { adminRequest, asList, fieldClass } from "@/lib/adminApi";
 
-  const tabs = [
-    { id: "profile", label: "Profile", icon: FaCog },
-    { id: "security", label: "Security", icon: FaShieldAlt },
-    { id: "appearance", label: "Appearance", icon: FaPalette },
-    { id: "notifications", label: "Notifications", icon: FaBell },
-    { id: "seo", label: "SEO", icon: FaGlobe },
-    { id: "backup", label: "Backup", icon: FaDatabase }
-  ];
+interface SiteProfile {
+  id?: number;
+  name_complete: string;
+  email: string;
+  phone: string;
+  address: string;
+  born_date: string;
+  mini_about: string;
+  about: string;
+  github: string;
+  linkedin: string;
+  facebook: string;
+  twitter: string;
+  instagram: string;
+  avatar: string | null;
+  cv: string | null;
+}
 
-  const handleSave = () => {
-    // Save settings logic
-    console.log("Saving settings:", settings);
-    alert("Settings saved successfully!");
-  };
+const EMPTY: SiteProfile = {
+  name_complete: "",
+  email: "",
+  phone: "",
+  address: "",
+  born_date: "",
+  mini_about: "",
+  about: "",
+  github: "",
+  linkedin: "",
+  facebook: "",
+  twitter: "",
+  instagram: "",
+  avatar: null,
+  cv: null,
+};
 
-  const handleExport = () => {
-    const dataStr = JSON.stringify(settings, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'portfolio-settings.json';
-    link.click();
-  };
+const SOCIAL_FIELDS: Array<{ key: keyof SiteProfile; label: string }> = [
+  { key: "linkedin", label: "LinkedIn" },
+  { key: "github", label: "GitHub" },
+  { key: "twitter", label: "X / Twitter" },
+  { key: "instagram", label: "Instagram" },
+  { key: "facebook", label: "Facebook" },
+];
 
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const importedSettings = JSON.parse(e.target?.result as string);
-          setSettings(importedSettings);
-          alert("Settings imported successfully!");
-        } catch (error) {
-          alert("Error importing settings. Please check the file format.");
+export default function SiteSettingsPage() {
+  const [profile, setProfile] = useState<SiteProfile>(EMPTY);
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const payload = await adminRequest<unknown>("information/");
+        const rows = asList<SiteProfile>(payload);
+        if (!cancelled && rows[0]) {
+          setProfile({ ...EMPTY, ...rows[0], born_date: rows[0].born_date || "" });
         }
-      };
-      reader.readAsText(file);
-    }
+      } catch (loadError: unknown) {
+        if (!cancelled) setError(loadError instanceof Error ? loadError.message : "Could not load the site profile");
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const setField = (key: keyof SiteProfile, value: string) => {
+    setProfile((current) => ({ ...current, [key]: value }));
   };
 
-  const renderProfileSettings = () => (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-6">
-        <div className="relative w-24 h-24">
-          <Image
-            src={settings.profile.avatar}
-            alt="Profile"
-            fill
-            className="rounded-full object-cover"
-            sizes="96px"
-          />
-          <button className="absolute bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors">
-            <FaUpload className="text-sm" />
-          </button>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Profile Picture</h3>
-          <p className="text-gray-600 text-sm">Upload a new profile picture</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-          <input
-            type="text"
-            value={settings.profile.name}
-            onChange={(e) => setSettings({
-              ...settings,
-              profile: { ...settings.profile, name: e.target.value }
-            })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-          <input
-            type="email"
-            value={settings.profile.email}
-            onChange={(e) => setSettings({
-              ...settings,
-              profile: { ...settings.profile, email: e.target.value }
-            })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-          <input
-            type="text"
-            value={settings.profile.location}
-            onChange={(e) => setSettings({
-              ...settings,
-              profile: { ...settings.profile, location: e.target.value }
-            })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
-          <input
-            type="url"
-            value={settings.profile.website}
-            onChange={(e) => setSettings({
-              ...settings,
-              profile: { ...settings.profile, website: e.target.value }
-            })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
-        <textarea
-          value={settings.profile.bio}
-          onChange={(e) => setSettings({
-            ...settings,
-            profile: { ...settings.profile, bio: e.target.value }
-          })}
-          rows={4}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-      </div>
-    </div>
-  );
-
-  const renderSecuritySettings = () => (
-    <div className="space-y-6">
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <div className="flex items-center">
-          <FaShieldAlt className="text-yellow-600 mr-2" />
-          <span className="text-yellow-800 font-medium">Security Settings</span>
-        </div>
-        <p className="text-yellow-700 text-sm mt-1">Keep your account secure with these settings</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={settings.security.currentPassword}
-              onChange={(e) => setSettings({
-                ...settings,
-                security: { ...settings.security, currentPassword: e.target.value }
-              })}
-              className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-          <input
-            type="password"
-            value={settings.security.newPassword}
-            onChange={(e) => setSettings({
-              ...settings,
-              security: { ...settings.security, newPassword: e.target.value }
-            })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
-          <input
-            type="password"
-            value={settings.security.confirmPassword}
-            onChange={(e) => setSettings({
-              ...settings,
-              security: { ...settings.security, confirmPassword: e.target.value }
-            })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-medium text-gray-900">Two-Factor Authentication</h4>
-            <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
-          </div>
-          <button
-            onClick={() => setSettings({
-              ...settings,
-              security: { ...settings.security, twoFactorEnabled: !settings.security.twoFactorEnabled }
-            })}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              settings.security.twoFactorEnabled ? 'bg-blue-600' : 'bg-gray-200'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                settings.security.twoFactorEnabled ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-medium text-gray-900">Login Notifications</h4>
-            <p className="text-sm text-gray-600">Get notified when someone logs into your account</p>
-          </div>
-          <button
-            onClick={() => setSettings({
-              ...settings,
-              security: { ...settings.security, loginNotifications: !settings.security.loginNotifications }
-            })}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              settings.security.loginNotifications ? 'bg-blue-600' : 'bg-gray-200'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                settings.security.loginNotifications ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderAppearanceSettings = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Primary Color</label>
-          <div className="flex items-center space-x-2">
-            <input
-              type="color"
-              value={settings.appearance.primaryColor}
-              onChange={(e) => setSettings({
-                ...settings,
-                appearance: { ...settings.appearance, primaryColor: e.target.value }
-              })}
-              className="w-12 h-10 border border-gray-300 rounded-lg"
-            />
-            <input
-              type="text"
-              value={settings.appearance.primaryColor}
-              onChange={(e) => setSettings({
-                ...settings,
-                appearance: { ...settings.appearance, primaryColor: e.target.value }
-              })}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Secondary Color</label>
-          <div className="flex items-center space-x-2">
-            <input
-              type="color"
-              value={settings.appearance.secondaryColor}
-              onChange={(e) => setSettings({
-                ...settings,
-                appearance: { ...settings.appearance, secondaryColor: e.target.value }
-              })}
-              className="w-12 h-10 border border-gray-300 rounded-lg"
-            />
-            <input
-              type="text"
-              value={settings.appearance.secondaryColor}
-              onChange={(e) => setSettings({
-                ...settings,
-                appearance: { ...settings.appearance, secondaryColor: e.target.value }
-              })}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Font Family</label>
-          <select
-            value={settings.appearance.fontFamily}
-            onChange={(e) => setSettings({
-              ...settings,
-              appearance: { ...settings.appearance, fontFamily: e.target.value }
-            })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="Inter">Inter</option>
-            <option value="Roboto">Roboto</option>
-            <option value="Open Sans">Open Sans</option>
-            <option value="Lato">Lato</option>
-            <option value="Montserrat">Montserrat</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Font Size</label>
-          <select
-            value={settings.appearance.fontSize}
-            onChange={(e) => setSettings({
-              ...settings,
-              appearance: { ...settings.appearance, fontSize: e.target.value }
-            })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderBackupSettings = () => (
-    <div className="space-y-6">
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center">
-          <FaDatabase className="text-blue-600 mr-2" />
-          <span className="text-blue-800 font-medium">Backup & Export</span>
-        </div>
-        <p className="text-blue-700 text-sm mt-1">Manage your portfolio data and settings</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Export Data</h3>
-          <p className="text-gray-600 text-sm mb-4">Download all your portfolio data and settings</p>
-          <button
-            onClick={handleExport}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center"
-          >
-            <FaDownload className="mr-2" />
-            Export Settings
-          </button>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Import Data</h3>
-          <p className="text-gray-600 text-sm mb-4">Upload previously exported settings</p>
-          <label className="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center cursor-pointer">
-            <FaUploadIcon className="mr-2" />
-            Import Settings
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleImport}
-              className="hidden"
-            />
-          </label>
-        </div>
-      </div>
-
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-red-900 mb-4">Danger Zone</h3>
-        <p className="text-red-700 text-sm mb-4">These actions cannot be undone</p>
-        <div className="flex space-x-4">
-          <button className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors">
-            <FaTrash className="mr-2" />
-            Delete All Data
-          </button>
-          <button className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors">
-            Reset Settings
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "profile":
-        return renderProfileSettings();
-      case "security":
-        return renderSecuritySettings();
-      case "appearance":
-        return renderAppearanceSettings();
-      case "backup":
-        return renderBackupSettings();
-      default:
-        return <div>Coming soon...</div>;
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSaving(true);
+    setMessage(null);
+    setError(null);
+    try {
+      const body = new FormData();
+      body.set("name_complete", profile.name_complete.trim());
+      body.set("email", profile.email.trim());
+      body.set("phone", profile.phone.trim());
+      body.set("address", profile.address.trim());
+      if (profile.born_date) body.set("born_date", profile.born_date);
+      body.set("mini_about", profile.mini_about);
+      body.set("about", profile.about);
+      SOCIAL_FIELDS.forEach(({ key }) => body.set(key, String(profile[key] || "").trim()));
+      if (avatar) body.set("avatar", avatar);
+      const saved = profile.id
+        ? await adminRequest<SiteProfile>(`information/${profile.id}/`, { method: "PATCH", body })
+        : await adminRequest<SiteProfile>("information/", { method: "POST", body });
+      setProfile({ ...EMPTY, ...saved, born_date: saved.born_date || "" });
+      setAvatar(null);
+      setMessage("Site profile saved. The public pages use these details and social links.");
+    } catch (saveError: unknown) {
+      setError(saveError instanceof Error ? saveError.message : "Could not save the site profile");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600 mt-1">Manage your portfolio configuration</p>
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleSave}
-          className="mt-4 sm:mt-0 bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center"
-        >
-          <FaSave className="mr-2" />
-          Save Changes
-        </motion.button>
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Site & social</h1>
+        <p className="mt-1 text-gray-600">
+          This is the profile shown across the portfolio: name, about text, contact details, and social links. Role-specific CVs are managed separately.
+        </p>
       </div>
-
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar */}
-        <div className="lg:w-64">
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4">
-            <nav className="space-y-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? "bg-blue-50 text-blue-700 border border-blue-200"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <tab.icon className="mr-3" />
-                  <span className="font-medium">{tab.label}</span>
-                </button>
-              ))}
-            </nav>
-          </div>
+      {isLoading ? <p className="text-sm text-gray-500">Loading profile...</p> : null}
+      <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:grid-cols-2">
+        <label className="block text-sm font-medium text-slate-700">
+          Full name
+          <input required value={profile.name_complete} onChange={(event) => setField("name_complete", event.target.value)} className={fieldClass} />
+        </label>
+        <label className="block text-sm font-medium text-slate-700">
+          Email
+          <input type="email" value={profile.email} onChange={(event) => setField("email", event.target.value)} className={fieldClass} />
+        </label>
+        <label className="block text-sm font-medium text-slate-700">
+          Phone
+          <input value={profile.phone} onChange={(event) => setField("phone", event.target.value)} className={fieldClass} />
+        </label>
+        <label className="block text-sm font-medium text-slate-700">
+          Address
+          <input value={profile.address} onChange={(event) => setField("address", event.target.value)} className={fieldClass} />
+        </label>
+        <label className="block text-sm font-medium text-slate-700">
+          Born
+          <input type="date" value={profile.born_date || ""} onChange={(event) => setField("born_date", event.target.value)} className={fieldClass} />
+        </label>
+        <label className="block text-sm font-medium text-slate-700">
+          Avatar
+          <input type="file" accept="image/*" onChange={(event) => setAvatar(event.target.files?.[0] ?? null)} className="mt-1 block w-full text-sm" />
+          {profile.avatar ? <span className="mt-1 block text-xs text-slate-500">Current photo stays unless you choose a new file.</span> : null}
+        </label>
+        <label className="block text-sm font-medium text-slate-700 md:col-span-2">
+          Short intro
+          <textarea required rows={3} value={profile.mini_about} onChange={(event) => setField("mini_about", event.target.value)} className={fieldClass} />
+        </label>
+        <label className="block text-sm font-medium text-slate-700 md:col-span-2">
+          About
+          <textarea required rows={6} value={profile.about} onChange={(event) => setField("about", event.target.value)} className={fieldClass} />
+        </label>
+        {SOCIAL_FIELDS.map((field) => (
+          <label key={field.key} className="block text-sm font-medium text-slate-700">
+            {field.label}
+            <input type="url" value={String(profile[field.key] || "")} onChange={(event) => setField(field.key, event.target.value)} placeholder="https://" className={fieldClass} />
+          </label>
+        ))}
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 md:col-span-2">
+          <p className="font-medium text-slate-900">Multiple CVs</p>
+          <p className="mt-1">Add a CV for each role, such as software engineer, technical operations, front end, or full stack.</p>
+          <Link href="/dashboard/cvs" className="mt-2 inline-block font-semibold text-[#0093E9]">Manage CVs</Link>
         </div>
-
-        {/* Content */}
-        <div className="flex-1">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white rounded-xl shadow-lg border border-gray-100 p-6"
-          >
-            {renderTabContent()}
-          </motion.div>
+        <div className="md:col-span-2">
+          <button type="submit" disabled={isSaving || isLoading} className="rounded-lg bg-[#0093E9] px-5 py-3 font-semibold text-white hover:bg-blue-600 disabled:opacity-60">
+            {isSaving ? "Saving..." : "Save site profile"}
+          </button>
         </div>
-      </div>
+      </form>
+      {message ? <p className="text-sm text-emerald-700">{message}</p> : null}
+      {error ? <p className="text-sm text-red-600">{error}</p> : null}
     </div>
   );
-};
-
-export default SettingsPage;
+}

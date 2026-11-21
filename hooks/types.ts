@@ -31,6 +31,14 @@ export interface Project {
     show_in_slider: boolean;
   }
 
+export interface Resume {
+    id: number;
+    title: string;
+    file: string | null;
+    sort_order: number;
+    is_published: boolean;
+  }
+
 export interface Info {
     id: number;
     name_complete: string;
@@ -81,4 +89,5 @@ export interface Certificate {
     info: Info[];
     education: Education[];
     certificates?: Certificate[];
+    resumes?: Resume[];
   }

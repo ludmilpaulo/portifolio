@@ -51,6 +51,7 @@ export default function DashboardCertificatesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<CertificateForm>(EMPTY_FORM);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [image, setImage] = useState<File | null>(null);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -84,7 +85,8 @@ export default function DashboardCertificatesPage() {
     setIsSaving(true);
     try {
       const body = new FormData();
-      body.set("type", "create-certificate");
+      body.set("type", editingId ? "update-certificate" : "create-certificate");
+      if (editingId) body.set("id", String(editingId));
       body.set("title", form.title.trim());
       body.set("issuer", form.issuer.trim());
       body.set("issued_on", form.issued_on);
@@ -108,6 +110,7 @@ export default function DashboardCertificatesPage() {
         throw new Error(result.error || "Could not save the certificate");
       }
       setForm(EMPTY_FORM);
+      setEditingId(null);
       setImage(null);
       setDocumentFile(null);
       setSavedMessage("Certificate saved. Published items show on the public Certificates page.");
@@ -123,7 +126,7 @@ export default function DashboardCertificatesPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Certificates</h1>
-        <p className="mt-1 text-gray-600">Add a credential here. Published certificates appear on the public page.</p>
+        <p className="mt-1 text-gray-600">Add, edit, or remove credentials. Published certificates appear on the public page.</p>
       </div>
 
       <form onSubmit={onSubmit} className="grid gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:grid-cols-2">
@@ -244,8 +247,22 @@ export default function DashboardCertificatesPage() {
             disabled={isSaving}
             className="rounded-lg bg-[#0093E9] px-5 py-3 font-semibold text-white hover:bg-blue-600 disabled:opacity-60"
           >
-            {isSaving ? "Saving..." : "Add certificate"}
+            {isSaving ? "Saving..." : editingId ? "Save changes" : "Add certificate"}
           </button>
+          {editingId ? (
+            <button
+              type="button"
+              className="ml-3 rounded-lg border border-slate-200 px-5 py-3"
+              onClick={() => {
+                setEditingId(null);
+                setForm(EMPTY_FORM);
+                setImage(null);
+                setDocumentFile(null);
+              }}
+            >
+              Cancel
+            </button>
+          ) : null}
         </div>
       </form>
 
@@ -271,6 +288,7 @@ export default function DashboardCertificatesPage() {
                 <th className="px-4 py-3 font-medium">Category</th>
                 <th className="px-4 py-3 font-medium">Issued</th>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -283,6 +301,55 @@ export default function DashboardCertificatesPage() {
                   </td>
                   <td className="px-4 py-3 text-slate-600">{formatDate(certificate.issued_on)}</td>
                   <td className="px-4 py-3 text-slate-600">{certificate.is_published === false ? "Draft" : "Published"}</td>
+                  <td className="px-4 py-3">
+                    <button
+                      type="button"
+                      className="mr-3 text-[#0093E9]"
+                      onClick={() => {
+                        setEditingId(certificate.id);
+                        setForm({
+                          title: certificate.title,
+                          issuer: certificate.issuer,
+                          issued_on: certificate.issued_on,
+                          expires_on: certificate.expires_on || "",
+                          category: certificate.category,
+                          credential_id: certificate.credential_id || "",
+                          credential_url: certificate.credential_url || "",
+                          description: certificate.description || "",
+                          sort_order: String(certificate.sort_order ?? 0),
+                          is_published: certificate.is_published !== false,
+                        });
+                        setSavedMessage(null);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="text-red-600"
+                      onClick={async () => {
+                        if (!confirm("Delete this certificate?")) return;
+                        setError(null);
+                        const response = await fetch("/api/graphql", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json", ...authHeaders() },
+                          body: JSON.stringify({ type: "delete-certificate", data: { id: certificate.id } }),
+                        });
+                        const result: { success?: boolean; error?: string } = await response.json();
+                        if (!response.ok || !result.success) {
+                          setError(result.error || "Could not delete the certificate");
+                          return;
+                        }
+                        if (editingId === certificate.id) {
+                          setEditingId(null);
+                          setForm(EMPTY_FORM);
+                        }
+                        await loadCertificates();
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

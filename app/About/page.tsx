@@ -9,7 +9,7 @@ import { MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
 import { FaFacebookSquare, FaTwitter } from "react-icons/fa";
 import { useGetMyInfoQuery } from "@/store/myInfoApi";
 import TestimonialsSection from "@/components/TestimonialsSection";
-import { Info, Competence } from "@/hooks/types"
+import { Info, Competence, Resume } from "@/hooks/types"
 
 // -------- Animated Skills Cloud with Rotation --------
 const SKILL_CLOUD_RADIUS = 120;
@@ -103,6 +103,12 @@ const About = () => {
 
   const aboutMe = data.info[0];
   const skills = data.competences || [];
+  const publishedResumes = (data.resumes || []).filter((resume): resume is Resume & { file: string } => Boolean(resume.file));
+  const cvDownloads = publishedResumes.length > 0
+    ? publishedResumes.map((resume) => ({ title: resume.title, href: resume.file }))
+    : aboutMe.cv
+      ? [{ title: "Download My CV", href: aboutMe.cv }]
+      : [];
 
   return (
     <div className="relative bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-200 min-h-screen py-20 dark:from-gray-900 dark:via-gray-950 dark:to-blue-900 transition-colors duration-500 overflow-hidden">
@@ -232,7 +238,7 @@ const About = () => {
               <a href={`mailto:${aboutMe.email}`} className="text-blue-600 dark:text-cyan-300 hover:underline transition">{aboutMe.email}</a>
             </div>
           </div>
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-6 mt-2">
+          <div className="mt-2 w-full space-y-3">
             <a
               href={`https://wa.me/${aboutMe.phone}`}
               className="flex items-center justify-center gap-3 px-5 py-3 bg-gradient-to-r from-green-500 to-emerald-400 text-white rounded-xl shadow-lg hover:from-green-600 hover:to-emerald-500 hover:scale-105 transition font-semibold text-lg"
@@ -242,14 +248,22 @@ const About = () => {
               <AiOutlineWhatsApp className="text-2xl" />
               <span>Chat on WhatsApp</span>
             </a>
-            <a
-              href={aboutMe.cv}
-              className="flex items-center justify-center gap-3 px-5 py-3 bg-gradient-to-r from-blue-500 to-cyan-400 text-white rounded-xl shadow-lg hover:from-blue-600 hover:to-cyan-500 hover:scale-105 transition font-semibold text-lg"
-              download
-            >
-              <AiOutlineDownload className="text-2xl" />
-              <span>Download My CV</span>
-            </a>
+            {cvDownloads.length > 0 ? (
+              <div className={`grid gap-3 ${cvDownloads.length > 1 ? "sm:grid-cols-2" : ""}`}>
+                {cvDownloads.map((item) => (
+                  <a
+                    key={`${item.title}-${item.href}`}
+                    href={item.href}
+                    className="flex items-center justify-center gap-3 px-5 py-3 bg-gradient-to-r from-blue-500 to-cyan-400 text-white rounded-xl shadow-lg hover:from-blue-600 hover:to-cyan-500 hover:scale-105 transition font-semibold text-lg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <AiOutlineDownload className="text-2xl" />
+                    <span>{item.title}</span>
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </div>
         </motion.div>
 
