@@ -46,6 +46,7 @@ const cardVariants = {
 const ProjectCard: React.FC<Project> = ({
   title,
   description,
+  problem,
   image,
   image_alt,
   demo,
@@ -54,7 +55,7 @@ const ProjectCard: React.FC<Project> = ({
   slug,
   status,
 }) => {
-  const truncatedDescription = truncateText(description, 100);
+  const truncatedDescription = truncateText(description, 180);
 
   return (
     <motion.div
@@ -152,7 +153,7 @@ const ProjectCard: React.FC<Project> = ({
         ) : null}
       </div>
       <div className="px-6 pb-4">
-        <ProjectShare title={title} description={description} slug={slug} status={status} demo={demo} compact />
+        <ProjectShare title={title} description={description} problem={problem} slug={slug} status={status} demo={demo} compact />
       </div>
     </motion.div>
   );

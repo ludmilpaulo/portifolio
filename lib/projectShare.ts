@@ -124,6 +124,7 @@ export function excerpt(description: string, max = 160): string {
 export function buildProjectShareText(input: {
   title: string;
   description: string;
+  problem?: string;
   slug: string;
   status?: number | string;
   demo?: string;
@@ -131,9 +132,11 @@ export function buildProjectShareText(input: {
 }): string {
   const copy = SHARE_COPY[input.language];
   const slug = projectSlug(input.title, input.slug);
-  const summary = excerpt(input.description);
+  const problem = stripHtml(input.problem ?? "");
+  const summary = excerpt(input.description, 220);
   const lines = [
     copy.intro(input.title.trim() || "this project"),
+    problem,
     summary,
     copy.status[projectStage(input.status)],
     `${copy.pageLabel}: ${projectShareUrl(slug)}`,

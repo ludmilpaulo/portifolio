@@ -117,7 +117,7 @@ export default async function SharedProjectPage({ params }: PageProps) {
           ) : null}
           {descriptionText ? (
             <section>
-              <h2 className="text-2xl font-bold text-slate-900">What I built</h2>
+              <h2 className="text-2xl font-bold text-slate-900">The solution</h2>
               <div className="prose mt-3 max-w-none text-slate-700" dangerouslySetInnerHTML={{ __html: project.description }} />
             </section>
           ) : null}
@@ -175,6 +175,7 @@ export default async function SharedProjectPage({ params }: PageProps) {
         <ProjectShare
           title={project.title}
           description={project.description}
+          problem={project.problem}
           slug={project.slug}
           status={project.status}
           demo={project.demo}

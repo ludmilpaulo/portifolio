@@ -24,13 +24,14 @@ const ICONS = {
 interface ProjectShareProps {
   title: string;
   description: string;
+  problem?: string;
   slug?: string;
   status?: number | string;
   demo?: string;
   compact?: boolean;
 }
 
-export default function ProjectShare({ title, description, slug, status, demo, compact = false }: ProjectShareProps) {
+export default function ProjectShare({ title, description, problem, slug, status, demo, compact = false }: ProjectShareProps) {
   const [open, setOpen] = useState(!compact);
   const [language, setLanguage] = useState<ShareLanguage>("en");
   const [draft, setDraft] = useState("");
@@ -44,9 +45,9 @@ export default function ProjectShare({ title, description, slug, status, demo, c
   }, []);
 
   useEffect(() => {
-    setDraft(buildProjectShareText({ title, description, slug: resolvedSlug, status, demo, language }));
+    setDraft(buildProjectShareText({ title, description, problem, slug: resolvedSlug, status, demo, language }));
     setCopied(null);
-  }, [title, description, resolvedSlug, status, demo, language]);
+  }, [title, description, problem, resolvedSlug, status, demo, language]);
 
   const targets = useMemo(() => shareTargets(draft, pageUrl), [draft, pageUrl]);
 

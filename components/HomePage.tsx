@@ -392,7 +392,8 @@ export default function Home({ locale = "en" }: { locale?: PublicLocale }) {
                     <h4 className="text-lg sm:text-xl font-bold mb-2 text-blue-900 group-hover:text-blue-700 transition-colors text-center">
                       {p.title}
                     </h4>
-                    <p className="text-xs sm:text-sm text-gray-600 line-clamp-3 text-center leading-relaxed px-2">
+                    <p className="text-xs sm:text-sm text-gray-600 line-clamp-4 text-center leading-relaxed px-2">
+                      {p.problem ? `${p.problem} ` : ""}
                       {p.description.replace(/<[^>]+>/g, "")}
                     </p>
                     <motion.div
