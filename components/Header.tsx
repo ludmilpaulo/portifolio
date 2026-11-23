@@ -60,7 +60,7 @@ const Header = () => {
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] transition-all duration-300 dark:border-slate-800 dark:bg-slate-950 lg:bg-white/95 lg:backdrop-blur-xl dark:lg:bg-slate-950/95">
       <div className="flex items-center justify-between max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-3.5">
         {/* Logo and Name */}
-        <Link href={locale === "pt" ? "/pt" : "/"} className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0093E9] focus-visible:ring-offset-2 rounded-lg">
+        <Link href={locale === "pt" ? "/pt" : "/"} className="flex shrink-0 items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0093E9] focus-visible:ring-offset-2 rounded-lg">
           <motion.div
             className="rounded-full overflow-hidden ring-2 ring-slate-200/80 dark:ring-cyan-900/50 shadow-md"
             variants={logoVariants}
@@ -80,7 +80,7 @@ const Header = () => {
             />
           </motion.div>
           <div>
-            <span className="font-bold text-base md:text-lg text-slate-800 dark:text-slate-100 [font-family:var(--font-heading),sans-serif] tracking-tight">
+            <span className="whitespace-nowrap font-bold text-base md:text-lg text-slate-800 dark:text-slate-100 [font-family:var(--font-heading),sans-serif] tracking-tight">
               {info?.name_complete || "Ludmil Paulo"}
             </span>
             <span className="block text-xs text-slate-500 dark:text-cyan-400/90 font-medium tracking-wide -mt-0.5">
@@ -90,7 +90,7 @@ const Header = () => {
         </Link>
 
         {/* Social Icons */}
-        <motion.div className="hidden xl:flex gap-1 ml-4">
+        <motion.div className="ml-4 hidden shrink-0 gap-1 xl:flex">
           {isLoading
             ? [...Array(5)].map((_, i) => (
                 <div key={i} className="w-7 h-7 rounded-full bg-blue-100 animate-pulse" />
@@ -119,12 +119,12 @@ const Header = () => {
         </motion.div>
 
         {/* Nav Links */}
-        <nav className="hidden lg:flex items-center gap-0.5 ml-auto" role="navigation" aria-label="Main">
+        <nav className="ml-auto hidden items-center gap-0.5 lg:flex" role="navigation" aria-label="Main">
           {links.map(({ href, icon: Icon, label }) => (
             <Link
               key={href}
               href={href}
-              className="relative flex items-center gap-1.5 px-2 py-2 xl:px-3 rounded-lg text-sm text-slate-600 dark:text-slate-300 font-medium hover:text-[#0093E9] dark:hover:text-cyan-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0093E9] focus-visible:ring-offset-2"
+              className="relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-2 text-sm font-medium text-slate-600 transition-colors duration-200 hover:bg-slate-100/80 hover:text-[#0093E9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0093E9] focus-visible:ring-offset-2 dark:text-slate-300 dark:hover:bg-slate-800/60 dark:hover:text-cyan-300"
             >
               <Icon className="w-3.5 h-3.5 text-[#0093E9]/80 dark:text-cyan-400/80" aria-hidden />
               <span className="relative">
@@ -141,11 +141,11 @@ const Header = () => {
           ))}
           <Link
             href={bookHref(locale)}
-            className="ml-2 inline-flex min-h-11 items-center justify-center rounded-full bg-sky-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-800 focus-visible:ring-offset-2"
+            className="ml-2 inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-sky-800 px-3.5 text-sm font-semibold leading-none text-white shadow-sm hover:bg-sky-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-800 focus-visible:ring-offset-2"
           >
             {labels.book}
           </Link>
-          <LanguageSwitcher pathname={pathname} label={labels.language} />
+          <LanguageSwitcher pathname={pathname} label={labels.language} compact />
         </nav>
 
         {/* Mobile Menu Toggle */}
@@ -248,14 +248,14 @@ const Header = () => {
   );
 };
 
-function LanguageSwitcher({ pathname, label }: { pathname: string; label: string }) {
+function LanguageSwitcher({ pathname, label, compact = false }: { pathname: string; label: string; compact?: boolean }) {
   const locale = localeFromPath(pathname);
   const itemClass = (active: boolean) =>
-    `inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-800 focus-visible:ring-offset-2 ${
-      active ? "bg-sky-800 text-white" : "text-slate-700 hover:bg-slate-100"
-    }`;
+    `inline-flex items-center justify-center rounded-full text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-800 focus-visible:ring-offset-2 ${
+      compact ? "min-h-11 min-w-11 px-2.5" : "min-h-11 min-w-11 px-3"
+    } ${active ? "bg-sky-800 text-white" : "text-slate-700 hover:bg-slate-100"}`;
   return (
-    <div className="ml-2 flex items-center gap-1" role="navigation" aria-label={label}>
+    <div className="ml-2 flex shrink-0 items-center gap-1" role="navigation" aria-label={label}>
       <Link href={languageSwitchTarget(pathname, "en")} hrefLang="en" lang="en" aria-current={locale === "en" ? "page" : undefined} className={itemClass(locale === "en")}>
         EN
       </Link>

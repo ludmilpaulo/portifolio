@@ -147,33 +147,87 @@ export const bookingCopy: Record<PublicLocale, {
   intro: string;
   button: string;
   timezone: string;
-  direct: string;
   email: string;
-  unavailable: string;
-  waiting: string;
+  loadError: string;
+  empty: string;
   loading: string;
+  typeLabel: string;
+  timezoneLabel: string;
+  slotsLabel: string;
+  nameLabel: string;
+  emailLabel: string;
+  companyLabel: string;
+  notesLabel: string;
+  submit: string;
+  submitting: string;
+  confirmedTitle: string;
+  video: string;
+  ownerTime: string;
+  emailSent: string;
+  emailFailed: string;
+  cancel: string;
+  cancelled: string;
+  reschedule: string;
+  changeTime: string;
+  taken: string;
 }> = {
   en: {
     title: "Book a meeting with me",
     intro: "Hiring for an engineering role, planning a software project, or exploring a partnership? Choose a time that works for you.",
     button: "View available times",
-    timezone: "Times are shown in your local time zone. You can change it in the scheduler. My hours are set in Africa/Johannesburg.",
-    direct: "Open the booking page",
+    timezone: "Times are shown in the time zone you choose. My hours are weekdays 09:00–17:00 in Africa/Johannesburg.",
     email: "Email me instead",
-    unavailable: "The calendar is not connected yet. Email me and I will send times that work.",
-    waiting: "The scheduler loads when you reach this section or choose View available times.",
+    loadError: "Available times could not be loaded. Email me and I will send times that work.",
+    empty: "There are no open times in the next two weeks. Email me and I will find one.",
     loading: "Loading available times...",
+    typeLabel: "Meeting type",
+    timezoneLabel: "Time zone",
+    slotsLabel: "Available times",
+    nameLabel: "Name",
+    emailLabel: "Email",
+    companyLabel: "Company (optional)",
+    notesLabel: "Notes (optional)",
+    submit: "Confirm meeting",
+    submitting: "Confirming...",
+    confirmedTitle: "Your meeting is booked",
+    video: "Join the video call",
+    ownerTime: "Cape Town time",
+    emailSent: "A confirmation email is on its way, with the time and the video link.",
+    emailFailed: "The meeting is saved. The confirmation email could not be sent, so keep this page.",
+    cancel: "Cancel meeting",
+    cancelled: "This meeting is cancelled. The time is free again.",
+    reschedule: "Change the time",
+    changeTime: "Use this time",
+    taken: "That time was just taken. Choose another one.",
   },
   pt: {
     title: "Marque uma reunião comigo",
     intro: "Está a contratar para uma vaga de engenharia, a planear um projeto de software ou a explorar uma parceria? Escolha um horário que lhe sirva.",
     button: "Ver horários disponíveis",
-    timezone: "Os horários aparecem no seu fuso horário. Pode mudá-lo no calendário. A minha disponibilidade está definida em Africa/Johannesburg.",
-    direct: "Abrir a página de marcações",
+    timezone: "Os horários aparecem no fuso que escolher. A minha disponibilidade é de segunda a sexta, 09:00–17:00, em Africa/Johannesburg.",
     email: "Enviar um email",
-    unavailable: "O calendário ainda não está ligado. Envie um email e eu indico horários.",
-    waiting: "O calendário carrega quando chega a esta secção ou escolhe Ver horários disponíveis.",
+    loadError: "Não foi possível carregar os horários. Envie um email e eu indico alternativas.",
+    empty: "Não há horários livres nas próximas duas semanas. Envie um email e eu encontro um.",
     loading: "A carregar horários...",
+    typeLabel: "Tipo de reunião",
+    timezoneLabel: "Fuso horário",
+    slotsLabel: "Horários disponíveis",
+    nameLabel: "Nome",
+    emailLabel: "Email",
+    companyLabel: "Empresa (opcional)",
+    notesLabel: "Notas (opcional)",
+    submit: "Confirmar reunião",
+    submitting: "A confirmar...",
+    confirmedTitle: "A sua reunião está marcada",
+    video: "Entrar na videochamada",
+    ownerTime: "Hora da Cidade do Cabo",
+    emailSent: "Vai receber um email com a hora e o link da videochamada.",
+    emailFailed: "A reunião ficou guardada. O email de confirmação não foi enviado, por isso guarde esta página.",
+    cancel: "Cancelar reunião",
+    cancelled: "Esta reunião foi cancelada. O horário ficou livre.",
+    reschedule: "Mudar o horário",
+    changeTime: "Usar este horário",
+    taken: "Esse horário acabou de ser ocupado. Escolha outro.",
   },
 };
 
