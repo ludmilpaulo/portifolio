@@ -9,7 +9,11 @@ import { MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
 import { FaFacebookSquare, FaTwitter } from "react-icons/fa";
 import { useGetMyInfoQuery } from "@/store/myInfoApi";
 import TestimonialsSection from "@/components/TestimonialsSection";
-import { Info, Competence, Resume } from "@/hooks/types"
+import { Competence, Resume } from "@/hooks/types"
+import Link from "next/link";
+import type { PublicLocale } from "@/lib/localePaths";
+import { bookHref } from "@/lib/localePaths";
+import { aboutCopy } from "@/lib/publicCopy";
 
 // -------- Animated Skills Cloud with Rotation --------
 const SKILL_CLOUD_RADIUS = 120;
@@ -77,7 +81,9 @@ function SkillsCloud({ skills, avatar }: { skills: Competence[]; avatar?: string
 }
 
 // -------- Main About Page --------
-const About = () => {
+const About = ({ locale = "en" }: { locale?: PublicLocale }) => {
+  const copy = aboutCopy[locale];
+  const contactHref = locale === "pt" ? "/pt/contact" : "/contact";
   // RTK Query hooks
   const { data, isLoading, isError } = useGetMyInfoQuery();
 
@@ -91,14 +97,14 @@ const About = () => {
       <div className="fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full bg-gradient-to-tr from-blue-900/80 to-cyan-600/70">
         <div className="flex flex-col items-center space-y-3">
           <div className="w-16 h-16 border-t-4 border-b-4 border-blue-300 rounded-full animate-spin"></div>
-          <span className="text-white font-semibold text-lg">Loading your profile...</span>
+          <span className="text-white font-semibold text-lg">{copy.loading}</span>
         </div>
       </div>
     );
   }
 
   if (isError || !data?.info?.[0]) {
-    return <div className="text-center text-red-500 mt-32">Error loading data. Please try again later.</div>;
+    return <div className="text-center text-red-500 mt-32">{copy.error}</div>;
   }
 
   const aboutMe = data.info[0];
@@ -189,23 +195,23 @@ const About = () => {
             <div className="flex gap-6 justify-center text-center">
               <div>
                 <div className="text-2xl font-bold text-blue-700 dark:text-cyan-200">{yearsExp}+</div>
-                <div className="text-xs text-gray-500 dark:text-cyan-400">Years Exp</div>
+                <div className="text-xs text-gray-500 dark:text-cyan-400">{copy.years}</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-blue-700 dark:text-cyan-200">{projects}+</div>
-                <div className="text-xs text-gray-500 dark:text-cyan-400">Projects</div>
+                <div className="text-xs text-gray-500 dark:text-cyan-400">{copy.projects}</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-blue-700 dark:text-cyan-200">{countries}</div>
-                <div className="text-xs text-gray-500 dark:text-cyan-400">Countries</div>
+                <div className="text-xs text-gray-500 dark:text-cyan-400">{copy.countries}</div>
               </div>
             </div>
           </div>
           {/* About/Bio */}
           <div className="flex flex-col justify-center space-y-6 md:w-2/3 z-10">
-            <h4 className="text-4xl font-extrabold text-gray-900 dark:text-cyan-200 mb-2">
-              <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">About Me</span>
-            </h4>
+            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-cyan-200 mb-2">
+              <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">{copy.heading}</span>
+            </h1>
             <p className="text-lg text-gray-700 dark:text-cyan-100" dangerouslySetInnerHTML={{ __html: aboutMe.mini_about }} />
             <p className="text-base text-gray-700 dark:text-gray-200 leading-relaxed" dangerouslySetInnerHTML={{ __html: aboutMe.about }} />
           </div>
@@ -214,7 +220,7 @@ const About = () => {
         {/* Skills Cloud */}
         <section className="w-full flex flex-col items-center justify-center py-8">
           <h3 className="text-2xl md:text-3xl font-bold text-blue-700 dark:text-cyan-200 mb-8 mt-8 tracking-widest text-center">
-            Tech Stack & Skills Cloud
+            {copy.skills}
           </h3>
           <div className="flex justify-center items-center w-full min-h-[320px]">
             <SkillsCloud skills={skills} avatar={aboutMe.avatar} />
@@ -226,6 +232,7 @@ const About = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
+          id="contact"
           className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl shadow-xl border-2 border-blue-100 dark:border-blue-900 p-8 flex flex-col items-center"
         >
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-4 text-lg">
@@ -246,7 +253,7 @@ const About = () => {
               rel="noopener noreferrer"
             >
               <AiOutlineWhatsApp className="text-2xl" />
-              <span>Chat on WhatsApp</span>
+              <span>{copy.whatsapp}</span>
             </a>
             {cvDownloads.length > 0 ? (
               <div className={`grid gap-3 ${cvDownloads.length > 1 ? "sm:grid-cols-2" : ""}`}>
@@ -277,15 +284,29 @@ const About = () => {
           transition={{ duration: 1, delay: 0.3 }}
           className="mt-10 text-center"
         >
-          <h3 className="text-2xl md:text-3xl font-bold text-blue-700 dark:text-cyan-200 mb-4">
-            Ready to collaborate or start your project?
-          </h3>
-          <a
-            href={`mailto:${aboutMe.email}`}
-            className="inline-block px-7 py-3 bg-gradient-to-r from-blue-500 to-cyan-400 text-white rounded-full shadow-lg hover:from-blue-600 hover:to-cyan-500 hover:scale-105 transition font-bold text-lg"
-          >
-            Contact Me Today
-          </a>
+          <h2 className="text-2xl md:text-3xl font-bold text-blue-700 dark:text-cyan-200 mb-4">
+            {copy.cta}
+          </h2>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href={contactHref}
+              className="inline-block px-7 py-3 bg-sky-800 text-white rounded-full shadow-lg hover:bg-sky-900 transition font-bold text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-800 focus-visible:ring-offset-2"
+            >
+              {copy.contact}
+            </Link>
+            <Link
+              href="/projects"
+              className="inline-block px-7 py-3 border border-blue-300 text-blue-800 dark:text-cyan-100 rounded-full font-bold text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-800 focus-visible:ring-offset-2"
+            >
+              {copy.projectsLink}
+            </Link>
+            <Link
+              href={bookHref(locale)}
+              className="inline-block px-7 py-3 border border-blue-300 text-blue-800 dark:text-cyan-100 rounded-full font-bold text-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-800 focus-visible:ring-offset-2"
+            >
+              {locale === "pt" ? "Marcar reunião" : "Book a meeting"}
+            </Link>
+          </div>
         </motion.div>
       </motion.div>
     </div>

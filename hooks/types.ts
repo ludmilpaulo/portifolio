@@ -29,6 +29,10 @@ export interface Project {
     demo: string;
     github: string;
     show_in_slider: boolean;
+    image_alt?: string;
+    problem?: string;
+    role?: string;
+    outcomes?: string;
   }
 
 export interface Resume {

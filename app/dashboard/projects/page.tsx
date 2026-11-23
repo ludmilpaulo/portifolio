@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import ProjectShare from "@/components/ProjectShare";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -39,7 +40,9 @@ interface Project {
   createdAt: string;
   updatedAt: string;
   url?: string;
+  demo?: string;
   githubUrl?: string;
+  slug?: string;
   clientId?: number;
   clientName?: string;
   progress?: number;
@@ -535,6 +538,16 @@ const ProjectsPage = () => {
                 )}
 
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{project.description}</p>
+                <div className="mb-4">
+                  <ProjectShare
+                    title={project.title}
+                    description={project.description}
+                    slug={project.slug}
+                    status={project.status}
+                    demo={project.url || project.demo}
+                    compact
+                  />
+                </div>
                 
                 {/* Progress Bar */}
                 {project.progress !== undefined && (

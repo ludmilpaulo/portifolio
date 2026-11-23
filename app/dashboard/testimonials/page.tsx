@@ -5,9 +5,10 @@ import { FaEnvelope, FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from "rea
 import { FaXTwitter } from "react-icons/fa6";
 import { baseUrl } from "@/hooks/fetchData";
 import { adminAuthHeaders } from "@/lib/adminApi";
+import { siteUrl } from "@/lib/site";
 import { TestimonialAvatar } from "@/components/TestimonialAvatar";
 
-const TESTIMONIAL_LINK = "https://www.ludmilpaulo.com/leave-testimonial";
+const TESTIMONIAL_LINK = `${siteUrl()}/leave-testimonial`;
 const SHARE_TEXT = `I'd value a short testimonial about working together. You can leave it here: ${TESTIMONIAL_LINK}`;
 
 const SHARE_LINKS = [

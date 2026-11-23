@@ -176,9 +176,9 @@ const SkillsPage: React.FC = () => {
 
       {/* Header, Category and Sort */}
       <div className="mt-24 mb-10 text-center z-10">
-        <h2 className="uppercase tracking-widest text-gray-600 dark:text-cyan-200 text-4xl font-extrabold drop-shadow">
+        <h1 className="uppercase tracking-widest text-gray-600 dark:text-cyan-200 text-4xl font-extrabold drop-shadow">
           Skills
-        </h2>
+        </h1>
         <h4 className="mt-2 uppercase tracking-[3px] text-gray-500 dark:text-gray-400 text-base">
           Swipe/drag or tap for more info
         </h4>

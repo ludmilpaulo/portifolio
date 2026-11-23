@@ -1,63 +1,39 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from "next";
+import { loadPublicProjects } from "@/lib/loadProject";
+import { absoluteUrl } from "@/lib/site";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://ludmilpaulo.com'
-  const currentDate = new Date()
-  
-  return [
-    {
-      url: baseUrl,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/About`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/Projects`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.95,
-    },
-    {
-      url: `${baseUrl}/Experience`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
+const STATIC_PATHS = [
+  "/",
+  "/about",
+  "/projects",
+  "/experience",
+  "/skills",
+  "/education",
+  "/certificates",
+  "/contact",
+  "/pt",
+  "/pt/about",
+  "/pt/contact",
+  "/project-inquiry",
+  "/leave-testimonial",
+];
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const pages: MetadataRoute.Sitemap = STATIC_PATHS.map((path) => ({
+    url: absoluteUrl(path),
+    changeFrequency: path === "/" || path === "/projects" ? "weekly" : "monthly",
+    priority: path === "/" ? 1 : path === "/projects" || path === "/contact" ? 0.9 : 0.7,
+  }));
+
+  const projects = await loadPublicProjects();
+  for (const project of projects) {
+    if (!project.slug) continue;
+    pages.push({
+      url: absoluteUrl(`/projects/${encodeURIComponent(project.slug)}`),
+      changeFrequency: "monthly",
       priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/Skills`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/Education`,
-      lastModified: currentDate,
-      changeFrequency: 'yearly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/Certificates`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.75,
-    },
-    {
-      url: `${baseUrl}/leave-testimonial`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/projectDetails`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-  ]
+    });
+  }
+
+  return pages;
 }

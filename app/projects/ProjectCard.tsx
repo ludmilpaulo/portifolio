@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { FaExternalLinkAlt, FaGithub } from "react-icons/fa";
 import { Project } from "@/hooks/types";
 import { useState } from "react";
+import ProjectShare from "@/components/ProjectShare";
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => {
   const [show, setShow] = useState(false);
@@ -46,10 +47,12 @@ const ProjectCard: React.FC<Project> = ({
   title,
   description,
   image,
+  image_alt,
   demo,
   github,
   tools,
   slug,
+  status,
 }) => {
   const truncatedDescription = truncateText(description, 100);
 
@@ -70,10 +73,7 @@ const ProjectCard: React.FC<Project> = ({
       aria-label={`Project card: ${title}`}
     >
       <Link
-        href={{
-          pathname: "/projectDetails",
-          query: { title, image, description, link: demo, slug, github, tools: JSON.stringify(tools) },
-        }}
+        href={slug ? `/projects/${slug}` : "/projects"}
         tabIndex={-1}
         className="flex flex-col flex-1 focus:outline-none"
       >
@@ -81,7 +81,7 @@ const ProjectCard: React.FC<Project> = ({
         <div className="relative w-full h-52 rounded-t-2xl overflow-hidden">
           <Image
             src={image}
-            alt={`${title} - Software Development Project`}
+            alt={image_alt || `${title} project screenshot`}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-110"
             sizes="(max-width: 768px) 100vw, 400px"
@@ -124,28 +124,35 @@ const ProjectCard: React.FC<Project> = ({
 
       {/* Action Buttons - Outside Link to avoid nested anchor tags */}
       <div className="flex justify-between items-center border-t border-slate-200/80 dark:border-slate-700/80 px-6 py-3 bg-slate-50/80 dark:bg-slate-800/40 rounded-b-2xl">
-        <a
-          href={demo}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="flex items-center gap-2 text-[#0093E9] dark:text-cyan-400 hover:text-[#0066b3] dark:hover:text-cyan-300 font-semibold text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0093E9] focus-visible:ring-offset-2 rounded"
-          aria-label={`View demo for ${title}`}
-        >
-          <FaExternalLinkAlt className="w-4 h-4" aria-hidden />
-          Demo
-        </a>
-        <a
-          href={github}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 rounded"
-          aria-label={`View GitHub repo for ${title}`}
-        >
-          <FaGithub className="w-4 h-4" aria-hidden />
-          GitHub
-        </a>
+        {demo ? (
+          <a
+            href={demo}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-2 text-sky-800 dark:text-cyan-400 hover:text-sky-900 font-semibold text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-800 focus-visible:ring-offset-2 rounded"
+            aria-label={`View the live project ${title}`}
+          >
+            <FaExternalLinkAlt className="w-4 h-4" aria-hidden />
+            Live project
+          </a>
+        ) : <span />}
+        {github ? (
+          <a
+            href={github}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 rounded"
+            aria-label={`View source for ${title}`}
+          >
+            <FaGithub className="w-4 h-4" aria-hidden />
+            Source
+          </a>
+        ) : null}
+      </div>
+      <div className="px-6 pb-4">
+        <ProjectShare title={title} description={description} slug={slug} status={status} demo={demo} compact />
       </div>
     </motion.div>
   );

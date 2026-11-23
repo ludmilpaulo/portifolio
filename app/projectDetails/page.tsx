@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { FaChevronDown, FaExternalLinkAlt, FaGithub, FaClock, FaCheckCircle, FaHourglassHalf, FaClone } from "react-icons/fa";
 import { motion } from "framer-motion";
+import ProjectShare from "@/components/ProjectShare";
 
 // Mock status label/icon mapping for demo:
 const STATUS_MAP: Record<number, { label: string; icon: JSX.Element; color: string }> = {
@@ -33,6 +34,7 @@ const ProjectDetails = () => {
   const description = searchParams.get("description") || "";
   const link = searchParams.get("link") || "";
   const github = searchParams.get("github") || "";
+  const slug = searchParams.get("slug") || "";
   const status = Number(searchParams.get("status") || 2); // Default to 2 (Live)
   const tools = useMemo(() => toolsFromParams(searchParams), [searchParams]);
 
@@ -116,6 +118,9 @@ const ProjectDetails = () => {
               GitHub
             </a>
           )}
+        </div>
+        <div className="mt-6">
+          <ProjectShare title={title} description={description} slug={slug} status={status} demo={link} />
         </div>
 
         {/* Tech Stack */}

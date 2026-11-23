@@ -31,14 +31,14 @@ const Education: React.FC = () => {
       </div>
 
       {/* Title */}
-      <motion.h2
+      <motion.h1
         initial={{ opacity: 0, y: -22 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.1 }}
         className="z-10 uppercase tracking-[16px] text-blue-700 dark:text-cyan-200 text-3xl font-bold mb-14 text-center drop-shadow"
       >
         Education
-      </motion.h2>
+      </motion.h1>
 
       {/* Cards grid */}
       <AnimatePresence mode="wait">

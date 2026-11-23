@@ -14,6 +14,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCoverflow } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-coverflow";
+import Link from "next/link";
 import ProjectCard from "./ProjectCard";
 import { useGetMyInfoQuery } from "@/store/myInfoApi";
 import { Project, Competence } from "@/hooks/types";
@@ -80,6 +81,23 @@ const Projects: React.FC = () => {
 
   return (
     <section className="relative py-12 px-2 sm:px-4 max-w-7xl mx-auto">
+      <div className="mb-10 text-center">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl [font-family:var(--font-heading),sans-serif]">
+          Projects
+        </h1>
+        <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-slate-600">
+          Case studies from software engineering work: the problem, my role, what I built, and the technologies behind it.
+        </p>
+        <p className="mt-3 text-sm">
+          <Link href="/contact" className="font-semibold text-sky-800 underline-offset-4 hover:underline">
+            Contact
+          </Link>
+          <span className="mx-2 text-slate-400">·</span>
+          <Link href="/#book" className="font-semibold text-sky-800 underline-offset-4 hover:underline">
+            Book a meeting
+          </Link>
+        </p>
+      </div>
       {/* Tabs for desktop */}
       <div className="hidden md:flex flex-wrap justify-center gap-3 mb-8">
         {TAB_CONFIG.map(({ label, icon, status }) => (

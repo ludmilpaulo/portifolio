@@ -70,18 +70,18 @@ async function run() {
 
   // 5. Frontend About
   try {
-    const r = await fetchOk(`${FRONTEND}/About`);
-    log(`Frontend /About`);
+    const r = await fetchOk(`${FRONTEND}/about`);
+    log(`Frontend /about`);
   } catch (e) {
-    log(`Frontend /About - ${e.message}`, false);
+    log(`Frontend /about - ${e.message}`, false);
   }
 
   // 6. Frontend Projects
   try {
-    const r = await fetchOk(`${FRONTEND}/Projects`);
-    log(`Frontend /Projects`);
+    const r = await fetchOk(`${FRONTEND}/projects`);
+    log(`Frontend /projects`);
   } catch (e) {
-    log(`Frontend /Projects - ${e.message}`, false);
+    log(`Frontend /projects - ${e.message}`, false);
   }
 
   // 7. GraphQL API (via Next.js) - projects
@@ -96,16 +96,16 @@ async function run() {
 
   // 8. Frontend Skills & Education
   try {
-    const r = await fetchOk(`${FRONTEND}/Skills`);
-    log(`Frontend /Skills`);
+    const r = await fetchOk(`${FRONTEND}/skills`);
+    log(`Frontend /skills`);
   } catch (e) {
-    log(`Frontend /Skills - ${e.message}`, false);
+    log(`Frontend /skills - ${e.message}`, false);
   }
   try {
-    const r = await fetchOk(`${FRONTEND}/Education`);
-    log(`Frontend /Education`);
+    const r = await fetchOk(`${FRONTEND}/education`);
+    log(`Frontend /education`);
   } catch (e) {
-    log(`Frontend /Education - ${e.message}`, false);
+    log(`Frontend /education - ${e.message}`, false);
   }
 
   // 9. Dashboard login page

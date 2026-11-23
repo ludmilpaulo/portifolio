@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
+import { headers } from "next/headers";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { metadata as layoutMetadata, getStructuredData } from "./layout-metadata";
@@ -25,11 +26,13 @@ const inter = Inter({
 
 export const metadata: Metadata = layoutMetadata;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const structuredData = getStructuredData();
+  const headerList = await headers();
+  const lang = headerList.get("x-locale") === "pt" ? "pt" : "en";
 
   return (
-    <html className={inter.variable}>
+    <html lang={lang} className={inter.variable}>
       <head>
         <script
           type="application/ld+json"

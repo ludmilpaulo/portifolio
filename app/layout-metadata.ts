@@ -1,64 +1,47 @@
 import type { Metadata } from "next";
+import { HOME_DESCRIPTION, HOME_TITLE, verificationMetadata } from "@/lib/seo";
+import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ludmilpaulo.com"),
+  metadataBase: new URL(siteUrl()),
   title: {
-    default: "Ludmil Paulo | Senior Software Engineer & Full Stack Developer | Portfolio",
+    default: HOME_TITLE,
     template: "%s | Ludmil Paulo - Software Engineer",
   },
-  description:
-    "Senior Software Engineer & Full Stack Developer with 7+ years of experience. Expert in React, Node.js, Python, TypeScript, and mobile app development.",
+  description: HOME_DESCRIPTION,
   keywords: [
-    "software engineer",
-    "full stack developer",
-    "react developer",
-    "portfolio",
     "Ludmil Paulo",
+    "Software Engineer",
+    "Full-Stack Developer",
+    "Python",
+    "Django",
+    "Next.js",
+    "TypeScript",
+    "API Development",
+    "Technical Operations",
+    "Cape Town",
   ],
-  authors: [{ name: "Ludmil Paulo", url: "https://ludmilpaulo.com" }],
+  authors: [{ name: "Ludmil Paulo", url: siteUrl() }],
   creator: "Ludmil Paulo",
   publisher: "Ludmil Paulo",
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
+    siteName: "Ludmil Paulo",
     locale: "en_US",
-    url: "https://ludmilpaulo.com",
-    siteName: "Ludmil Paulo Portfolio",
-    title: "Ludmil Paulo | Senior Software Engineer & Full Stack Developer",
-    description: "Senior Software Engineer & Full Stack Developer. Building scalable web and mobile solutions.",
-    images: [{ url: "/avatar/lud.jpeg", width: 1200, height: 630, alt: "Ludmil Paulo", type: "image/jpeg" }],
+    alternateLocale: ["pt_PT"],
   },
   twitter: {
     card: "summary_large_image",
     site: "@ludmilpaulo",
     creator: "@ludmilpaulo",
-    title: "Ludmil Paulo | Senior Software Engineer & Full Stack Developer",
-    description: "Senior Software Engineer & Full Stack Developer. Building scalable web and mobile solutions.",
-    images: ["/avatar/lud.jpeg"],
   },
-  alternates: { canonical: "https://ludmilpaulo.com" },
   category: "technology",
+  ...(verificationMetadata() ? { verification: verificationMetadata() } : {}),
   other: {
     "theme-color": "#0093E9",
     "application-name": "Ludmil Paulo Portfolio",
   },
 };
 
-export function getStructuredData() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: "Ludmil Paulo",
-    jobTitle: "Senior Software Engineer & Full Stack Developer",
-    description: "Senior Software Engineer & Full Stack Developer with 7+ years of experience.",
-    url: "https://ludmilpaulo.com",
-    image: "https://ludmilpaulo.com/avatar/lud.jpeg",
-    sameAs: [
-      "https://linkedin.com/in/ludmilpaulo",
-      "https://github.com/ludmilpaulo",
-      "https://twitter.com/ludmilpaulo",
-    ],
-    knowsAbout: ["Software Engineering", "React", "Next.js", "Node.js", "Python", "TypeScript", "Web Development"],
-    worksFor: { "@type": "Organization", name: "Freelance Software Engineer" },
-  };
-}
+export { personAndWebsiteSchema as getStructuredData } from "@/lib/seo";

@@ -5,11 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SocialIcon } from "react-social-icons";
 import { useGetMyInfoQuery } from "@/store/myInfoApi";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
 import {
   FaBars, FaTimes, FaInfoCircle, FaBriefcase, FaTools,
   FaProjectDiagram, FaGraduationCap, FaAward
 } from "react-icons/fa";
+import { bookHref, languageSwitchTarget, localeFromPath } from "@/lib/localePaths";
+import { navCopy } from "@/lib/publicCopy";
 
 const socialPlatforms = [
   { platform: "linkedin", color: "#0077b5" },
@@ -21,12 +24,12 @@ const socialPlatforms = [
 type SocialPlatform = (typeof socialPlatforms)[number]["platform"];
 
 const navLinks = [
-  { href: "/About", icon: FaInfoCircle, label: "About" },
-  { href: "/Experience", icon: FaBriefcase, label: "Experience" },
-  { href: "/Skills", icon: FaTools, label: "Skills" },
-  { href: "/Projects", icon: FaProjectDiagram, label: "Projects" },
-  { href: "/Education", icon: FaGraduationCap, label: "Education" },
-  { href: "/Certificates", icon: FaAward, label: "Certificates" },
+  { href: "/about", icon: FaInfoCircle, label: "About" },
+  { href: "/experience", icon: FaBriefcase, label: "Experience" },
+  { href: "/skills", icon: FaTools, label: "Skills" },
+  { href: "/projects", icon: FaProjectDiagram, label: "Projects" },
+  { href: "/education", icon: FaGraduationCap, label: "Education" },
+  { href: "/certificates", icon: FaAward, label: "Certificates" },
 ];
 
 const logoVariants = {
@@ -37,6 +40,12 @@ const logoVariants = {
 const Header = () => {
   const { data: myInfo, isLoading } = useGetMyInfoQuery();
   const info = myInfo?.info?.[0];
+  const pathname = usePathname() || "/";
+  const locale = localeFromPath(pathname);
+  const labels = navCopy[locale];
+  const links = navLinks.map((item) =>
+    item.href === "/about" ? { ...item, href: locale === "pt" ? "/pt/about" : "/about", label: labels.about } : item,
+  );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -51,7 +60,7 @@ const Header = () => {
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] transition-all duration-300 dark:border-slate-800 dark:bg-slate-950 lg:bg-white/95 lg:backdrop-blur-xl dark:lg:bg-slate-950/95">
       <div className="flex items-center justify-between max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-3.5">
         {/* Logo and Name */}
-        <Link href="/" className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0093E9] focus-visible:ring-offset-2 rounded-lg">
+        <Link href={locale === "pt" ? "/pt" : "/"} className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0093E9] focus-visible:ring-offset-2 rounded-lg">
           <motion.div
             className="rounded-full overflow-hidden ring-2 ring-slate-200/80 dark:ring-cyan-900/50 shadow-md"
             variants={logoVariants}
@@ -111,7 +120,7 @@ const Header = () => {
 
         {/* Nav Links */}
         <nav className="hidden lg:flex items-center gap-0.5 ml-auto" role="navigation" aria-label="Main">
-          {navLinks.map(({ href, icon: Icon, label }) => (
+          {links.map(({ href, icon: Icon, label }) => (
             <Link
               key={href}
               href={href}
@@ -130,6 +139,13 @@ const Header = () => {
               </span>
             </Link>
           ))}
+          <Link
+            href={bookHref(locale)}
+            className="ml-2 inline-flex min-h-11 items-center justify-center rounded-full bg-sky-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-800 focus-visible:ring-offset-2"
+          >
+            {labels.book}
+          </Link>
+          <LanguageSwitcher pathname={pathname} label={labels.language} />
         </nav>
 
         {/* Mobile Menu Toggle */}
@@ -202,7 +218,15 @@ const Header = () => {
                   )}
               </div>
               <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
-                {navLinks.map(({ href, icon: Icon, label }) => (
+                <Link
+                  href={bookHref(locale)}
+                  onClick={() => setDrawerOpen(false)}
+                  className="mb-2 inline-flex min-h-12 items-center justify-center rounded-full bg-sky-800 px-4 py-3 text-base font-semibold text-white shadow-sm hover:bg-sky-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-sky-800"
+                >
+                  {labels.book}
+                </Link>
+                <LanguageSwitcher pathname={pathname} label={labels.language} />
+                {links.map(({ href, icon: Icon, label }) => (
                   <Link
                     key={href}
                     href={href}
@@ -223,5 +247,23 @@ const Header = () => {
     </header>
   );
 };
+
+function LanguageSwitcher({ pathname, label }: { pathname: string; label: string }) {
+  const locale = localeFromPath(pathname);
+  const itemClass = (active: boolean) =>
+    `inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-800 focus-visible:ring-offset-2 ${
+      active ? "bg-sky-800 text-white" : "text-slate-700 hover:bg-slate-100"
+    }`;
+  return (
+    <div className="ml-2 flex items-center gap-1" role="navigation" aria-label={label}>
+      <Link href={languageSwitchTarget(pathname, "en")} hrefLang="en" lang="en" aria-current={locale === "en" ? "page" : undefined} className={itemClass(locale === "en")}>
+        EN
+      </Link>
+      <Link href={languageSwitchTarget(pathname, "pt")} hrefLang="pt" lang="pt" aria-current={locale === "pt" ? "page" : undefined} className={itemClass(locale === "pt")}>
+        PT
+      </Link>
+    </div>
+  );
+}
 
 export default Header;

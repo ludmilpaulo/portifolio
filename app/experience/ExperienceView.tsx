@@ -44,14 +44,14 @@ const WorkExperience: React.FC = () => {
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-[#0093E9] via-cyan-100 to-[#80D0C7] py-20 overflow-x-hidden">
       {/* Animated Header */}
-      <motion.h2
+      <motion.h1
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
         className="text-center text-4xl sm:text-5xl font-extrabold text-white uppercase tracking-widest mb-16 drop-shadow"
       >
         Work Experience
-      </motion.h2>
+      </motion.h1>
       {/* Scrollable Cards */}
       <div
         {...handlers}
