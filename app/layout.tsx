@@ -46,6 +46,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
         <link rel="dns-prefetch" href="https://ludmil.pythonanywhere.com" />
         <meta property="fb:pages" content="295298167008739" />
+        <meta name="facebook-domain-verification" content="r8smd67ydt1pw2fphykg86uxz53zcw" />
         <meta name="theme-color" content="#0093E9" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
