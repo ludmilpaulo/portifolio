@@ -88,6 +88,7 @@ export function personAndWebsiteSchema() {
           addressCountry: "ZA",
         },
         sameAs: [
+          "https://www.facebook.com/ludmilpaulo/",
           "https://linkedin.com/in/ludmilpaulo",
           "https://github.com/ludmilpaulo",
           "https://twitter.com/ludmilpaulo",
